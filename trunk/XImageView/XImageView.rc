@@ -1,0 +1,239 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+#include "verrsrc.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 중립(기본값) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUD)
+LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
+#pragma code_page(949)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041204B0"
+        BEGIN
+            VALUE "CompanyName", "TODO: <회사 이름>"
+            VALUE "FileDescription", "TODO: <파일 설명>"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "XImageView.dll"
+            VALUE "LegalCopyright", "TODO: (c) <회사 이름>. All rights reserved."
+            VALUE "OriginalFilename", "XImageView.dll"
+            VALUE "ProductName", "TODO: <제품 이름>"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x412, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_CURSOR_NORMAL       CURSOR                  "res\\IDC_CURSOR_NORMAL.cur"
+IDC_CURSOR_PAN          CURSOR                  "res\\IDC_CURSOR_PAN.cur"
+IDC_CURSOR_ROI          CURSOR                  "res\\IDC_CURSOR_ROI.cur"
+IDC_CURSOR_TRACKER      CURSOR                  "res\\IDC_CURSOR_TRACKER.cur"
+IDC_CURSOR_ZOOM_IN      CURSOR                  "res\\IDC_CURSOR_ZOOM_IN.cur"
+IDC_CURSOR_ZOOM_INOUT   CURSOR                  "res\\IDC_CURSOR_ZOOM_INOUT.cur"
+IDC_CURSOR_ZOOM_NOT     CURSOR                  "res\\IDC_CURSOR_ZOOM_NOT.cur"
+IDC_CURSOR_ZOOM_OUT     CURSOR                  "res\\IDC_CURSOR_ZOOM_OUT.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+PNG_MINIBTN_ICON_BLACK  PNG                     "res\\PNG_MINIBTN_ICON_BLACK.png"
+PNG_MINIBTN_ICON_COLOR  PNG                     "res\\PNG_MINIBTN_ICON_COLOR.png"
+PNG_MINIBTN_ICON_WHITE  PNG                     "res\\PNG_MINIBTN_ICON_WHITE.png"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_CANNOT_LOAD_IMAGE   "Cannot Load Image."
+    IDS_ERROR               "Error"
+    IDS_CANNOT_SAVE_IMAGE   "Cannot Save Image."
+    IDS_ZOOM_IN             "Zoom-In"
+    IDS_ZOOM_OUT            "Zoom-Out"
+    IDS_ZOOM_INOUT          "Zoom-In/Out"
+    IDS_ZOOM_FIT            "Zoom-Fit"
+    IDS_ZOOM_NOT            "Actual Size"
+    IDS_LOAD_IMAGE          "Load Image"
+    IDS_SAVE_IMAGE          "Save Image"
+    IDS_MEASURE             "Measure"
+    IDS_INDEX_VIEW          "Index View"
+    IDS_RESTORE_VIEW        "Restore"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MAXIMIZE_VIEW       "Maximize View"
+    IDS_MORE                "More..."
+    IDS_IMAGE_VIEW          "Image View"
+    IDS_ROI_POPUP_TITLE     "ROI"
+    IDS_SETTING_POPUP_TITLE "WHEEL"
+    IDS_TRACKER_CLEAR       "Clear"
+    IDS_TRACKER_CONFIRM_REGION "Confirm Region             "
+    IDS_WHEEL_SET_TO_ZOOM   "Set to Zoom"
+    IDS_WHEEL_SET_TO_VSCROLL "Set to Vertical Scroll             "
+    IDS_WHEEL_SET_TO_SMART_MOVE "[Wheel] Button: Smart Move"
+    IDS_LBUTTON_LIMIT_LOCK  "Mouse-Move Limit Lock"
+    IDS_MEASURE_MODE        "MEASURE MODE"
+    IDS_TRACKER_MODE        "TRACKER MODE"
+END
+
+#endif    // 중립(기본값) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 한국어(대한민국) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
+LANGUAGE LANG_KOREAN, SUBLANG_DEFAULT
+#pragma code_page(949)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "#include ""verrsrc.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)\r\n"
+    "LANGUAGE 18, 1\r\n"
+    "#include ""res\\XImageView.rc2""  // Microsoft Visual C++ 이외의 다른 도구에서 편집한 리소스입니다.\r\n"
+    "#include ""l.KOR\\afxres.rc""      // 표준 구성 요소\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_CANNOT_LOAD_IMAGE   "이미지를 열 수 없습니다."
+    IDS_ERROR               "오류"
+    IDS_CANNOT_SAVE_IMAGE   "이미지를 저장할 수 없습니다."
+    IDS_ZOOM_IN             "확대"
+    IDS_ZOOM_OUT            "축소"
+    IDS_ZOOM_INOUT          "확대/축소"
+    IDS_ZOOM_FIT            "화면 맞춤"
+    IDS_ZOOM_NOT            "실제 크기"
+    IDS_LOAD_IMAGE          "영상 열기"
+    IDS_SAVE_IMAGE          "영상 저장"
+    IDS_MEASURE             "측정"
+    IDS_INDEX_VIEW          "인덱스 보기"
+    IDS_RESTORE_VIEW        "복원"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MAXIMIZE_VIEW       "최대창"
+    IDS_MORE                "더보기..."
+    IDS_IMAGE_VIEW          "영상 보기"
+    IDS_ROI_POPUP_TITLE     "ROI"
+    IDS_SETTING_POPUP_TITLE "WHEEL"
+    IDS_TRACKER_CLEAR       "지우기"
+    IDS_TRACKER_CONFIRM_REGION "영역 선택             "
+    IDS_WHEEL_SET_TO_ZOOM   "확대/축소 모드"
+    IDS_WHEEL_SET_TO_VSCROLL "수직 스크롤 모드             "
+    IDS_WHEEL_SET_TO_SMART_MOVE "[휠] Button: Smart Move"
+    IDS_LBUTTON_LIMIT_LOCK  "마우스포인터 이동 제한"
+    IDS_MEASURE_MODE        "측정 모드"
+    IDS_TRACKER_MODE        "영역 선택 모드"
+END
+
+#endif    // 한국어(대한민국) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
+LANGUAGE 18, 1
+#include "res\XImageView.rc2"  // Microsoft Visual C++ 이외의 다른 도구에서 편집한 리소스입니다.
+#include "l.KOR\afxres.rc"      // 표준 구성 요소
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
