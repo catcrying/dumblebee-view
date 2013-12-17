@@ -43,7 +43,7 @@ protected:
 public:
 	CSinCosTable() : m_nIndexCount(0)
 	{
-		BuildTable( M_PI / 180. * 15. );		// step: 5 degree
+		BuildTable( M_PI / 180. * 10. );		// step: 5 degree
 	}
 	int GetTableIndexCount() { return m_nIndexCount; }
 	double GetSinAt( int i ) { XASSERT(i>=0 && i<m_nIndexCount); return m_pdSinTable[i]; }

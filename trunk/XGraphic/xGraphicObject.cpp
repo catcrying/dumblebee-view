@@ -92,10 +92,10 @@ bool GOBrushCompare::operator() ( const CxBrushStyle* lhs, const CxBrushStyle* r
 	return *lhs < *rhs;
 }
 
-class CGOTableGarbageCollector;
+//////////////////////////////////////////////////////////////////////////
+// CxGOTable
 class CxGOTable
 {
-	friend class CGOTableGarbageCollector;
 private:
 	//typedef CMap<CxPenStyle*, CxPenStyle*&, HPEN, HPEN> PenStyleMapper;
 	//typedef CMap<CxBrushStyle*, CxBrushStyle*&, HBRUSH, HBRUSH> BrushStyleMapper;
@@ -105,9 +105,15 @@ private:
 	BrushStyleMapper			m_BrushStyleMapper;
 	const UINT					m_nMaxTableSize;
 
-public:
+private:
 	CxGOTable();
 	~CxGOTable();
+
+	static CxGOTable* m_pThis;
+	int m_nRef;
+public:
+	static CxGOTable* GetRef();
+	static void ReleaseRef();
 
 public:
 
@@ -115,6 +121,140 @@ public:
 	HBRUSH GetBrush( CxBrushStyle* pBrushStyle );
 	void Clear();
 };
+
+CxGOTable* CxGOTable::GetRef()
+{
+	if (!m_pThis)
+	{
+		m_pThis = new CxGOTable();
+		XTRACE( _T("CxGOTable Initialize\n") );
+	}
+	m_pThis->m_nRef++;
+	XTRACE( _T("CxGOTable Ref: %d\n"), m_pThis->m_nRef );
+	return m_pThis;
+}
+
+void CxGOTable::ReleaseRef()
+{
+	if (m_pThis)
+	{
+		m_pThis->m_nRef--;
+		XTRACE( _T("CxGOTable UnRef: %d\n"), m_pThis->m_nRef );
+		if (m_pThis->m_nRef <= 0)
+		{
+			delete m_pThis;
+			m_pThis = NULL;
+			XTRACE( _T("CxGOTable Finalize\n") );
+		}
+	}
+}
+
+CxGOTable* CxGOTable::m_pThis = NULL;
+CxGOTable::CxGOTable() : m_nMaxTableSize(256), m_nRef(0)
+{
+}
+
+CxGOTable::~CxGOTable() 
+{
+	Clear();
+}
+
+void CxGOTable::Clear()
+{
+	HPEN hPen;
+	CxPenStyle* pPs;
+
+	for (PenStyleMapper::iterator iter = m_PenStyleMapper.begin() ; iter != m_PenStyleMapper.end() ; iter++)
+	{
+		pPs = iter->first;
+		hPen = iter->second;
+		::DeleteObject( hPen );
+		delete pPs;
+	}
+
+	m_PenStyleMapper.clear();
+
+	HBRUSH hBrush;
+	CxBrushStyle* pBs;
+	for (BrushStyleMapper::iterator iter = m_BrushStyleMapper.begin() ; iter != m_BrushStyleMapper.end() ; iter++)
+	{
+		pBs = iter->first;
+		hBrush = iter->second;
+		::DeleteObject(hBrush);
+		delete pBs;
+	}
+
+	m_BrushStyleMapper.clear();
+}
+
+HBRUSH CxGOTable::GetBrush( CxBrushStyle* pBrushStyle )
+{
+	if ( pBrushStyle == NULL ) return NULL;
+
+	BrushStyleMapper::iterator iterFind = m_BrushStyleMapper.find(pBrushStyle);
+	if (iterFind != m_BrushStyleMapper.end())
+	{
+		return iterFind->second;
+	}
+	
+	if ( (UINT)m_BrushStyleMapper.size() > m_nMaxTableSize-1 )
+	{
+		return (HBRUSH)::GetStockObject( NULL_BRUSH );
+	}
+
+	LOGBRUSH logBrush;
+	memset( &logBrush, 0, sizeof(LOGBRUSH) );
+	logBrush.lbStyle = pBrushStyle->nStyle;
+	logBrush.lbColor = pBrushStyle->dwFgColor;
+	if ( pBrushStyle->nStyle == BS_HATCHED ) logBrush.lbHatch = HS_DIAGCROSS;
+	HBRUSH hNewBrush = ::CreateBrushIndirect( &logBrush );
+	
+	CxBrushStyle* pNewBrushStyle = new CxBrushStyle;
+	*pNewBrushStyle = *pBrushStyle;
+	m_BrushStyleMapper.insert( BrushStyleMapper::value_type(pNewBrushStyle, hNewBrush) );
+	
+	XTRACE( _T("CreateNewBrush: %x\r\n"), hNewBrush );
+	
+	return hNewBrush;
+}
+
+HPEN CxGOTable::GetPen( CxPenStyle* pPenStyle )
+{
+	if ( pPenStyle == NULL ) return NULL;
+
+	PenStyleMapper::iterator iterFind = m_PenStyleMapper.find(pPenStyle);
+	if (iterFind != m_PenStyleMapper.end())
+	{
+		return iterFind->second;
+	}
+	
+	if ( (UINT)m_PenStyleMapper.size() > m_nMaxTableSize-1 )
+	{
+		return (HPEN)::GetStockObject( BLACK_PEN );
+	}
+
+	HPEN hNewPen;
+	if ( pPenStyle->nThickness == 1 || pPenStyle->nStyle == PS_SOLID )
+	{
+		hNewPen = ::CreatePen( pPenStyle->nStyle, pPenStyle->nThickness, pPenStyle->dwFgColor );
+	}
+	else
+	{
+		LOGBRUSH logBrush;
+		logBrush.lbStyle = BS_SOLID;
+		logBrush.lbColor = pPenStyle->dwFgColor;
+		hNewPen = ::ExtCreatePen(PS_GEOMETRIC | pPenStyle->nStyle | PS_JOIN_ROUND,
+			pPenStyle->nThickness, &logBrush, NULL, NULL);
+	}
+	
+	CxPenStyle* pNewPenStyle = new CxPenStyle;
+	*pNewPenStyle = *pPenStyle;
+	m_PenStyleMapper.insert( PenStyleMapper::value_type(pNewPenStyle, hNewPen) );
+	
+	XTRACE( _T("CreateNewPen: %x\r\n"), hNewPen );
+	
+	return hNewPen;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // CxBrushStyle
@@ -250,114 +390,6 @@ CxGOBasic::CxGOBasic( const CxGOBasic& other ) :
 	*m_pPenStyle = *other.m_pPenStyle;
 	*m_pBrushStyle = *other.m_pBrushStyle;
 	m_GraphicObjectType = other.m_GraphicObjectType;
-}
-
-//////////////////////////////////////////////////////////////////////////
-// CxGOTable
-CxGOTable::CxGOTable() : m_nMaxTableSize(256)
-{
-}
-
-CxGOTable::~CxGOTable() 
-{
-	Clear();
-}
-
-void CxGOTable::Clear()
-{
-	HPEN hPen;
-	CxPenStyle* pPs;
-
-	for (PenStyleMapper::iterator iter = m_PenStyleMapper.begin() ; iter != m_PenStyleMapper.end() ; iter++)
-	{
-		pPs = iter->first;
-		hPen = iter->second;
-		::DeleteObject( hPen );
-		delete pPs;
-	}
-
-	m_PenStyleMapper.clear();
-
-	HBRUSH hBrush;
-	CxBrushStyle* pBs;
-	for (BrushStyleMapper::iterator iter = m_BrushStyleMapper.begin() ; iter != m_BrushStyleMapper.end() ; iter++)
-	{
-		pBs = iter->first;
-		hBrush = iter->second;
-		::DeleteObject(hBrush);
-		delete pBs;
-	}
-
-	m_BrushStyleMapper.clear();
-}
-
-HBRUSH CxGOTable::GetBrush( CxBrushStyle* pBrushStyle )
-{
-	if ( pBrushStyle == NULL ) return NULL;
-
-	BrushStyleMapper::iterator iterFind = m_BrushStyleMapper.find(pBrushStyle);
-	if (iterFind != m_BrushStyleMapper.end())
-	{
-		return iterFind->second;
-	}
-	
-	if ( (UINT)m_BrushStyleMapper.size() > m_nMaxTableSize-1 )
-	{
-		return (HBRUSH)::GetStockObject( NULL_BRUSH );
-	}
-
-	LOGBRUSH logBrush;
-	memset( &logBrush, 0, sizeof(LOGBRUSH) );
-	logBrush.lbStyle = pBrushStyle->nStyle;
-	logBrush.lbColor = pBrushStyle->dwFgColor;
-	if ( pBrushStyle->nStyle == BS_HATCHED ) logBrush.lbHatch = HS_DIAGCROSS;
-	HBRUSH hNewBrush = ::CreateBrushIndirect( &logBrush );
-	
-	CxBrushStyle* pNewBrushStyle = new CxBrushStyle;
-	*pNewBrushStyle = *pBrushStyle;
-	m_BrushStyleMapper.insert( BrushStyleMapper::value_type(pNewBrushStyle, hNewBrush) );
-	
-	XTRACE( _T("CreateNewBrush: %x\r\n"), hNewBrush );
-	
-	return hNewBrush;
-}
-
-HPEN CxGOTable::GetPen( CxPenStyle* pPenStyle )
-{
-	if ( pPenStyle == NULL ) return NULL;
-
-	PenStyleMapper::iterator iterFind = m_PenStyleMapper.find(pPenStyle);
-	if (iterFind != m_PenStyleMapper.end())
-	{
-		return iterFind->second;
-	}
-	
-	if ( (UINT)m_PenStyleMapper.size() > m_nMaxTableSize-1 )
-	{
-		return (HPEN)::GetStockObject( BLACK_PEN );
-	}
-
-	HPEN hNewPen;
-	if ( pPenStyle->nThickness == 1 || pPenStyle->nStyle == PS_SOLID )
-	{
-		hNewPen = ::CreatePen( pPenStyle->nStyle, pPenStyle->nThickness, pPenStyle->dwFgColor );
-	}
-	else
-	{
-		LOGBRUSH logBrush;
-		logBrush.lbStyle = BS_SOLID;
-		logBrush.lbColor = pPenStyle->dwFgColor;
-		hNewPen = ::ExtCreatePen(PS_GEOMETRIC | pPenStyle->nStyle | PS_JOIN_ROUND,
-			pPenStyle->nThickness, &logBrush, NULL, NULL);
-	}
-	
-	CxPenStyle* pNewPenStyle = new CxPenStyle;
-	*pNewPenStyle = *pPenStyle;
-	m_PenStyleMapper.insert( PenStyleMapper::value_type(pNewPenStyle, hNewPen) );
-	
-	XTRACE( _T("CreateNewPen: %x\r\n"), hNewPen );
-	
-	return hNewPen;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1188,7 +1220,7 @@ m_pIDC(pIDC), m_pPointClipper(NULL), m_nViewPortOffset(10), m_hActivePen(NULL), 
 		
 	m_dwActiveColor			= PDC_GREEN;
 
-	m_pGOTable = new CxGOTable;
+	m_pGOTable = CxGOTable::GetRef();
 
 	m_pData = new CxGraphicObjectData(m_pGOTable);
 
@@ -1226,7 +1258,8 @@ CxGraphicObject::~CxGraphicObject()
 	}
 
 	delete m_pData;
-	delete m_pGOTable;
+	//delete m_pGOTable;
+	CxGOTable::ReleaseRef();
 }
 
 void CxGraphicObject::Reset()
