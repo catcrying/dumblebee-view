@@ -89,26 +89,36 @@ inline struct tm* CxTime::GetGmtTm(struct tm* ptm) const
 {
 	if (ptm != NULL)
 	{
-		*ptm = *gmtime(&m_time);
+		gmtime_s(ptm, &m_time);
 		return ptm;
 	}
 	else
-		return gmtime(&m_time);
+	{
+		static struct tm _tm;
+		gmtime_s(&_tm, &m_time);
+		return &_tm;
+	}
 }
 
 inline struct tm* CxTime::GetLocalTm(struct tm* ptm) const
 {
+	errno_t err;
 	if (ptm != NULL)
 	{
-		struct tm* ptmTemp = localtime(&m_time);
-		if (ptmTemp == NULL)
+		err = localtime_s(ptm, &m_time);
+		if (err)
 			return NULL;    // indicates the m_time was not initialized!
 
-		*ptm = *ptmTemp;
 		return ptm;
 	}
 	else
-		return localtime(&m_time);
+	{
+		static struct tm _tm;
+		err = localtime_s(&_tm, &m_time);
+		if (err)
+			return NULL;
+		return &_tm;
+	}
 }
 
 inline BOOL CxTime::GetAsSystemTime(SYSTEMTIME& timeDest) const
@@ -196,9 +206,11 @@ inline CxString CxTime::Format(LPCTSTR pFormat) const
 {
 	TCHAR szBuffer[maxTimeBufferSize];
 
-	struct tm* ptmTemp = localtime(&m_time);
-	if (ptmTemp == NULL ||
-		!_tcsftime(szBuffer, _countof(szBuffer), pFormat, ptmTemp))
+	struct tm _tm;
+	errno_t err;
+	err = localtime_s(&_tm, &m_time);
+	if (err ||
+		!_tcsftime(szBuffer, _countof(szBuffer), pFormat, &_tm))
 		szBuffer[0] = '\0';
 	return szBuffer;
 }
@@ -207,9 +219,11 @@ inline CxString CxTime::FormatGmt(LPCTSTR pFormat) const
 {
 	TCHAR szBuffer[maxTimeBufferSize];
 
-	struct tm* ptmTemp = gmtime(&m_time);
-	if (ptmTemp == NULL ||
-		!_tcsftime(szBuffer, _countof(szBuffer), pFormat, ptmTemp))
+	errno_t err;
+	struct tm _tm;
+	err = gmtime_s(&_tm, &m_time);
+	if (err ||
+		!_tcsftime(szBuffer, _countof(szBuffer), pFormat, &_tm))
 		szBuffer[0] = '\0';
 	return szBuffer;
 }

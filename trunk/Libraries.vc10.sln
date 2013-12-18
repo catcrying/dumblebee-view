@@ -1,26 +1,25 @@
-
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XImage", "XImage\XImage.v10.vcxproj", "{F10B51AC-1AF3-40D0-A536-6991A893EF2B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XImage.v10", "XImage\XImage.v10.vcxproj", "{F10B51AC-1AF3-40D0-A536-6991A893EF2B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F09DAEC2-21E1-4170-BDDD-68915AEC37BE} = {F09DAEC2-21E1-4170-BDDD-68915AEC37BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XImageView", "XImageView\XImageView.v10.vcxproj", "{A17C12A8-4D11-45D4-BED4-F93652467548}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XImageView.v10", "XImageView\XImageView.v10.vcxproj", "{A17C12A8-4D11-45D4-BED4-F93652467548}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032} = {6FB00808-46A9-49FD-8FFB-D5FE4F39A032}
 		{F10B51AC-1AF3-40D0-A536-6991A893EF2B} = {F10B51AC-1AF3-40D0-A536-6991A893EF2B}
 		{F09DAEC2-21E1-4170-BDDD-68915AEC37BE} = {F09DAEC2-21E1-4170-BDDD-68915AEC37BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XUtil", "XUtil\XUtil.v10.vcxproj", "{F09DAEC2-21E1-4170-BDDD-68915AEC37BE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XUtil.v10", "XUtil\XUtil.v10.vcxproj", "{F09DAEC2-21E1-4170-BDDD-68915AEC37BE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XGraphic", "XGraphic\XGraphic.v10.vcxproj", "{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XGraphic.v10", "XGraphic\XGraphic.v10.vcxproj", "{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F09DAEC2-21E1-4170-BDDD-68915AEC37BE} = {F09DAEC2-21E1-4170-BDDD-68915AEC37BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImageViewTest", "ImageViewTest\ImageViewTest.v10.vcxproj", "{693B782A-7591-4751-AD37-B2736CAD746E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImageViewTest.v10", "ImageViewTest\ImageViewTest.v10.vcxproj", "{693B782A-7591-4751-AD37-B2736CAD746E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A17C12A8-4D11-45D4-BED4-F93652467548} = {A17C12A8-4D11-45D4-BED4-F93652467548}
 	EndProjectSection
@@ -47,8 +46,8 @@ Global
 		{F10B51AC-1AF3-40D0-A536-6991A893EF2B}.Multibyte_Debug|x64.Build.0 = Multibyte_Debug|x64
 		{F10B51AC-1AF3-40D0-A536-6991A893EF2B}.Multibyte_Release|Win32.ActiveCfg = Multibyte_Release|Win32
 		{F10B51AC-1AF3-40D0-A536-6991A893EF2B}.Multibyte_Release|Win32.Build.0 = Multibyte_Release|Win32
-		{F10B51AC-1AF3-40D0-A536-6991A893EF2B}.Multibyte_Release|x64.ActiveCfg = Release|x64
-		{F10B51AC-1AF3-40D0-A536-6991A893EF2B}.Multibyte_Release|x64.Build.0 = Release|x64
+		{F10B51AC-1AF3-40D0-A536-6991A893EF2B}.Multibyte_Release|x64.ActiveCfg = Multibyte_Release|x64
+		{F10B51AC-1AF3-40D0-A536-6991A893EF2B}.Multibyte_Release|x64.Build.0 = Multibyte_Release|x64
 		{F10B51AC-1AF3-40D0-A536-6991A893EF2B}.Release|Win32.ActiveCfg = Release|Win32
 		{F10B51AC-1AF3-40D0-A536-6991A893EF2B}.Release|Win32.Build.0 = Release|Win32
 		{F10B51AC-1AF3-40D0-A536-6991A893EF2B}.Release|x64.ActiveCfg = Release|x64
@@ -95,8 +94,8 @@ Global
 		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}.Multibyte_Debug|x64.Build.0 = Multibyte_Debug|x64
 		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}.Multibyte_Release|Win32.ActiveCfg = Multibyte_Release|Win32
 		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}.Multibyte_Release|Win32.Build.0 = Multibyte_Release|Win32
-		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}.Multibyte_Release|x64.ActiveCfg = Release|x64
-		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}.Multibyte_Release|x64.Build.0 = Release|x64
+		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}.Multibyte_Release|x64.ActiveCfg = Multibyte_Release|x64
+		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}.Multibyte_Release|x64.Build.0 = Multibyte_Release|x64
 		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}.Release|Win32.ActiveCfg = Release|Win32
 		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}.Release|Win32.Build.0 = Release|Win32
 		{6FB00808-46A9-49FD-8FFB-D5FE4F39A032}.Release|x64.ActiveCfg = Release|x64
