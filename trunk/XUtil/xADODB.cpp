@@ -25,9 +25,9 @@
 #include "stdafx.h"
 #define _WIN32_DCOM
 #include <objbase.h>
-#include <DB/xADODB.h>
+#include "xADODB.h"
 
-#include <Util/xTime.h>
+#include <XUtil/xTime.h>
 
 //---------------------------------------------------------------------------------------
 

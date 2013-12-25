@@ -27,14 +27,18 @@
 #pragma once
 #endif
 
-#import "C:\Program Files (x86)\Common Files\System\ado\msado28.tlb" rename_namespace("ADOCG") rename("EOF", "EndOfFile")
-#import "C:\Program Files (x86)\Common Files\System\ado\msjro.dll" no_namespace
-
+#if 1	// for 64bit OS (Win7 64bit...)
+	#import "C:\Program Files (x86)\Common Files\System\ado\msado28.tlb" rename_namespace("ADOCG") rename("EOF", "EndOfFile")
+	#import "C:\Program Files (x86)\Common Files\System\ado\msjro.dll" no_namespace
+#else	// for 32bit OS (XP, Win7 32bit...)
+	#import "C:\Program Files\Common Files\System\ado\msado28.tlb" rename_namespace("ADOCG") rename("EOF", "EndOfFile")
+	#import "C:\Program Files\Common Files\System\ado\msjro.dll" no_namespace
+#endif
 using namespace ADOCG;
 
 #include "icrsint.h"
-#include <Util/xOleDateTime.h>
-#include <Util/xTime.h>
+#include <XUtil/xOleDateTime.h>
+#include <XUtil/xTime.h>
 
 class CxADOMDBCompressor
 {
