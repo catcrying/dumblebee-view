@@ -65,18 +65,8 @@ public:
 	BOOL Create( int nWidth, int nHeight, int nBpp, int nOrigin=0 );
 	void Destroy();
 
-	virtual BOOL LoadFromFileW( LPCWSTR lpszFileName, BOOL bForceGray8=FALSE );
-	virtual BOOL LoadFromFileA( LPCSTR lpszFileName, BOOL bForceGray8=FALSE );
-	virtual BOOL SaveToFileW( LPCWSTR lpszFileName );
-	virtual BOOL SaveToFileA( LPCSTR lpszFileName );
-
-#ifdef _UNICODE
-	#define LoadFromFile	LoadFromFileW
-	#define SaveToFile		SaveToFileW
-#else
-	#define LoadFromFile	LoadFromFileA
-	#define SaveToFile		SaveToFileA
-#endif
+	virtual BOOL LoadFromFile( LPCTSTR lpszFileName, BOOL bForceGray8=FALSE );
+	virtual BOOL SaveToFile( LPCTSTR lpszFileName );
 
 	BOOL Clone( const CxImageObject* pSrcImage );
 

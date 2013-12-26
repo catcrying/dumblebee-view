@@ -233,15 +233,16 @@ BOOL CxImageObject::IsNotifyFlag()
 	return m_bNotifyChangeImage;
 }
 
-BOOL CxImageObject::LoadFromFileA( LPCSTR lpszFileName, BOOL bForceGray8/*=FALSE*/ )
+BOOL CxImageObject::LoadFromFile( LPCTSTR lpszFileName, BOOL bForceGray8/*=FALSE*/ )
 {
+	USES_CONVERSION;
 	CxCriticalSection::Owner Lock(*m_pCsLockImage);
 	if ( !m_bDelete )
 		Destroy();
 
 	try
 	{
-		m_pIPLImage = cvLoadImage( lpszFileName, bForceGray8 ? CV_LOAD_IMAGE_GRAYSCALE : CV_LOAD_IMAGE_UNCHANGED );	// 2nd parameter: 0-gray, 1-color
+		m_pIPLImage = cvLoadImage( T2A((LPTSTR)lpszFileName), bForceGray8 ? CV_LOAD_IMAGE_GRAYSCALE : CV_LOAD_IMAGE_UNCHANGED );	// 2nd parameter: 0-gray, 1-color
 	}
 	catch (cv::Exception& e)
 	{
@@ -256,28 +257,17 @@ BOOL CxImageObject::LoadFromFileA( LPCSTR lpszFileName, BOOL bForceGray8/*=FALSE
 	return m_pIPLImage ? TRUE : FALSE;
 }
 
-BOOL CxImageObject::LoadFromFileW( LPCWSTR lpszFileName, BOOL bForceGray8/*=FALSE*/ )
+BOOL CxImageObject::SaveToFile( LPCTSTR lpszFileName )
 {
 	USES_CONVERSION;
-	return LoadFromFileA( W2A((LPWSTR)lpszFileName), bForceGray8 );
-}
-
-BOOL CxImageObject::SaveToFileA( LPCSTR lpszFileName )
-{
 	CxCriticalSection::Owner Lock(*m_pCsLockImage);
 
 	if ( m_pIPLImage && m_pIPLImage->nSize == sizeof(IplImage) )
 	{
-		cvSaveImage( lpszFileName, m_pIPLImage );
+		cvSaveImage( T2A((LPTSTR)lpszFileName), m_pIPLImage );
 		return TRUE;
 	}
 	return FALSE;
-}
-
-BOOL CxImageObject::SaveToFileW( LPCWSTR lpszFileName )
-{
-	USES_CONVERSION;
-	return SaveToFileA( W2A((LPWSTR)lpszFileName) );
 }
 
 BOOL CxImageObject::CopyImage( const CxImageObject* pSrcImage )

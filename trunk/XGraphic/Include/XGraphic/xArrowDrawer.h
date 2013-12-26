@@ -29,15 +29,7 @@ public:
 
 	BOOL Draw( HDC hDC, POINT pt1, POINT pt2, ArrowType eArrowType );
 
-	BOOL DrawArrowTextA( HDC hDC, RECT rcText, LPCSTR lpszText);
-	BOOL DrawArrowTextW( HDC hDC, RECT rcText, LPCWSTR lpszText);
-
-#ifdef _UNICODE
-	#define DrawArrowText DrawArrowTextW
-#else
-	#define DrawArrowText DrawArrowTextA
-#endif
-
+	BOOL DrawArrowText( HDC hDC, RECT rcText, LPCTSTR lpszText);
 };
 
 #endif // !defined(AFX_ARROWDRAWER_H__D6A312EC_AF83_4D57_B2A4_3BBF7B000985__INCLUDED_)

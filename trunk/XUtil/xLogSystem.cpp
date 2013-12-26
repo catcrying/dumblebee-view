@@ -44,18 +44,10 @@ void CxLogSystem::GetCSVPathName( CxTime& Time, CxString& strCSVPathName )
 	strCSVPathName.Format( _T("%s\\%s_%04d_%02d_%02d.csv"), m_strLogRootPath, m_strServiceName, nYear, nMonth, nDay );
 }
 
-void CxLogSystem::UseCSVFileA( BOOL bUse, LPCSTR lpszCSVHeader )
+void CxLogSystem::UseCSVFile( BOOL bUse, LPCTSTR lpszCSVHeader )
 {
-	USES_CONVERSION;
 	m_bUseCSVFile = bUse;
-	m_strCSVHeader.Format( _T("%s\r\n"), A2T((LPSTR)lpszCSVHeader) );
-}
-
-void CxLogSystem::UseCSVFileW( BOOL bUse, LPCWSTR lpszCSVHeader )
-{
-	USES_CONVERSION;
-	m_bUseCSVFile = bUse;
-	m_strCSVHeader.Format( _T("%s\r\n"), W2T((LPWSTR)lpszCSVHeader) );
+	m_strCSVHeader.Format( _T("%s\r\n"), lpszCSVHeader );
 }
 
 void CxLogSystem::UseTextFile( BOOL bUse )
@@ -68,16 +60,9 @@ void CxLogSystem::UseMonthlySplitFolder( BOOL bUse )
 	m_bMonthlySplitFolder = bUse;
 }
 
-void CxLogSystem::SetLogDirectoryA( LPCSTR lpszPath )
+void CxLogSystem::SetLogDirectory( LPCTSTR lpszPath )
 {
-	USES_CONVERSION;
-	m_strLogRootPath = A2T((LPSTR)lpszPath);
-}
-
-void CxLogSystem::SetLogDirectoryW( LPCWSTR lpszPath )
-{
-	USES_CONVERSION;
-	m_strLogRootPath = W2T((LPWSTR)lpszPath);
+	m_strLogRootPath = lpszPath;
 }
 
 BOOL CxLogSystem::Start()
@@ -178,7 +163,7 @@ BOOL CxLogSystem::OpenCSVFile( CxString& strCSVPathName )
 	return TRUE;
 }
 
-void CxLogSystem::LogOutA( LPCSTR lpszId, LPCSTR lpszFormat, ... )
+void CxLogSystem::LogOut( LPCTSTR lpszId, LPCTSTR lpszFormat, ... )
 {
 	if ( lpszFormat == NULL || !m_bStart )
 	{
@@ -190,94 +175,17 @@ void CxLogSystem::LogOutA( LPCSTR lpszId, LPCSTR lpszFormat, ... )
 	va_list argList;
 	va_start(argList, lpszFormat);
 	
-	CHAR lptszBuffer[LOG_BUFFER_SIZE];
-	XVERIFY(_vsnprintf(lptszBuffer, LOG_BUFFER_SIZE, lpszFormat, argList) <= LOG_BUFFER_SIZE );
+	TCHAR lptszBuffer[LOG_BUFFER_SIZE];
+	XVERIFY(_vsntprintf(lptszBuffer, LOG_BUFFER_SIZE, lpszFormat, argList) <= LOG_BUFFER_SIZE );
 
 	va_end(argList);
 
-	CxString strLog = A2T(lptszBuffer);
+	CxString strLog = lptszBuffer;
 	CxString strId;
 	if (lpszId == NULL)
 		strId = _T("internal");
 	else
 		strId = A2T((LPSTR)lpszId);
-
-	do 
-	{
-		CxCriticalSection::Owner Lock(m_csFile);
-
-		if ( !m_File.IsOpen() ) break;
-
-		CxTime CurTime = CxTime::GetCurrentTime();
-		if ( (CurTime.GetYear() != m_Time.GetYear()) ||
-			(CurTime.GetMonth() != m_Time.GetMonth()) ||
-			(CurTime.GetDay() != m_Time.GetDay()) )
-		{
-			m_File.Close();
-			m_CSVFile.Close();
-			CxString strLogPathName;
-			CxString strCSVPathName;
-			CxString strExcelPathName;
-			GetCSVPathName( CurTime, strCSVPathName );
-			GetLogPathName( CurTime, strLogPathName );
-			
-			if ( !OpenLogFile(strLogPathName) )
-			{
-				break;
-			}
-
-			if ( !OpenCSVFile( strCSVPathName ) )
-			{
-				break;
-			}
-
-			DeleteExpiredLogFile();
-			DeleteExpiredCSVFile();
-
-			m_Time = CurTime;
-		}
-
-		if ( m_bUseCSVFile )
-		{
-			if ( m_CSVFile.IsOpen() )
-			{
-				m_strCurrentLog.Format( _T("%02d:%02d:%02d,%s,%s\r\n"), CurTime.GetHour(), CurTime.GetMinute(), CurTime.GetSecond(), strId, strLog );
-				m_CSVFile.Write( T2A((LPTSTR)(LPCTSTR)m_strCurrentLog), m_strCurrentLog.GetLength() );
-			}
-		}
-
-		if ( m_bUseTxtFile )
-		{
-			m_strCurrentLog.Format( _T("%02d:%02d:%02d\t%s\t\t%s\r\n"), CurTime.GetHour(), CurTime.GetMinute(), CurTime.GetSecond(), strId, strLog );
-			m_File.Write( T2A((LPTSTR)(LPCTSTR)m_strCurrentLog), m_strCurrentLog.GetLength() );
-		}
-
-	} while ( FALSE );
-}
-
-void CxLogSystem::LogOutW( LPCWSTR lpszId, LPCWSTR lpszFormat, ... )
-{
-	if ( lpszFormat == NULL || !m_bStart )
-	{
-		return;
-	}
-
-	USES_CONVERSION;
-	
-	va_list argList;
-	va_start(argList, lpszFormat);
-	
-	WCHAR lptszBuffer[LOG_BUFFER_SIZE];
-	XVERIFY(_vsnwprintf(lptszBuffer, LOG_BUFFER_SIZE, lpszFormat, argList) <= LOG_BUFFER_SIZE );
-
-	va_end(argList);
-
-	CxString strLog = W2T(lptszBuffer);
-	CxString strId;
-	if (lpszId == NULL)
-		strId = _T("internal");
-	else
-		strId = W2T((LPWSTR)lpszId);
 
 	do 
 	{

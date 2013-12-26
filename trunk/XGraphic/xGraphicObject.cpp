@@ -803,22 +803,16 @@ void CxGOText::CreateObject( COLORREF dwFgColor, POINT pt, int nHeight, BOOL bDy
 	CreateObject( dwFgColor, pt.x, pt.y, nHeight, bDynamic, eStyle, dwBgColor );
 }
 
-void CxGOText::SetTextA( LPCSTR lpszFormat, ... )
+void CxGOText::SetText( LPCTSTR lpszFormat, ... )
 {
 	USES_CONVERSION;
 	va_list argList;
 	va_start( argList, lpszFormat );
-	CHAR lpszBuffer[256];
-	XVERIFY(_vsnprintf_s(lpszBuffer, 256, lpszFormat, argList) <= 256 );
-	memcpy( wszText, A2W(lpszBuffer), sizeof(WCHAR)*256 );
-	va_end( argList );
-}
-
-void CxGOText::SetTextW( LPCWSTR lpszFormat, ... )
-{
-	va_list argList;
-	va_start( argList, lpszFormat );
-	XVERIFY(_vsnwprintf_s(wszText, 256, lpszFormat, argList) <= 256 );
+	TCHAR lpszBuffer[256];
+	XVERIFY(_vsntprintf_s(lpszBuffer, 256, lpszFormat, argList) <= 256 );
+	WCHAR* pwszBuffer = T2W(lpszBuffer);
+	memset( wszText, 0, sizeof(WCHAR)*256 );
+	memcpy( wszText, T2W(lpszBuffer), sizeof(WCHAR)*lstrlenW(pwszBuffer) );
 	va_end( argList );
 }
 
@@ -2754,15 +2748,10 @@ void CxGraphicObject::DrawArrow( HDC hDC, int nLayer )
 	}
 }
 
-void CxGraphicObject::SetFontFaceA( LPCSTR lpszFaceName )
+void CxGraphicObject::SetFontFace( LPCTSTR lpszFaceName )
 {
 	USES_CONVERSION;
-	SetFontFaceW( A2W(lpszFaceName) );
-}
-
-void CxGraphicObject::SetFontFaceW( LPCWSTR lpszFaceName )
-{
-	wsprintfW( m_wszFontFace, lpszFaceName );
+	wcscpy_s( m_wszFontFace, T2W((LPTSTR)lpszFaceName) );
 }
 
 void CxGraphicObject::DrawText( HDC hDC, int nLayer )

@@ -417,14 +417,7 @@ protected:
 public:
 	void CreateObject( COLORREF _dwFgColor, int _x, int _y, int _nHeight, BOOL _bDynamic=FALSE, TextAlignment _eStyle=TextAlignmentRight, COLORREF _dwBgColor = -1 );
 	void CreateObject( COLORREF _dwFgColor, POINT pt, int _nHeight, BOOL _bDynamic=FALSE, TextAlignment _eStyle=TextAlignmentRight, COLORREF _dwBgColor = -1 );
-	void SetTextA( LPCSTR lpszFormat, ... );
-	void SetTextW( LPCWSTR lpszFormat, ... );
-
-#ifdef _UNICODE
-	#define SetText	SetTextW
-#else
-	#define SetText SetTextA
-#endif
+	void SetText( LPCTSTR lpszFormat, ... );
 
 	CxGOText();
 	virtual ~CxGOText();
@@ -538,13 +531,7 @@ public:
 
 	void SetActiveGOColor( COLORREF ActiveColor );
 
-	void SetFontFaceA( LPCSTR lpszFaceName );
-	void SetFontFaceW( LPCWSTR lpszFaceName );
-#ifdef _UNICODE
-	#define SetFontFace SetFontFaceW
-#else
-	#define SetFontFace SetFontFaceA
-#endif
+	void SetFontFace( LPCTSTR lpszFaceName );
 
 	void SetOffsetViewPort( int nOffset );
 

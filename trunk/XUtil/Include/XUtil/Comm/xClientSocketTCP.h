@@ -48,13 +48,7 @@ protected:
 	BOOL StopWorkerThread();
 	BOOL CloseConnectedSocket();
 
-	BOOL ConnectServerA( ClientThreadContext* pContext, LPCSTR lpszIP, int nPort );
-	BOOL ConnectServerW( ClientThreadContext* pContext, LPCWSTR lpszIP, int nPort );
-#ifdef _UNICODE
-	#define ConnectServer ConnectServerW
-#else
-	#define ConnectServer ConnectServerA
-#endif
+	BOOL ConnectServer( ClientThreadContext* pContext, LPCTSTR lpszIP, int nPort );
 
 	BOOL SendBuffer( ClientThreadContext* pContext, char *pOutBuffer, int nOutBufferSize );
 
@@ -69,14 +63,7 @@ public:
 
 	const int GetIOBufferSize() const;
 
-	BOOL StartClientA( LPCSTR lpszIP, int nPort, int nIOBufferSize=15*1024*1024 );
-	BOOL StartClientW( LPCWSTR lpszIP, int nPort, int nIOBufferSize=15*1024*1024 );
-#ifdef _UNICODE
-	#define StartClient StartClientW
-#else
-	#define StartClient StartClientA
-#endif
-
+	BOOL StartClient( LPCTSTR lpszIP, int nPort, int nIOBufferSize=15*1024*1024 );
 	BOOL StopClient();
 
 	virtual void OnPacketReceived( ClientThreadContext* pContext, CxIoBuffer* PacketBuffer ) {}

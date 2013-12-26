@@ -139,47 +139,23 @@ BOOL CxArrowDrawer::Draw( HDC hDC, POINT pt1, POINT pt2, ArrowType eArrowType )
 	return TRUE;
 }
 
-BOOL CxArrowDrawer::DrawArrowTextA( HDC hDC, RECT rcText, LPCSTR lpszText)
+BOOL CxArrowDrawer::DrawArrowText( HDC hDC, RECT rcText, LPCTSTR lpszText)
 {
 	int nOldBkMode = ::SetBkMode( hDC, TRANSPARENT );
 	DWORD dwOldTextColor = ::SetTextColor( hDC, RGB(0xff, 0xff, 0xff) );
 
-	int nLength = lstrlenA(lpszText);
+	int nLength = lstrlen(lpszText);
 	::OffsetRect(&rcText, 1, 0);
-	::DrawTextA( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
+	::DrawText( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
 	::OffsetRect(&rcText, -2, 0);
-	::DrawTextA( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
+	::DrawText( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
 	::OffsetRect(&rcText, 1, 1);
-	::DrawTextA( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
+	::DrawText( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
 	::OffsetRect(&rcText, 0, -2);
-	::DrawTextA( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
+	::DrawText( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
 	::OffsetRect(&rcText, 0, 1);
 	::SetTextColor( hDC, RGB(0,128,128) );
-	::DrawTextA( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
-
-	::SetTextColor(hDC, dwOldTextColor);
-	::SetBkMode(hDC, nOldBkMode);
-	
-	return TRUE;
-}
-
-BOOL CxArrowDrawer::DrawArrowTextW( HDC hDC, RECT rcText, LPCWSTR lpszText)
-{
-	int nOldBkMode = ::SetBkMode( hDC, TRANSPARENT );
-	DWORD dwOldTextColor = ::SetTextColor( hDC, RGB(0xff, 0xff, 0xff) );
-
-	int nLength = lstrlenW(lpszText);
-	::OffsetRect(&rcText, 1, 0);
-	::DrawTextW( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
-	::OffsetRect(&rcText, -2, 0);
-	::DrawTextW( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
-	::OffsetRect(&rcText, 1, 1);
-	::DrawTextW( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
-	::OffsetRect(&rcText, 0, -2);
-	::DrawTextW( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
-	::OffsetRect(&rcText, 0, 1);
-	::SetTextColor( hDC, RGB(0,128,128) );
-	::DrawTextW( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
+	::DrawText( hDC, lpszText, nLength, &rcText, DT_LEFT|DT_NOCLIP );
 
 	::SetTextColor(hDC, dwOldTextColor);
 	::SetBkMode(hDC, nOldBkMode);

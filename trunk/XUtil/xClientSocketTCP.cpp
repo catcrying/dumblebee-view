@@ -270,36 +270,9 @@ BOOL CxClientSocketTCP::CreateWorkerThread()
 	return TRUE;
 }
 
-BOOL CxClientSocketTCP::StartClientW( LPCWSTR lpszIP, int nPort, int nIOBufferSize /*=15*1024*1024*/ )
+BOOL CxClientSocketTCP::StartClient( LPCTSTR lpszIP, int nPort, int nIOBufferSize /*=15*1024*1024*/ )
 {
-	USES_CONVERSION;
-	m_strIPAddress = W2T((LPWSTR)lpszIP);
-	m_nPort = nPort;
-	m_nIOBufferSize = nIOBufferSize;
-	InitializeSocket();
-
-	if ( CreateConnectedSocket() )
-	{
-		if ( !CreateWorkerThread() )
-		{
-			StopClient();
-			return FALSE;
-		}
-	}
-	else
-	{
-		StopClient();
-		return FALSE;
-	}
-
-	m_bStarted = TRUE;
-	return TRUE;
-}
-
-BOOL CxClientSocketTCP::StartClientA( LPCSTR lpszIP, int nPort, int nIOBufferSize /*=15*1024*1024*/ )
-{
-	USES_CONVERSION;
-	m_strIPAddress = A2T((LPSTR)lpszIP);
+	m_strIPAddress = lpszIP;
 	m_nPort = nPort;
 	m_nIOBufferSize = nIOBufferSize;
 	InitializeSocket();
@@ -383,20 +356,16 @@ BOOL CxClientSocketTCP::StopWorkerThread()
 	return TRUE;
 }
 
-BOOL CxClientSocketTCP::ConnectServerW( ClientThreadContext* pContext, LPCWSTR lpszIP, int nPort )
-{
-	USES_CONVERSION;
-	return ConnectServerA(pContext, W2A(lpszIP), nPort);
-}
-
-BOOL CxClientSocketTCP::ConnectServerA( ClientThreadContext* pContext, LPCSTR lpszIP, int nPort )
+BOOL CxClientSocketTCP::ConnectServer( ClientThreadContext* pContext, LPCTSTR lpszIP, int nPort )
 {
 	BOOL bRet = TRUE;
 	int nRet =  0;
 
 	SOCKADDR_IN addrin;
 
-	const char *pAddress = lpszIP;
+	USES_CONVERSION;
+
+	const char *pAddress = T2A((LPTSTR)lpszIP);
 	
 	addrin.sin_family = AF_INET;
 	addrin.sin_port = htons(nPort);

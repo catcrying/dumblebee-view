@@ -53,34 +53,15 @@ public:
 	virtual ~CxLogSystem();
 
 	void UseTextFile( BOOL bUse );
-
-	void UseCSVFileA( BOOL bUse, LPCSTR lpszCSVHeader );
-	void UseCSVFileW( BOOL bUse, LPCWSTR lpszCSVHeader );
-#ifdef _UNICODE
-	#define UseCSVFile	UseCSVFileW
-#else
-	#define UseCSVFile	UseCSVFileA
-#endif
+	void UseCSVFile( BOOL bUse, LPCTSTR lpszCSVHeader );
 
 	void UseMonthlySplitFolder( BOOL bUse );
 
-	void SetLogDirectoryA( LPCSTR lpszPath );
-	void SetLogDirectoryW( LPCWSTR lpszPath );
-#ifdef _UNICODE
-	#define SetLogDirectory	SetLogDirectoryW
-#else
-	#define SetLogDirectory	SetLogDirectoryA
-#endif
+	void SetLogDirectory( LPCTSTR lpszPath );
 
 	void SetExpirePeriod( int nDay ) { m_nExpirePeriod = nDay; }
 	
-	void LogOutA( LPCSTR lpszId, LPCSTR lpszFormat, ... );
-	void LogOutW( LPCWSTR lpszId, LPCWSTR lpszFormat, ... );
-#ifdef _UNICODE
-	#define LogOut	LogOutW
-#else
-	#define LogOut	LogOutA
-#endif
+	void LogOut( LPCTSTR lpszId, LPCTSTR lpszFormat, ... );
 
 	BOOL Start();
 	BOOL Stop();

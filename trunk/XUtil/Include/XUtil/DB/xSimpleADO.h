@@ -22,8 +22,12 @@ public:
 		friend class IRecordSetPtr;
 	protected:
 		CxADOField* m_pField;
-		explicit IFieldPtr(CxADOField* pPtr);
+		int*		m_pnRef;
+		IFieldPtr(CxADOField* pPtr);
 	public:
+		IFieldPtr();
+		IFieldPtr(const IFieldPtr& other);
+		const IFieldPtr& operator = ( const IFieldPtr& Other );
 		~IFieldPtr();
 
 		BOOL IsValid();
@@ -47,8 +51,12 @@ public:
 		friend class CxSimpleADO;
 	protected:
 		CxADORecordSet* m_pRecordSet;
-		explicit IRecordSetPtr(CxADORecordSet* pPtr);
+		int*			m_pnRef;
+		IRecordSetPtr(CxADORecordSet* pPtr);
 	public:
+		IRecordSetPtr();
+		IRecordSetPtr(const IRecordSetPtr& other);
+		const IRecordSetPtr& operator = ( const IRecordSetPtr& Other );
 		~IRecordSetPtr();
 
 		BOOL IsValid();

@@ -50,18 +50,51 @@ public:
 	}
 };
 
+CxSimpleADO::IFieldPtr::IFieldPtr()
+{
+	m_pnRef = NULL;
+	m_pField = NULL;
+}
+
 CxSimpleADO::IFieldPtr::IFieldPtr(CxADOField* pPtr)
 {
+	m_pnRef = new int(1);
 	m_pField = pPtr;
 	XTRACE( _T("Create Field: %p\n"), m_pField );
 }
 
+CxSimpleADO::IFieldPtr::IFieldPtr(const IFieldPtr& cother)
+{
+	IFieldPtr& other = const_cast<IFieldPtr&> (cother);
+	m_pnRef = other.m_pnRef;
+	m_pField = other.m_pField;
+	if (m_pField)
+		++(*m_pnRef);
+}
+
+const CxSimpleADO::IFieldPtr& CxSimpleADO::IFieldPtr::operator = ( const IFieldPtr& cother )
+{
+	IFieldPtr& other = const_cast<IFieldPtr&> (cother);
+	m_pnRef = other.m_pnRef;
+	m_pField = other.m_pField;
+	if (m_pField)
+		++(*m_pnRef);
+	return *this;
+}
+
 CxSimpleADO::IFieldPtr::~IFieldPtr()
 {
-	XTRACE( _T("Destroy Field: %p\n"), m_pField );
 	if (m_pField)
-		delete m_pField;
-	m_pField = NULL;
+		--(*m_pnRef);
+	if (*m_pnRef == 0)
+	{
+		XTRACE( _T("Destroy Field: %p\n"), m_pField );
+		if (m_pField)
+			delete m_pField;
+		m_pField = NULL;
+		delete m_pnRef;
+		m_pnRef = NULL;
+	}
 }
 
 BOOL CxSimpleADO::IFieldPtr::IsValid()
@@ -140,18 +173,51 @@ long CxSimpleADO::IFieldPtr::GetAttributes()
 	return m_pField->GetAttributes();
 }
 
+CxSimpleADO::IRecordSetPtr::IRecordSetPtr()
+{
+	m_pnRef = NULL;
+	m_pRecordSet = NULL;
+}
+
 CxSimpleADO::IRecordSetPtr::IRecordSetPtr(CxADORecordSet* pPtr)
 {
+	m_pnRef = new int(1);
 	m_pRecordSet = pPtr;
 	XTRACE( _T("Create RecordSet: %p\n"), m_pRecordSet );
 }
 
+CxSimpleADO::IRecordSetPtr::IRecordSetPtr(const IRecordSetPtr& cother)
+{
+	IRecordSetPtr& other = const_cast<IRecordSetPtr&> (cother);
+	m_pnRef = other.m_pnRef;
+	m_pRecordSet = other.m_pRecordSet;
+	if (m_pRecordSet)
+		++(*m_pnRef);
+}
+
+const CxSimpleADO::IRecordSetPtr& CxSimpleADO::IRecordSetPtr::operator = ( const IRecordSetPtr& cother )
+{
+	IRecordSetPtr& other = const_cast<IRecordSetPtr&> (cother);
+	m_pnRef = other.m_pnRef;
+	m_pRecordSet = other.m_pRecordSet;
+	if (m_pRecordSet)
+		++(*m_pnRef);
+	return *this;
+}
+
 CxSimpleADO::IRecordSetPtr::~IRecordSetPtr()
 {
-	XTRACE( _T("Destroy RecordSet: %p\n"), m_pRecordSet );
 	if (m_pRecordSet)
-		delete m_pRecordSet;
-	m_pRecordSet = NULL;
+		--(*m_pnRef);
+	if (*m_pnRef == 0)
+	{
+		XTRACE( _T("Destroy RecordSet: %p\n"), m_pRecordSet );
+		if (m_pRecordSet)
+			delete m_pRecordSet;
+		m_pRecordSet = NULL;
+		delete m_pnRef;
+		m_pnRef = NULL;
+	}
 }
 
 BOOL CxSimpleADO::IRecordSetPtr::IsValid()
@@ -214,6 +280,7 @@ CxSimpleADO::IFieldPtr CxSimpleADO::IRecordSetPtr::GetField(LPCWSTR lpField)
 		strError.Format( _T("DB FIELD Error! Code: %08lx, Description: %s\n"), e.Error(), (LPCTSTR)(e.Description()) );
 		XTRACE( strError );
 	}
+
 	return IFieldPtr(pField);
 }
 
