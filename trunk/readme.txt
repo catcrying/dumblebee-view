@@ -1,4 +1,4 @@
-라이브러리 구성
+Library Configuration
 
 *ud.dll	- UNICODE DEBUG Library
 *u.dll	- UNICODE RELEASE Library
