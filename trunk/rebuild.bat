@@ -1,4 +1,6 @@
 @echo off
+call cleanup.bat
+
 set BUILD_OPT=Rebuild
 echo Begin: Build for vc11 (x86)
 if exist "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat" call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat" x86

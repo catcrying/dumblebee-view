@@ -1,6 +1,7 @@
 rd /s/q _Obj
 rd /s/q Bin
 rd /s/q ipch
+rd /s/q Distribute
 rd /s/q XGraphic\Bin
 rd /s/q XGraphic\Lib
 rd /s/q XImage\Bin

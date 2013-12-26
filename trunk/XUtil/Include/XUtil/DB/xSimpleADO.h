@@ -17,7 +17,7 @@ class XUTIL_API CxSimpleADO
 {
 public:
 	class IRecordSetPtr;
-	class IFieldPtr
+	class XUTIL_API IFieldPtr
 	{
 		friend class IRecordSetPtr;
 	protected:
@@ -46,7 +46,7 @@ public:
 		long GetDefinedSize();
 		long GetAttributes();
 	};
-	class IRecordSetPtr
+	class XUTIL_API IRecordSetPtr
 	{
 		friend class CxSimpleADO;
 	protected:
