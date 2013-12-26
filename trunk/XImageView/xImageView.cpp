@@ -1604,7 +1604,11 @@ POINT CxImageView::ImagePosToScreenPos( int x, int y)
 
 POINT CxImageView::MousePosToImagePos( int nMouseX, int nMouseY, BOOL* pbIsValidPos/*=NULL*/ )
 {	
-	if ( m_pImageObject == NULL || m_pImageObject->GetImageBuffer() == NULL) { return CPoint(0,0); }
+	if ( m_pImageObject == NULL || m_pImageObject->GetImageBuffer() == NULL)
+	{
+		if (pbIsValidPos != NULL) { *pbIsValidPos = FALSE; }
+		return CPoint(0,0);
+	}
 
 	CPoint ptScroll = GetDeviceScrollPosition();
 

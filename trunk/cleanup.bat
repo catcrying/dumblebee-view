@@ -1,0 +1,11 @@
+rd /s/q _Obj
+rd /s/q Bin
+rd /s/q ipch
+rd /s/q XGraphic\Bin
+rd /s/q XGraphic\Lib
+rd /s/q XImage\Bin
+rd /s/q XImage\Lib
+rd /s/q XImageView\Bin
+rd /s/q XImageView\Lib
+rd /s/q XUtil\Bin
+rd /s/q XUtil\Lib

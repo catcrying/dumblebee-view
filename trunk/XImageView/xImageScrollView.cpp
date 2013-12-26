@@ -1131,7 +1131,7 @@ void CxImageScrollView::RecalcZoomRatio( BOOL bCalcScrollBar /*= TRUE*/ )
 	m_fZoomMin = fRatio;
 	m_fZoomMax = 30.f;
 
-	TRACE( _T("RecalcZoomRatio: %f/%f\n"), m_fZoomMin, m_fZoomMax );
+	//TRACE( _T("RecalcZoomRatio: %f/%f\n"), m_fZoomMin, m_fZoomMax );
 }
 
 void CxImageScrollView::OnLButtonDblClk(UINT nFlags, CPoint point) 
@@ -1801,7 +1801,11 @@ POINT CxImageScrollView::ImagePosToScreenPos( int x, int y)
 
 POINT CxImageScrollView::MousePosToImagePos( int nMouseX, int nMouseY, BOOL* pbIsValidPos/*=NULL*/ )
 {	
-	if ( m_pImageObject == NULL || m_pImageObject->GetImageBuffer() == NULL) { return CPoint(0,0); }
+	if ( m_pImageObject == NULL || m_pImageObject->GetImageBuffer() == NULL)
+	{
+		if (pbIsValidPos != NULL) { *pbIsValidPos = FALSE; }
+		return CPoint(0,0);
+	}
 
 	CPoint ptScroll = GetDeviceScrollPosition();
 
