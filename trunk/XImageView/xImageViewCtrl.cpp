@@ -378,6 +378,10 @@ CxImageObject* CxImageViewCtrl::GetImageObject() { return m_pImageObject; }
 CxGraphicObject& CxImageViewCtrl::GetGraphicObject() { return m_pImageView->GetGraphicObject(); }
 IxDeviceContext* CxImageViewCtrl::GetIDeviceContext() { return m_pImageView; }
 
+void CxImageViewCtrl::AttachGraphicObject( CxGraphicObject* pGO ) { m_pImageView->AttachGraphicObject(pGO); }
+CxGraphicObject* CxImageViewCtrl::DetachGraphicObject() { return m_pImageView->DetachGraphicObject(); }
+BOOL CxImageViewCtrl::IsGraphicObjectAttached() { return m_pImageView->IsGraphicObjectAttached(); }
+
 void CxImageViewCtrl::SetTrackerPosition( CRect& rcTrack ) { m_pImageView->SetTracker( rcTrack ); }
 BOOL CxImageViewCtrl::IsTrackerMode() { return m_pImageView->GetScreenMode() == ImageViewMode::ScreenModeTracker ? TRUE : FALSE; }
 

@@ -26,6 +26,7 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_PAINT()
 	ON_WM_SIZE()
 	ON_WM_CREATE()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -144,15 +145,26 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		//m_wndImageView[i].SetRegisterCallBack(i, &regCB);
 		//m_wndImageView[i].SetSyncManager(&m_wndImageViewSyncManager);
 		//m_wndImageView[i].SetTrackerMode(TRUE);
-		m_wndImageView[i].GetGraphicObject().AddDrawObject( &clrBox, 0 );
-		m_wndImageView[i].GetGraphicObject().AddDrawLine(clrLine);
-		m_wndImageView[i].GetGraphicObject().AddDrawEllipse(clrEllipse);
-		m_wndImageView[i].GetGraphicObject().AddDrawPoint(clrPoint);
-		m_wndImageView[i].GetGraphicObject().AddDrawText(clrText, 0);
+
+		{
+			m_GraphicObject[i].AddDrawObject( &clrBox, 0 );
+			m_GraphicObject[i].AddDrawLine(clrLine);
+			m_GraphicObject[i].AddDrawEllipse(clrEllipse);
+			m_GraphicObject[i].AddDrawPoint(clrPoint);
+			m_GraphicObject[i].AddDrawText(clrText, 0);
+		}
 		m_ImageObject[i].LoadFromFile( _T("C:\\Users\\Public\\Pictures\\Sample Pictures\\Lighthouse.jpg") );
 		//m_ImageObject[i].LoadFromFile( _T("E:\\CropImage.bmp") );
 	}
 
+	//go.GetLayerCount
+	CxGOAlignMark mark;
+	mark.CreateObject( RGB(255, 0, 0), 400, 400, 200, 50 );
+	m_GraphicObject[1].AddDrawAlignMark(mark);
+	m_wndImageView[1].AttachGraphicObject(&m_GraphicObject[1]);
+	m_wndImageView[0].AttachGraphicObject(&m_GraphicObject[0]);
+
+	/*
 	int nW = 100;
 	int nH = 100;
 	int nWBytes = CxImageObject::GetWidthBytes(nW, 16);
@@ -168,6 +180,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_ImageObject[0].SetPixelMaximum(0x7fff);
 
 	//free(p16Buffer);
+	*/
 
 	return 0;
 }
@@ -185,4 +198,10 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 	}*/
 
 	return CWnd::PreTranslateMessage(pMsg);
+}
+
+
+void CChildView::OnDestroy()
+{
+	CWnd::OnDestroy();
 }

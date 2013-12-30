@@ -4,7 +4,6 @@
 #include <XImageView/export.h>
 #include <XImageView/xImageViewConst.h>
 
-#include <XGraphic/xGraphicObject.h>
 #include <XGraphic/IxDeviceContext.h>
 
 //CHECK!!
@@ -22,6 +21,7 @@ class CxImageObject;
 class CxRender2D;
 class CInnerUI;
 class CxImageScrollView;
+class CxGraphicObject;
 
 class XIMAGE_VIEW_API CxImageScrollView : public CScrollView, public IxDeviceContext
 {
@@ -127,7 +127,8 @@ protected:
 
 	CInnerUI*					m_pInnerUI;
 
-	CxGraphicObject				m_GraphicObject;
+	CxGraphicObject*			m_pGraphicObject;
+	CxGraphicObject*			m_pExternalGraphicObject;
 // Attributes
 public:
 	void SetPalette( const BYTE* pPal );
@@ -195,7 +196,10 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	// Retreieve information
-	CxGraphicObject& GetGraphicObject() { return m_GraphicObject; }
+	CxGraphicObject& GetGraphicObject();
+	void AttachGraphicObject( CxGraphicObject* pGO );
+	CxGraphicObject* DetachGraphicObject();
+	BOOL IsGraphicObjectAttached();
 	virtual int GetViewWidth() override { return m_nWidth; }
 	virtual int GetViewHeight() override { return m_nHeight; }
 	virtual void GetCurrentViewingCoordinate( int& nX1, int& nY1, int& nX2, int& nY2 ) override;

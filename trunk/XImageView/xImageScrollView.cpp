@@ -11,6 +11,8 @@
 #include <XUtil/xCriticalSection.h>
 #include <XUtil/xThread.h>
 
+#include <XGraphic/xGraphicObject.h>
+
 #include <math.h>
 #include <float.h>
 #define WM_MOUSEENTER		(WM_USER+100)
@@ -63,7 +65,7 @@ CxImageScrollView::CxImageScrollView() :
 	m_pImageObject(NULL), m_pRenderer(NULL), m_fZoomRatio(1.f),
 	m_pDC(NULL), m_eScreenMode(ImageViewMode::ScreenModeNone),
 	m_fZoomMin(1.f), m_fZoomMax(1.f), m_fZoomFit(1.f),
-	m_nBodyOffsetX(0), m_nBodyOffsetY(0), m_bLockUpdate(FALSE), m_GraphicObject(this),
+	m_nBodyOffsetX(0), m_nBodyOffsetY(0), m_bLockUpdate(FALSE),
 	m_fnOnDrawExt(NULL), m_lpUsrDataOnDrawExt(NULL),
 	m_fnOnMeasure(NULL), m_lpUsrDataOnMeasure(NULL),
 	m_fnOnConfirmTracker(NULL), m_lpUsrDataOnConfirmTracker(NULL),
@@ -84,6 +86,9 @@ CxImageScrollView::CxImageScrollView() :
 	m_pInnerUI->m_bFixedTracker = FALSE;
 	m_dDrawElapsedTime = 0.0;
 	m_bShowDrawElapsedTime = FALSE;
+
+	m_pExternalGraphicObject = NULL;
+	m_pGraphicObject = new CxGraphicObject(this);
 
 	m_cClearColor = 128;
 	m_dwBackgroundColor = RGB(128,128,128);
@@ -175,6 +180,9 @@ CxImageScrollView::~CxImageScrollView()
 	delete m_pInnerUI;
 	delete m_pDirectDIB;
 	delete m_pDrawDIB;
+
+	if (m_pGraphicObject)
+		delete m_pGraphicObject;
 
 	::DestroyCursor( m_hCursorZoomIn );
 	::DestroyCursor( m_hCursorZoomInOut );
@@ -583,7 +591,14 @@ void CxImageScrollView::DrawScreen( CDC* pDC )
 	}
 	
 	//if ( m_eScreenMode != ScreenModePanning )
-	m_GraphicObject.Draw( pGDC->GetSafeHdc() );
+	if (m_pExternalGraphicObject != NULL)
+	{
+		m_pExternalGraphicObject->Draw( pGDC->GetSafeHdc() );
+	}
+	else
+	{
+		m_pGraphicObject->Draw( pGDC->GetSafeHdc() );
+	}
 	
 	if ( m_fnOnDrawExt )
 	{
@@ -2000,6 +2015,29 @@ POINT CxImageScrollView::ScreenPosToOverlay( int x, int y )
 	CPoint ptScroll = GetDeviceScrollPosition();
 
 	return CPoint(x+ptScroll.x, y+ptScroll.y);
+}
+
+CxGraphicObject& CxImageScrollView::GetGraphicObject()
+{ 
+	return *m_pGraphicObject;
+}
+
+void CxImageScrollView::AttachGraphicObject( CxGraphicObject* pGO )
+{
+	m_pExternalGraphicObject = pGO;
+	m_pExternalGraphicObject->SetDeviceContext(this);
+}
+
+CxGraphicObject* CxImageScrollView::DetachGraphicObject()
+{
+	CxGraphicObject* pGO = m_pExternalGraphicObject;
+	m_pExternalGraphicObject = NULL;
+	return pGO;
+}
+
+BOOL CxImageScrollView::IsGraphicObjectAttached()
+{
+	return m_pExternalGraphicObject ? TRUE : FALSE;
 }
 
 BOOL CxImageScrollView::OnScroll(UINT nScrollCode, UINT nPos, BOOL bDoScroll) 

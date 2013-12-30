@@ -7,6 +7,7 @@
 
 #include <XImageView/xImageViewCtrl.h>
 #include <XImage/xImageObject.h>
+#include <XGraphic/xGraphicObject.h>
 
 // CChildView window
 
@@ -22,6 +23,8 @@ public:
 	CxImageViewSyncManager	m_wndImageViewSyncManager;
 	CxImageViewCtrl		m_wndImageView[2];
 	CxImageObject		m_ImageObject[2];
+
+	CxGraphicObject		m_GraphicObject[2];
 // Operations
 public:
 
@@ -41,5 +44,6 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnDestroy();
 };
 

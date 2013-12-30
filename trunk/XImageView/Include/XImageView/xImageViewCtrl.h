@@ -155,8 +155,12 @@ public:
 	void ImageUpdate();
 	void RedrawTitle();
 	void RedrawStatus();
+
+	void AttachGraphicObject( CxGraphicObject* pGO );	// assign external graphic object
+	CxGraphicObject* DetachGraphicObject();
+	BOOL IsGraphicObjectAttached();
 	
-	CxGraphicObject& GetGraphicObject();
+	CxGraphicObject& GetGraphicObject();	// return internal graphic object
 	IxDeviceContext* GetIDeviceContext();
 
 	CxImageViewManager* GetImageViewManager();

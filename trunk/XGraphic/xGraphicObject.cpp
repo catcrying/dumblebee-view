@@ -1562,6 +1562,8 @@ void CxGraphicObject::Draw( HDC hDC )
 void CxGraphicObject::DrawPolygon( HDC hDC, int nLayer )
 {
 	XASSERT( m_pIDC );
+	if (!m_pIDC)
+		return;
 
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
@@ -1705,6 +1707,8 @@ void CxGraphicObject::DrawPolygon( HDC hDC, int nLayer )
 void CxGraphicObject::DrawBox( HDC hDC, int nLayer )
 {
 	XASSERT( m_pIDC );
+	if (!m_pIDC)
+		return;
 
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
@@ -1830,6 +1834,8 @@ void CxGraphicObject::DrawBox( HDC hDC, int nLayer )
 void CxGraphicObject::DrawEllipse( HDC hDC, int nLayer )
 {
 	XASSERT( m_pIDC );
+	if (!m_pIDC)
+		return;
 
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
@@ -1960,6 +1966,8 @@ void CxGraphicObject::DrawEllipse( HDC hDC, int nLayer )
 void CxGraphicObject::DrawCross( HDC hDC, int nLayer )
 {
 	XASSERT( m_pIDC );
+	if (!m_pIDC)
+		return;
 
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
@@ -2107,6 +2115,8 @@ void CxGraphicObject::DrawCross( HDC hDC, int nLayer )
 void CxGraphicObject::DrawAlignMark( HDC hDC, int nLayer )
 {
 	XASSERT( m_pIDC );
+	if (!m_pIDC)
+		return;
 
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
@@ -2311,6 +2321,8 @@ void CxGraphicObject::DrawAlignMark( HDC hDC, int nLayer )
 void CxGraphicObject::DrawLine( HDC hDC, int nLayer )
 {
 	XASSERT( m_pIDC );
+	if (!m_pIDC)
+		return;
 
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
@@ -2425,6 +2437,8 @@ void CxGraphicObject::DrawLine( HDC hDC, int nLayer )
 void CxGraphicObject::DrawDCross( HDC hDC, int nLayer )
 {
 	XASSERT( m_pIDC );
+	if (!m_pIDC)
+		return;
 
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
@@ -2560,6 +2574,8 @@ void CxGraphicObject::DrawDCross( HDC hDC, int nLayer )
 void CxGraphicObject::DrawPoint( HDC hDC, int nLayer )
 {
 	XASSERT( m_pIDC );
+	if (!m_pIDC)
+		return;
 
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
@@ -2721,6 +2737,8 @@ void CxGraphicObject::DrawArrowHead( HDC hDC, CxGOArrow& Arrow, POINT pt[2], BOO
 void CxGraphicObject::DrawArrow( HDC hDC, int nLayer )
 {
 	XASSERT( m_pIDC );
+	if (!m_pIDC)
+		return;
 
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
@@ -2883,6 +2901,8 @@ void CxGraphicObject::SetFontFace( LPCTSTR lpszFaceName )
 void CxGraphicObject::DrawText( HDC hDC, int nLayer )
 {
 	XASSERT( m_pIDC );
+	if (!m_pIDC)
+		return;
 
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
