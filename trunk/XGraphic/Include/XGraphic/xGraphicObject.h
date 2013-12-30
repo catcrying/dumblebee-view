@@ -469,7 +469,7 @@ class XGRAPHIC_API CxGraphicObject
 {
 protected:
 	CxGraphicObjectData*	m_pData;
-	BOOL				m_bEnableDraw;
+	BOOL					m_bEnableDraw;
 
 	CxCriticalSection*		m_pCsGraphicObject;
 
@@ -514,8 +514,12 @@ protected:
 	BOOL RectIsOverlap( RECT& rcLhs, RECT& rcRhs );
 	
 public:
-	explicit CxGraphicObject( IxDeviceContext* pIDC );
+	CxGraphicObject(const CxGraphicObject& other);
+	const CxGraphicObject& operator = (const CxGraphicObject& other );
+	CxGraphicObject( IxDeviceContext* pIDC=NULL );
 	~CxGraphicObject();
+
+	void SetDeviceContext( IxDeviceContext* pIDC );
 
 	//////////////////////////////////////////////////////////////////////////
 	// graphic object

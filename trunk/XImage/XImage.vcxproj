@@ -174,7 +174,6 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;XIMAGE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include;../XUtil/Include;../thirdparty/OpenCV/include</AdditionalIncludeDirectories>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -196,7 +195,6 @@ copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x86\<
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;XIMAGE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include;../XUtil/Include;../thirdparty/OpenCV/include</AdditionalIncludeDirectories>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -218,7 +216,6 @@ copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x86\<
       <PreprocessorDefinitions>WIN64;_DEBUG;_WINDOWS;_USRDLL;XIMAGE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include;../XUtil/Include;../thirdparty/OpenCV/include</AdditionalIncludeDirectories>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -240,7 +237,6 @@ copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x64\<
       <PreprocessorDefinitions>WIN64;_DEBUG;_WINDOWS;_USRDLL;XIMAGE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include;../XUtil/Include;../thirdparty/OpenCV/include</AdditionalIncludeDirectories>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

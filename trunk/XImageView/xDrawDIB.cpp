@@ -93,7 +93,7 @@ BOOL CxDrawDIB::Draw( CxImageObject* pImgObj,
 	}
 	else
 	{
-		if ( fZoomRatio != 1.f )
+		if ( (fZoomRatio != 1.f) || (pImgObj->GetChannel() == 1 && pImgObj->GetDepth() == 16) )
 		{
 			ScreenScaledBlit( pBuf, nWidthBytes, pImgObj, nDstX, nDstY, nDstOffW, nDstOffH, nSrcX, nSrcY, nSrcW, nSrcH, fRatioX, fRatioY );
 		}
@@ -303,6 +303,8 @@ void CxDrawDIB::ScreenScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthBytes
 
 	int i, j, nIndex;
 
+	int nPixelMax = pImgObj->GetPixelMaximum();
+
 	int nIndex1;
 	int nIndex2;
 	int nIndex3;
@@ -382,6 +384,24 @@ void CxDrawDIB::ScreenScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthBytes
 
 				nIndex = nTHSrcWidthBytes + nTW;
 				OFF_BUF( j, i ) = pImgBuf[ nIndex ];
+			}
+		}
+		break;
+	case 16:
+		if (pImgObj->GetChannel() != 1)
+			break;
+		for ( i=nDstY+nDstOffsetY ; i < nDstOffH-nDstOffsetH ; i++ )
+		{
+			int nTH = int((i-nDstY)*fRatioY+nSrcY);
+			if ( nTH >= nImgHeight || nTH < 0 ) continue;
+			nTHSrcWidthBytes = nTH*nSrcWidthBytes;
+			for ( j=nDstX ; j < nDstOffW ; j++ ) 
+			{ 
+				int nTW = int((j-nDstX)*fRatioX+nSrcX);
+				if ( nTW >= nImgWidth || nTW < 0 ) continue;
+
+				nIndex = nTHSrcWidthBytes + nTW*2;
+				OFF_BUF( j, i ) = (*(unsigned short*)(pImgBuf + nIndex)) * 255 / nPixelMax;
 			}
 		}
 		break;

@@ -1,5 +1,6 @@
 // vDrawDIB.h: interface for the CxDrawDIB class.
 //
+// TODO: support 32bit
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_VDRAWDIB_H__55DA5C39_434F_4B38_9332_A04DC7406F53__INCLUDED_)

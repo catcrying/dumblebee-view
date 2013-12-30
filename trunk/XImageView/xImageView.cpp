@@ -10,9 +10,9 @@
 #include <XUtil/xEvent.h>
 #include <XUtil/xCriticalSection.h>
 #include <XUtil/xThread.h>
-#include <float.h>
 
 #include <math.h>
+#include <float.h>
 #define WM_MOUSEENTER		(WM_USER+100)
 
 #include <XImageView/xImageViewCtrl.h>
@@ -94,6 +94,9 @@ CxImageView::CxImageView() :
 
 	m_cClearColor = 128;
 	m_dwBackgroundColor = RGB(128,128,128);
+
+	m_bUseAutoFocus = TRUE;
+	m_bEnableMouseControl = TRUE;
 
 	m_nWidth = m_nHeight = 0;
 	m_nBitCnt = 0;
@@ -300,7 +303,7 @@ void CxImageView::ShowScrollBar( BOOL bShow )
 	//m_bShowScrollBar = bShow;
 }
 
-BOOL CxImageView::IsShowScrollBar()
+BOOL CxImageView::IsShowScrollBar() const
 {
 	//return m_bShowScrollBar;
 	return FALSE;
@@ -309,6 +312,26 @@ BOOL CxImageView::IsShowScrollBar()
 void CxImageView::ShowDrawElapsedTime( BOOL bShow )
 {
 	m_bShowDrawElapsedTime = bShow;
+}
+
+void CxImageView::UseAutoFocus( BOOL bUse )
+{
+	m_bUseAutoFocus = bUse;
+}
+
+BOOL CxImageView::IsUseAutoFocus() const
+{
+	return m_bUseAutoFocus;
+}
+
+void CxImageView::EnableMouseControl( BOOL bEnable )
+{
+	m_bEnableMouseControl = bEnable;
+}
+
+BOOL CxImageView::IsEnableMouseControl() const
+{
+	return m_bEnableMouseControl;
 }
 
 void CxImageView::UpdateRenderer( CxImageObject* pImageObject )
@@ -456,7 +479,7 @@ void CxImageView::DrawScreen( CDC* pDC )
 	{
 		int nBlockSize = int(m_fZoomRatio);
 
-		if ( m_bShowDigitize && m_eScreenMode != ImageViewMode::ScreenModePanning && (m_pImageObject->GetBpp() == 8) )
+		if ( m_bShowDigitize && m_eScreenMode != ImageViewMode::ScreenModePanning && (m_pImageObject->GetChannel() == 1) )
 			DrawDigitizedValues( pInnerDC, nBlockSize, m_nBodyOffsetX, m_nBodyOffsetY, m_nSrcX, m_nSrcY, m_nSrcW, m_nSrcH );
 	}
 	
@@ -612,12 +635,14 @@ void CxImageView::DrawDigitizedValues( CDC* pDC, int nBlockSize, int nOffsetX, i
 
 	CRect rcBlock(nOffsetX, nOffsetY, nOffsetX+nBlockSize, nOffsetY+nBlockSize);
 	pDC->SetTextColor( RGB(0xff, 0xff, 0xff) );
+	int nLevel;
+
 	for ( int i=nSrcY ; i<nT ; i++ )
 	{
 		for ( int j=nSrcX ; j<nW ; j++ )
 		{
-			BYTE cLevel = m_pImageObject->GetPixelLevel( j, i );
-			strLevel.Format( _T("%d"), cLevel );
+			nLevel = m_pImageObject->GetPixelLevel( j, i );
+			strLevel.Format( _T("%d"), nLevel );
 			rcBlock.left--; rcBlock.right--;
 			pDC->DrawText( strLevel, &rcBlock, DT_CENTER|DT_VCENTER|DT_SINGLELINE|DT_NOCLIP );
 			rcBlock.left+=2; rcBlock.right+=2;
@@ -641,8 +666,8 @@ void CxImageView::DrawDigitizedValues( CDC* pDC, int nBlockSize, int nOffsetX, i
 	{
 		for ( int j=nSrcX ; j<nW ; j++ )
 		{
-			BYTE cLevel = m_pImageObject->GetPixelLevel( j, i );
-			strLevel.Format( _T("%d"), cLevel );
+			nLevel = m_pImageObject->GetPixelLevel( j, i );
+			strLevel.Format( _T("%d"), nLevel );
 
 			pDC->DrawText( strLevel, &rcBlock, DT_CENTER|DT_VCENTER|DT_SINGLELINE|DT_NOCLIP );
 			rcBlock.left += nBlockSize; rcBlock.right += nBlockSize;
@@ -654,6 +679,7 @@ void CxImageView::DrawDigitizedValues( CDC* pDC, int nBlockSize, int nOffsetX, i
 
 	pDC->SetTextColor( dwOldTextColor );
 	pDC->SetBkMode( nOldBkMode );
+
 }
 
 BOOL CxImageView::PreCreateWindow(CREATESTRUCT& cs) 
@@ -784,6 +810,14 @@ void CxImageView::SetClearColor( BYTE c )
 void CxImageView::SetBackgroundColor( DWORD dwColor )
 {
 	m_dwBackgroundColor = dwColor;
+}
+
+void CxImageView::SetPopupMenuColor( DWORD dwBackgroundColor, DWORD dwTitleTextColor )
+{
+	m_pInnerUI->m_WheelPopupMenu.SetSideBarColor(dwBackgroundColor, dwBackgroundColor);
+	m_pInnerUI->m_WheelPopupMenu.SetSideBarTextColor(dwTitleTextColor);
+	m_pInnerUI->m_ROIPopupMenu.SetSideBarColor(dwBackgroundColor, dwBackgroundColor);
+	m_pInnerUI->m_ROIPopupMenu.SetSideBarTextColor(dwTitleTextColor);
 }
 
 void CxImageView::Clear()
@@ -943,6 +977,15 @@ void CxImageView::ZoomNot()
 		return;
 
 	SetZoomRatio( 1.f );
+
+	CxImageViewCtrl* pWnd = (CxImageViewCtrl*)GetParent();
+	if ( pWnd->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
+	{
+		CPoint ptScroll = GetDeviceScrollPosition();		
+		m_nSrcX = int(ptScroll.x/m_fZoomRatio); m_nSrcY = int(ptScroll.y/m_fZoomRatio);
+		m_nSrcW = int(m_nWidth/m_fZoomRatio);   m_nSrcH = int(m_nHeight/m_fZoomRatio);
+		pWnd->SyncDevContext( this, CPoint(m_nSrcX+m_nSrcW/2, m_nSrcY+m_nSrcH/2), TRUE );
+	}
 }
 
 void CxImageView::OnZoomFit( BOOL bCalcScrollBar /*=TRUE*/ )
@@ -974,7 +1017,16 @@ void CxImageView::ZoomFit( BOOL bCalcScrollBar /*= TRUE*/ )
 
 	SetRedraw( TRUE );
 
-	SetZoomRatio( m_fZoomFit );	
+	SetZoomRatio( m_fZoomFit );
+
+	CxImageViewCtrl* pWnd = (CxImageViewCtrl*)GetParent();
+	if ( pWnd->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
+	{
+		CPoint ptScroll = GetDeviceScrollPosition();		
+		m_nSrcX = int(ptScroll.x/m_fZoomRatio); m_nSrcY = int(ptScroll.y/m_fZoomRatio);
+		m_nSrcW = int(m_nWidth/m_fZoomRatio);   m_nSrcH = int(m_nHeight/m_fZoomRatio);
+		pWnd->SyncDevContext( this, CPoint(m_nSrcX+m_nSrcW/2, m_nSrcY+m_nSrcH/2), TRUE );
+	}
 }
 
 void CxImageView::RecalcZoomRatio( BOOL bCalcScrollBar /*= TRUE*/ )
@@ -995,11 +1047,20 @@ void CxImageView::RecalcZoomRatio( BOOL bCalcScrollBar /*= TRUE*/ )
 	m_fZoomFit = fRatio;
 	if ( fRatio > 1.f ) fRatio = 1.f;
 	m_fZoomMin = fRatio;
+
 	m_fZoomMax = 30.f;
+	if (m_pImageObject->GetChannel() == 1 &&
+		m_pImageObject->GetDepth() == 16)
+		m_fZoomMax = 50.f;
+
+	//TRACE( _T("RecalcZoomRatio: %f/%f\n"), m_fZoomMin, m_fZoomMax );
 }
 
 void CxImageView::OnLButtonDblClk(UINT nFlags, CPoint point) 
 {
+	if (!m_bEnableMouseControl)
+		return;
+
 	if ( m_fnOnFireMouseEvent )
 	{
 		if ( (*m_fnOnFireMouseEvent)( WM_LBUTTONDBLCLK, point, m_nIndexData, m_lpUsrDataOnFireMouseEvent ) )
@@ -1039,6 +1100,9 @@ void CxImageView::OnLButtonDblClk(UINT nFlags, CPoint point)
 
 void CxImageView::OnRButtonDblClk(UINT nFlags, CPoint point) 
 {
+	if (!m_bEnableMouseControl)
+		return;
+
 	if ( m_fnOnFireMouseEvent )
 	{
 		if ( (*m_fnOnFireMouseEvent)( WM_RBUTTONDBLCLK, point, m_nIndexData, m_lpUsrDataOnFireMouseEvent ) )
@@ -1074,15 +1138,6 @@ void CxImageView::OnRButtonDblClk(UINT nFlags, CPoint point)
 
 void CxImageView::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	if ( GetParent()->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
-	{
-		CWnd* pParentWnd = GetParent()->GetParent();
-		if ( pParentWnd && pParentWnd->IsTopParentActive() )
-		{
-			GetParent()->SetFocus();
-		}
-	}
-	
 	if ( m_fnOnFireMouseEvent )
 	{
 		if ( (*m_fnOnFireMouseEvent)( WM_LBUTTONDOWN, point, m_nIndexData, m_lpUsrDataOnFireMouseEvent ) )
@@ -1092,6 +1147,18 @@ void CxImageView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		if ( OnFireMouseEvent( WM_LBUTTONDOWN, point ) )
 			return;
+	}
+
+	if (!m_bEnableMouseControl)
+		return;
+
+	if ( GetParent()->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
+	{
+		CWnd* pParentWnd = GetParent()->GetParent();
+		if ( pParentWnd && pParentWnd->IsTopParentActive() )
+		{
+			GetParent()->SetFocus();
+		}
 	}
 
 	if ( m_eScreenMode == ImageViewMode::ScreenModeMeasure )
@@ -1221,6 +1288,9 @@ void CxImageView::OnLButtonUp(UINT nFlags, CPoint point)
 			return;
 	}
 
+	if (!m_bEnableMouseControl)
+		return;
+
 	if ( m_eScreenMode == ImageViewMode::ScreenModeMeasure || m_eScreenMode == ImageViewMode::ScreenModeTracker )
 	{
 		CView::OnLButtonUp(nFlags, point);
@@ -1240,15 +1310,6 @@ void CxImageView::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CxImageView::OnRButtonDown(UINT nFlags, CPoint point) 
 {
-	if ( GetParent()->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
-	{
-		CWnd* pParentWnd = GetParent()->GetParent();
-		if ( pParentWnd && pParentWnd->IsTopParentActive() )
-		{
-			GetParent()->SetFocus();
-		}
-	}
-
 	if ( m_fnOnFireMouseEvent )
 	{
 		if ( (*m_fnOnFireMouseEvent)( WM_RBUTTONDOWN, point, m_nIndexData, m_lpUsrDataOnFireMouseEvent ) )
@@ -1258,6 +1319,18 @@ void CxImageView::OnRButtonDown(UINT nFlags, CPoint point)
 	{
 		if ( OnFireMouseEvent( WM_RBUTTONDOWN, point ) )
 			return;
+	}
+
+	if (!m_bEnableMouseControl)
+		return;
+
+	if ( GetParent()->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
+	{
+		CWnd* pParentWnd = GetParent()->GetParent();
+		if ( pParentWnd && pParentWnd->IsTopParentActive() )
+		{
+			GetParent()->SetFocus();
+		}
 	}
 
 	if ( ::GetCapture() != m_hWnd ) ::SetCapture( m_hWnd );
@@ -1296,6 +1369,9 @@ void CxImageView::OnRButtonUp(UINT nFlags, CPoint point)
 		if ( OnFireMouseEvent( WM_RBUTTONUP, point ) )
 			return;
 	}
+
+	if (!m_bEnableMouseControl)
+		return;
 
 	if ( ::GetCapture() == m_hWnd )
 		::ReleaseCapture();
@@ -1402,16 +1478,7 @@ ImageViewMode::ScreenMode CxImageView::SetScreenMode( ImageViewMode::ScreenMode 
 }
 
 void CxImageView::OnMouseMove(UINT nFlags, CPoint point) 
-{	
-	if ( GetParent()->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
-	{
-		CWnd* pParentWnd = GetParent()->GetParent();
-		if ( pParentWnd && pParentWnd->IsTopParentActive() )
-		{
-			GetParent()->SetFocus();
-		}
-	}
-
+{
 	CRect rc;
 	GetClientRect( rc );
 	
@@ -1423,7 +1490,7 @@ void CxImageView::OnMouseMove(UINT nFlags, CPoint point)
 		}
 		// MOUSE ENTER EVENT
 		m_bMouseOverCheck = TRUE;
-		SetTimer( 1, 50, 0 );
+		SetTimer( 1, 10, 0 );
 	}
 	
 	if ( m_fnOnFireMouseEvent )
@@ -1435,6 +1502,18 @@ void CxImageView::OnMouseMove(UINT nFlags, CPoint point)
 	{
 		if ( OnFireMouseEvent( WM_MOUSEMOVE, point ) )
 			return;
+	}
+
+	if (!m_bEnableMouseControl)
+		return;
+
+	if ( m_bUseAutoFocus && GetParent()->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
+	{
+		CWnd* pParentWnd = GetParent()->GetParent();
+		if ( pParentWnd && pParentWnd->IsTopParentActive() )
+		{
+			GetParent()->SetFocus();
+		}
 	}
 
 //	TRACE( "ScreenMode: %d\r\n", m_eScreenMode );
@@ -1500,8 +1579,13 @@ void CxImageView::OnMouseMove(UINT nFlags, CPoint point)
 			nGV = m_pImageObject->GetPixelLevel( ptImage.x, ptImage.y );
 			dwColor = RGB(nGV, nGV, nGV);
 			break;
+		case 16:
+			nGV = m_pImageObject->GetPixelLevel( ptImage.x, ptImage.y );
+			dwColor = m_pImageObject->GetPixelColor( ptImage.x, ptImage.y );
+			break;
 		case 24:
 		case 32:
+			nGV = 0;
 			dwColor = m_pImageObject->GetPixelColor( ptImage.x, ptImage.y );
 			break;
 		}
@@ -1509,7 +1593,7 @@ void CxImageView::OnMouseMove(UINT nFlags, CPoint point)
 		CxImageViewCtrl* pWnd = (CxImageViewCtrl*)GetParent();
 		if ( pWnd->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
 		{
-			pWnd->OnStatusInfo( ptImage.x, ptImage.y, dwColor, m_pImageObject->GetBpp() );
+			pWnd->OnStatusInfo( ptImage.x, ptImage.y, dwColor, nGV, m_pImageObject->GetDepth(), m_pImageObject->GetChannel() );
 			pWnd->SyncDevContext( this, ptImage, FALSE );
 		}
 	}
@@ -1708,6 +1792,9 @@ POINT CxImageView::ScreenPosToOverlay( int x, int y )
 
 BOOL CxImageView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message) 
 {
+	if (!m_bEnableMouseControl)
+		return CView::OnSetCursor(pWnd, nHitTest, message);
+
 	if ( m_pInnerUI->m_LineTracker.SetCursor(pWnd, nHitTest) )
 		return TRUE;
 
@@ -1775,6 +1862,9 @@ BOOL CxImageView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 void CxImageView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	if (!m_pImageObject || !m_pImageObject->IsValid())
+		return;
+
+	if (!m_bEnableMouseControl)
 		return;
 
 	CPoint ptScroll = GetDeviceScrollPosition();
@@ -1880,6 +1970,9 @@ BOOL CxImageView::PreTranslateMessage(MSG* pMsg)
 	if (!m_pImageObject || !m_pImageObject->IsValid())
 		return CView::PreTranslateMessage(pMsg);
 
+	if (!m_bEnableMouseControl)
+		return CView::PreTranslateMessage(pMsg);
+
 	CPoint ptScroll = GetDeviceScrollPosition();
 
 	switch (pMsg->message)
@@ -1937,6 +2030,9 @@ BOOL CxImageView::PreTranslateMessage(MSG* pMsg)
 
 BOOL CxImageView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) 
 {
+	if (!m_bEnableMouseControl)
+		return FALSE;
+
 	pt.x = (short)pt.x;
 	pt.y = (short)pt.y;
 	ScreenToClient( &pt );
@@ -2016,7 +2112,10 @@ BOOL CxImageView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 }
 
 void CxImageView::OnMButtonDown(UINT nFlags, CPoint point) 
-{	
+{
+	if (!m_bEnableMouseControl)
+		return;
+
 	if ( GetParent()->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
 	{
 		CWnd* pParentWnd = GetParent()->GetParent();
@@ -2042,6 +2141,9 @@ void CxImageView::OnMButtonDown(UINT nFlags, CPoint point)
 
 void CxImageView::OnMButtonUp(UINT nFlags, CPoint point) 
 {
+	if (!m_bEnableMouseControl)
+		return;
+
 	if ( m_fnOnFireMouseEvent )
 	{
 		if ( (*m_fnOnFireMouseEvent)( WM_MBUTTONUP, point, m_nIndexData, m_lpUsrDataOnFireMouseEvent ) )
@@ -2337,6 +2439,9 @@ BOOL CxImageView::DrawScaleMark_Simple0( HDC hDC, RECT rc, float fScale, LPCTSTR
 void CxImageView::OnContextMenu(CWnd* pWnd, CPoint point) 
 {
 	if ( m_eScreenMode == ImageViewMode::ScreenModeSmart || m_eScreenMode == ImageViewMode::ScreenModeZoomInOut )
+		return;
+
+	if (!m_bEnableMouseControl)
 		return;
 
 	CPoint ptHit = point;

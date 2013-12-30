@@ -88,6 +88,28 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 	m_wndImageView[1].ZoomFit();
 }
 
+#define WM_MOUSEENTER		(WM_USER+100)
+BOOL APIENTRY _OnFireMouseEvent ( DWORD dwMsg, CPoint& point, UINT nIndexData, LPVOID lpUsrData )
+{
+	switch (dwMsg)
+	{
+	case WM_LBUTTONDOWN:
+		TRACE( _T("MOUSE LBUTTONDOWN: %d\n"), nIndexData );
+		break;
+	case WM_LBUTTONUP:
+		TRACE( _T("MOUSE LBUTTONUP: %d\n"), nIndexData );
+		break;
+	case WM_MOUSEENTER:
+		TRACE( _T("MOUSE ENTER: %d\n"), nIndexData );
+		break;
+	case WM_MOUSELEAVE:
+		TRACE( _T("MOUSE LEAVE: %d\n"), nIndexData );
+		break;
+	}
+
+	return TRUE;
+}
+
 
 int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
@@ -106,6 +128,10 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	clrText.SetText( _T("AAAA") );
 	COLORPOINT clrPoint;
 	clrPoint.CreateObject(RGB(255,0,0), 200, 200);
+	REGISTER_CALLBACK regCB;
+	memset( &regCB, 0, sizeof(REGISTER_CALLBACK) );
+	regCB.fnOnFireMouseEvent = _OnFireMouseEvent;
+
 	for ( int i=0 ; i<2 ; i++ )
 	{
 		m_wndImageView[i].Create( &m_wndImageViewManager, this );
@@ -114,6 +140,8 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_wndImageView[i].SetMiniButtonType(dwBtnTypes, TRUE);
 		m_wndImageView[i].SetImageObject( &m_ImageObject[i] );
 		m_wndImageView[i].SetAnimateWindow(TRUE);
+		//m_wndImageView[i].EnableMouseControl(FALSE);
+		//m_wndImageView[i].SetRegisterCallBack(i, &regCB);
 		//m_wndImageView[i].SetSyncManager(&m_wndImageViewSyncManager);
 		//m_wndImageView[i].SetTrackerMode(TRUE);
 		m_wndImageView[i].GetGraphicObject().AddDrawObject( &clrBox, 0 );
@@ -124,6 +152,22 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_ImageObject[i].LoadFromFile( _T("C:\\Users\\Public\\Pictures\\Sample Pictures\\Lighthouse.jpg") );
 		//m_ImageObject[i].LoadFromFile( _T("E:\\CropImage.bmp") );
 	}
+
+	int nW = 100;
+	int nH = 100;
+	int nWBytes = CxImageObject::GetWidthBytes(nW, 16);
+	unsigned short* p16Buffer = (unsigned short*)malloc( nWBytes * nH);
+	for (int i=0 ; i<nH ; i++)
+	{
+		for (int j=0 ; j<nW ; j++)
+		{
+			p16Buffer[i*nW+j] = (i+j)*0x7fff/(nW+nH);
+		}
+	}
+	m_ImageObject[0].CreateFromBuffer( p16Buffer, nW, nH, 16, 1 );
+	m_ImageObject[0].SetPixelMaximum(0x7fff);
+
+	//free(p16Buffer);
 
 	return 0;
 }

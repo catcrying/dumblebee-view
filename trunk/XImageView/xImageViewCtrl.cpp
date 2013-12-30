@@ -252,13 +252,18 @@ CxImageViewCtrl::CxImageViewCtrl(CWnd* pParent /*=NULL*/) :
 	m_dwBodyColor = RGB(220, 220, 240);
 	m_dwBorderColors[0] = (DWORD)-1;
 	m_dwBorderColors[1] = (DWORD)-1;
-	m_dwBorderColors[2] = RGB(180,180,180);
+	m_dwBorderColors[2] = (DWORD)-1;
 	m_BodyBrush.CreateSolidBrush( m_dwBodyColor );
 
 	m_nTitleBarHeight = 30;
 
 	m_dwActiveTitleColor = RGB(230, 230, 230);//RGB(255, 255, 255);
 	m_dwInactiveTitleColor = RGB(230, 230, 230);
+
+	m_dwButtonHoverColor = RGB(255, 255, 255);
+	m_dwButtonPressColor = RGB(200, 30, 30);
+	m_dwButtonBorderHoverColor = RGB(255, 255, 255);
+	m_dwButtonBorderPressColor = RGB(200, 30, 30);
 	
 	m_TitleFont.CreateFont( 14, 0, 0, 0,
 		FW_BOLD, FALSE, FALSE, 0, 
@@ -276,6 +281,10 @@ CxImageViewCtrl::CxImageViewCtrl(CWnd* pParent /*=NULL*/) :
 
 	m_nIndexViewWidth = 140;
 	m_nIndexViewHeight = 140;
+
+	m_nChannel = 1;
+	m_nPixelDepth = 8;
+	m_nPixelLevel = 0;
 
 	NONCLIENTMETRICS ncm = { sizeof(NONCLIENTMETRICS) };
 	SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &ncm, 0);
@@ -401,6 +410,14 @@ void CxImageViewCtrl::SetTitleText( LPCTSTR lpszTitle )
 void CxImageViewCtrl::SetMiniButtonType( DWORD dwMBType, BOOL bMaximize ) 
 { 
 	m_dwMiniButtonType[bMaximize] = dwMBType;
+	if ( !::IsWindow( GetSafeHwnd() ) ) return;
+
+	InvalidateRect( m_rcMiniButton );
+}
+
+void CxImageViewCtrl::SetMiniButtonTypeAll( DWORD dwMBType )
+{
+	m_dwMiniButtonType[0] = m_dwMiniButtonType[1] = dwMBType;
 	if ( !::IsWindow( GetSafeHwnd() ) ) return;
 
 	InvalidateRect( m_rcMiniButton );
@@ -579,7 +596,7 @@ void CxImageViewCtrl::SetImageBuffer( int nWidth, int nHeight, LPVOID lpBuf )
 	{
 		bZoomFit = TRUE;
 	}
-	m_pImageObject->CreateFromBuffer( lpBuf, nWidth, nHeight, 8 );
+	m_pImageObject->CreateFromBuffer( lpBuf, nWidth, nHeight, 8, 1 );
 
 	SetImageObject( m_pImageObject, bZoomFit );
 }
@@ -1069,6 +1086,16 @@ void CxImageViewCtrl::ShowDrawElapsedTime( BOOL bShow )
 	m_pImageView->ShowDrawElapsedTime( bShow );
 }
 
+void CxImageViewCtrl::UseAutoFocus( BOOL bUse )
+{
+	m_pImageView->UseAutoFocus(bUse);
+}
+
+void CxImageViewCtrl::EnableMouseControl( BOOL bEnable )
+{
+	m_pImageView->EnableMouseControl(bEnable);
+}
+
 void CxImageViewCtrl::ShowScrollBar( BOOL bShow )
 {
 	if ( !m_bCreateInnerControl )
@@ -1335,7 +1362,8 @@ void CxImageViewCtrl::OnMouseMove(UINT nFlags, CPoint point)
 		}
 	}
 
-	SetFocus();
+	if (m_pImageView->IsUseAutoFocus())
+		SetFocus();
 
 	CWnd::OnMouseMove(nFlags, point);
 }
@@ -1435,15 +1463,19 @@ BOOL CxImageViewCtrl::PreTranslateMessage(MSG* pMsg)
 	return CWnd::PreTranslateMessage(pMsg);
 }
 
-void CxImageViewCtrl::OnStatusInfo( LONG lX, LONG lY, COLORREF dwColor, int nBpp )
+void CxImageViewCtrl::OnStatusInfo( LONG lX, LONG lY, COLORREF dwColor, int nLevel, int nDepth, int nChannel )
 {
 	if ((m_ptPixel.x == lX) && (m_ptPixel.y == lY) && 
-		(m_dwPixelColor == dwColor) && (m_nPixelBpp == nBpp) &&
+		(m_dwPixelColor == dwColor) &&
+		(m_nPixelDepth == nDepth) &&
+		(m_nChannel == nChannel) &&
 		m_strStatus.IsEmpty() )
 		return;
 	m_ptPixel.x = lX; m_ptPixel.y = lY;
 	m_dwPixelColor = dwColor;
-	m_nPixelBpp = nBpp;
+	m_nPixelLevel = nLevel;
+	m_nPixelDepth = nDepth;
+	m_nChannel = nChannel;
 	m_strStatus.Empty();
 	RedrawStatus();
 }
@@ -1878,9 +1910,10 @@ void CxImageViewCtrl::DrawMiniButton( Gdiplus::Graphics& g, const Gdiplus::RectF
 		bIsHovered = FALSE;
 		bIsPressed = TRUE;
 	}
-	Color colorButton = Color(0, 255, 255, 255);
+
+	Color colorButton = Color(0, GetRValue(m_dwButtonHoverColor), GetGValue(m_dwButtonHoverColor), GetBValue(m_dwButtonHoverColor));
 	if (bIsChecked || bIsPressed)
-		colorButton = Color(180, 200, 30, 30);
+		colorButton = Color(180, GetRValue(m_dwButtonPressColor), GetGValue(m_dwButtonPressColor), GetBValue(m_dwButtonPressColor));
 
 	RectF rectBody = rectBtn;
 	if ( bIsHovered )
@@ -1896,27 +1929,6 @@ void CxImageViewCtrl::DrawMiniButton( Gdiplus::Graphics& g, const Gdiplus::RectF
 	}
 
 	SolidBrush brushBody(colorButton);
-	/*
-	if ( eIndex == m_eButtonFirst )
-	{
-		rectBody.X -= 0.5f;
-		rectBody.Width += 1.f;
-
-		GraphicsPath* pRoundRect = GdipCreateRoundRect( rectBody, 2, 0, 0, 2 );
-		g.FillPath( &brushBody, pRoundRect );
-		delete pRoundRect;
-
-	}
-	else if ( eIndex == m_eButtonLast )
-	{
-		rectBody.X -= 0.5f;
-		rectBody.Width += 1.f;
-
-		GraphicsPath* pRoundRect = GdipCreateRoundRect( rectBody, 0, 2, 2, 0 );
-		g.FillPath( &brushBody, pRoundRect );
-		delete pRoundRect;
-	}
-	else*/
 	{
 		rectBody.X -= 0.5f;
 		rectBody.Width += 1.f;
@@ -2001,9 +2013,9 @@ void CxImageViewCtrl::DrawStatus( Gdiplus::Graphics& g )
 		rectPixelInfo.Width -= rectGV.Width + 2;
 
 		CString strLevel;
-		if (m_nPixelBpp == 8)
+		if (m_nChannel == 1)
 		{
-			strLevel.Format( _T("[%d, %d] = %d"), m_ptPixel.x, m_ptPixel.y, GetRValue(m_dwPixelColor) );
+			strLevel.Format( _T("[%d, %d] = %d"), m_ptPixel.x, m_ptPixel.y, m_nPixelLevel );
 		}
 		else
 		{

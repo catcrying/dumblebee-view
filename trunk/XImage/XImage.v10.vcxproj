@@ -168,7 +168,6 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;XIMAGE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include;../XUtil/Include;../thirdparty/OpenCV/include</AdditionalIncludeDirectories>
-      <ProgramDataBaseFileName>Bin\x86\$(ProjectName)d.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -190,7 +189,6 @@ copy /y ..\thirdparty\OpenCV\x86\vc10\bin\opencv_highgui246.dll .\Bin\vc10\x86\<
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;XIMAGE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include;../XUtil/Include;../thirdparty/OpenCV/include</AdditionalIncludeDirectories>
-      <ProgramDataBaseFileName>Bin\x86\$(ProjectName)d.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -212,7 +210,6 @@ copy /y ..\thirdparty\OpenCV\x86\vc10\bin\opencv_highgui246.dll .\Bin\vc10\x86\<
       <PreprocessorDefinitions>WIN64;_DEBUG;_WINDOWS;_USRDLL;XIMAGE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include;../XUtil/Include;../thirdparty/OpenCV/include</AdditionalIncludeDirectories>
-      <ProgramDataBaseFileName>Bin\x64\$(ProjectName)d.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -234,7 +231,6 @@ copy /y ..\thirdparty\OpenCV\x64\vc10\bin\opencv_highgui246.dll .\Bin\vc10\x64\<
       <PreprocessorDefinitions>WIN64;_DEBUG;_WINDOWS;_USRDLL;XIMAGE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include;../XUtil/Include;../thirdparty/OpenCV/include</AdditionalIncludeDirectories>
-      <ProgramDataBaseFileName>Bin\x64\$(ProjectName)d.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

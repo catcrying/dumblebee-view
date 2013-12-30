@@ -58,6 +58,9 @@ protected:
 	BOOL			m_bShowDigitize;
 	BOOL			m_bShowScaleBar;
 
+	BOOL			m_bUseAutoFocus;
+	BOOL			m_bEnableMouseControl;
+
 	ImageViewMode::MouseWheelMode  m_eMouseWheelMode;
 
 	int m_nWidth;
@@ -221,11 +224,16 @@ public:
 
 	void ShowScaleBar( BOOL bShow );
 	void ShowScrollBar( BOOL bShow );
-	BOOL IsShowScrollBar();
+	BOOL IsShowScrollBar() const;
 	void ShowDigitize( BOOL bShow );
 	void ShowDrawElapsedTime( BOOL bShow );
+	void UseAutoFocus( BOOL bUse );
+	BOOL IsUseAutoFocus() const;
+	void EnableMouseControl( BOOL bEnable );
+	BOOL IsEnableMouseControl() const;
 
 	void SetClearColor( BYTE c );
+	void SetPopupMenuColor( DWORD dwBackgroundColor, DWORD dwTitleTextColor );
 
 	void SetBackgroundColor( DWORD dwColor );
 

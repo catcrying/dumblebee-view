@@ -92,6 +92,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// Behavior
 	void SetMiniButtonType( DWORD dwMBType, BOOL bMaximize );
+	void SetMiniButtonTypeAll( DWORD dwMBType );
 	void SetTitleText( LPCTSTR lpszTitle );
 
 	void SyncDevContext( IxDeviceContext* pIDC, CPoint& ptImage, BOOL bUpdateImage );
@@ -175,6 +176,8 @@ public:
 	void ShowScrollBar( BOOL bShow );
 	void ShowDigitize( BOOL bShow );
 	void ShowDrawElapsedTime( BOOL bShow );
+	void UseAutoFocus( BOOL bUse );
+	void EnableMouseControl( BOOL bEnable );
 
 	void EnableSyncDevContext( BOOL bSyncDevContext );
 
@@ -252,7 +255,7 @@ protected:
 
 	void OnSyncDevContext( IxDeviceContext* pIDC, CPoint& ptImage, BOOL bUpdateImage );
 
-	void OnStatusInfo( LONG lX, LONG lY, COLORREF dwColor, int nBpp );
+	void OnStatusInfo( LONG lX, LONG lY, COLORREF dwColor, int nLevel, int nDepth, int nChannel );
 	void OnStatusText( LPCTSTR lpszText );
 
 	enum ButtonIconIndex
@@ -342,9 +345,11 @@ protected:
 
 	CRect				m_rcStatus;
 	COLORREF			m_dwPixelColor;
+	int					m_nPixelLevel;
 	CString				m_strStatus;
 	CPoint				m_ptPixel;
-	int					m_nPixelBpp;
+	int					m_nPixelDepth;
+	int					m_nChannel;
 
 	CRect				m_rcTitle;
 	Gdiplus::Image*		m_pMiniBtnIconWhite;

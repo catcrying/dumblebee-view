@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <XUtil/DB/xSimpleADO.h>
 #include "xADODB.h"
-#include "Strsafe.h"
+//#include <Strsafe.h>
 #include <vector>
 
 class CxADOParameterSet
@@ -149,7 +149,7 @@ LPWSTR CxSimpleADO::IFieldPtr::GetName()
 	CxString strName = m_pField->GetName();
 	USES_CONVERSION;
 	WCHAR* pName = T2W((LPTSTR)(LPCTSTR)strName);
-	StringCchCopyW( wszName, 256, pName );
+	wcscpy_s(wszName, pName);
 	return wszName;
 }
 
@@ -349,7 +349,7 @@ LPCWSTR CxSimpleADO::GetADOLastErrorString()
 	CxString strError = m_pConnection->GetLastErrorString();
 	USES_CONVERSION;
 	WCHAR* pError = T2W((LPTSTR)(LPCTSTR)strError);
-	StringCchCopyW( wszLastError, 512, pError );
+	wcscpy_s(wszLastError, pError);
 
 	return wszLastError;
 }

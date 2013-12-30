@@ -26,6 +26,7 @@ protected:
 	DWORD_PTR		m_dwUsrData1;
 	DWORD_PTR		m_dwUsrData2;
 	DWORD_PTR		m_dwUsrData3;
+	int				m_nPixelMaximum;
 
 	BOOL			m_bNotifyChangeImage;
 
@@ -52,6 +53,9 @@ public:
 	void SetData3( DWORD_PTR dwUsrData3 );
 	DWORD_PTR GetData3();
 
+	void SetPixelMaximum( int nValue );
+	int GetPixelMaximum() const;
+
 	// HBITMAP handling
 	void AttachHBitmap( HBITMAP hBitmap );
 	void DetachHBitmap();
@@ -61,8 +65,8 @@ public:
 	BOOL IsValid() const;
 
 	// Construction
-	BOOL CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nBpp ); // lpImgBuf must be 4-aligned
-	BOOL Create( int nWidth, int nHeight, int nBpp, int nOrigin=0 );
+	BOOL CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel ); // lpImgBuf must be 4-aligned
+	BOOL Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin=0 );
 	void Destroy();
 
 	virtual BOOL LoadFromFile( LPCTSTR lpszFileName, BOOL bForceGray8=FALSE );
@@ -76,13 +80,15 @@ public:
     int GetWidth() const;
     int GetHeight() const;
     int GetBpp() const;
+	int GetDepth() const;
+	int GetChannel() const;
 
-	static int GetWidthBytes( int nCx, int nBitCount );
+	static int GetWidthBytes( int nCx, int nBitCount );	// only 4-byte align
 	int GetWidthBytes() const;
 
 	// Access Image-Buffer
 	LPVOID GetImageBuffer() const;
-	BYTE GetPixelLevel( int x, int y ) const;
+	int GetPixelLevel( int x, int y ) const;
 	COLORREF GetPixelColor( int x, int y ) const;
 
 	struct _IplImage* GetImage() const;

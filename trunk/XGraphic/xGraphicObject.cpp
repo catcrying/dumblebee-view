@@ -1081,7 +1081,7 @@ public:
 			m_nActiveLineIndex[i]		= -1;
 			m_nActiveTextIndex[i]		= -1;
 			m_nActiveCrossIndex[i]		= -1;
-			m_nActiveDCrossIndex[i]	= -1;
+			m_nActiveDCrossIndex[i]		= -1;
 			m_nActiveEllipseIndex[i]	= -1;
 			m_nActivePointIndex[i]		= -1;
 			m_nActiveArrowIndex[i]		= -1;
@@ -1089,7 +1089,7 @@ public:
 			m_nActiveAlignMarkIndex[i]	= -1;
 
 			m_bRebuildGOBox[i]			= FALSE;
-			m_bRebuildGOLine[i]		= FALSE;
+			m_bRebuildGOLine[i]			= FALSE;
 			m_bRebuildGOCross[i]		= FALSE;
 			m_bRebuildGODCross[i]		= FALSE;
 			m_bRebuildGOEllipse[i]		= FALSE;
@@ -1191,7 +1191,76 @@ public:
 				m_bRebuildGOEllipse[i] = FALSE;
 			}
 		}
+	}
 
+	const CxGraphicObjectData& operator = (const CxGraphicObjectData& other)
+	{
+		for ( int i=0 ; i<MAX_LAYER ; i++ )
+		{
+			m_nActiveBoxIndex[i]		= other.m_nActiveBoxIndex[i];
+			m_nActiveLineIndex[i]		= other.m_nActiveLineIndex[i];
+			m_nActiveTextIndex[i]		= other.m_nActiveTextIndex[i];
+			m_nActiveCrossIndex[i]		= other.m_nActiveCrossIndex[i];
+			m_nActiveDCrossIndex[i]		= other.m_nActiveDCrossIndex[i];
+			m_nActiveEllipseIndex[i]	= other.m_nActiveEllipseIndex[i];
+			m_nActivePointIndex[i]		= other.m_nActivePointIndex[i];
+			m_nActiveArrowIndex[i]		= other.m_nActiveArrowIndex[i];
+			m_nActivePolygonIndex[i]	= other.m_nActivePolygonIndex[i];
+			m_nActiveAlignMarkIndex[i]	= other.m_nActiveAlignMarkIndex[i];
+
+			m_bRebuildGOBox[i]			= FALSE;
+			m_bRebuildGOLine[i]			= FALSE;
+			m_bRebuildGOCross[i]		= FALSE;
+			m_bRebuildGODCross[i]		= FALSE;
+			m_bRebuildGOEllipse[i]		= FALSE;
+			m_bRebuildGOPoint[i]		= FALSE;
+			m_bRebuildGOArrow[i]		= FALSE;
+			m_bRebuildGOPolygon[i]		= FALSE;
+			m_bRebuildGOAlignMark[i]	= FALSE;
+
+			m_LayerProperty[i]			= other.m_LayerProperty[i];
+
+			m_BoxArray[i].resize(other.m_BoxArray[i].size());
+			if (other.m_BoxArray[i].size() > 0)
+				m_bRebuildGOBox[i] = TRUE;
+			std::copy(other.m_BoxArray[i].begin(), other.m_BoxArray[i].end(), m_BoxArray[i].begin());
+			m_LineArray[i].resize(other.m_LineArray[i].size());
+			if (other.m_LineArray[i].size() > 0)
+				m_bRebuildGOLine[i] = TRUE;
+			std::copy(other.m_LineArray[i].begin(), other.m_LineArray[i].end(), m_LineArray[i].begin());
+			m_TextArray[i].resize(other.m_TextArray[i].size());
+			std::copy(other.m_TextArray[i].begin(), other.m_TextArray[i].end(), m_TextArray[i].begin());
+			m_CrossArray[i].resize(other.m_CrossArray[i].size());
+			if (other.m_CrossArray[i].size() > 0)
+				m_bRebuildGOCross[i] = TRUE;
+			std::copy(other.m_CrossArray[i].begin(), other.m_CrossArray[i].end(), m_CrossArray[i].begin());
+			m_DCrossArray[i].resize(other.m_DCrossArray[i].size());
+			if (other.m_DCrossArray[i].size() > 0)
+				m_bRebuildGODCross[i] = TRUE;
+			std::copy(other.m_DCrossArray[i].begin(), other.m_DCrossArray[i].end(), m_DCrossArray[i].begin());
+			m_EllipseArray[i].resize(other.m_EllipseArray[i].size());
+			if (other.m_EllipseArray[i].size() > 0)
+				m_bRebuildGOEllipse[i] = TRUE;
+			std::copy(other.m_EllipseArray[i].begin(), other.m_EllipseArray[i].end(), m_EllipseArray[i].begin());
+			m_PointArray[i].resize(other.m_PointArray[i].size());
+			if (other.m_PointArray[i].size() > 0)
+				m_bRebuildGOPoint[i] = TRUE;
+			std::copy(other.m_PointArray[i].begin(), other.m_PointArray[i].end(), m_PointArray[i].begin());
+			m_ArrowArray[i].resize(other.m_ArrowArray[i].size());
+			if (other.m_ArrowArray[i].size() > 0)
+				m_bRebuildGOArrow[i] = TRUE;
+			std::copy(other.m_ArrowArray[i].begin(), other.m_ArrowArray[i].end(), m_ArrowArray[i].begin());
+			m_PolygonArray[i].resize(other.m_PolygonArray[i].size());
+			if (other.m_PolygonArray[i].size() > 0)
+				m_bRebuildGOPolygon[i] = TRUE;
+			std::copy(other.m_PolygonArray[i].begin(), other.m_PolygonArray[i].end(), m_PolygonArray[i].begin());
+			m_AlignMarkArray[i].resize(other.m_AlignMarkArray[i].size());
+			if (other.m_AlignMarkArray[i].size() > 0)
+				m_bRebuildGOAlignMark[i] = TRUE;
+			std::copy(other.m_AlignMarkArray[i].begin(), other.m_AlignMarkArray[i].end(), m_AlignMarkArray[i].begin());
+		}
+
+		return *this;
 	}
 };
 
@@ -1203,7 +1272,7 @@ CxGraphicObjectData::LayerProperty::LayerProperty() {}
 
 //////////////////////////////////////////////////////////////////////////
 // CxGraphicObject
-CxGraphicObject::CxGraphicObject( IxDeviceContext* pIDC ) : 
+CxGraphicObject::CxGraphicObject( IxDeviceContext* pIDC/*=NULL*/ ) : 
 m_pIDC(pIDC), m_pPointClipper(NULL), m_nViewPortOffset(10), m_hActivePen(NULL), m_bEnableDraw(TRUE)
 {
 	m_pCsGraphicObject = new CxCriticalSection;
@@ -1212,7 +1281,7 @@ m_pIDC(pIDC), m_pPointClipper(NULL), m_nViewPortOffset(10), m_hActivePen(NULL), 
 	
 	m_pPointClipper = new CxPointClipper;
 		
-	m_dwActiveColor			= PDC_GREEN;
+	m_dwActiveColor	= PDC_GREEN;
 
 	m_pGOTable = CxGOTable::GetRef();
 
@@ -1221,6 +1290,39 @@ m_pIDC(pIDC), m_pPointClipper(NULL), m_nViewPortOffset(10), m_hActivePen(NULL), 
 	m_pData->Init();
 
 	wsprintfW( m_wszFontFace, L"Arial" );
+}
+
+CxGraphicObject::CxGraphicObject(const CxGraphicObject& other) : 
+m_pPointClipper(NULL), m_nViewPortOffset(10), m_hActivePen(NULL), m_bEnableDraw(TRUE)
+{
+	m_pCsGraphicObject = new CxCriticalSection;
+	m_pActiveDefectArrowDrawer = new CxArrowDrawer();
+	m_pActiveDefectArrowDrawer->Create( 2, RGB(0xff,0,0), RGB(0xff,0xff,0), RGB(0xff,0,0) );
+	
+	m_pPointClipper = new CxPointClipper;
+		
+	m_dwActiveColor	= other.m_dwActiveColor;
+
+	m_pGOTable = CxGOTable::GetRef();
+
+	m_pData = new CxGraphicObjectData(m_pGOTable);
+
+	m_pIDC = other.m_pIDC;
+	*m_pData = *other.m_pData;
+
+	wsprintfW( m_wszFontFace, other.m_wszFontFace );
+}
+
+const CxGraphicObject& CxGraphicObject::operator = (const CxGraphicObject& other )
+{
+	m_dwActiveColor	= other.m_dwActiveColor;
+
+	m_pIDC = other.m_pIDC;
+	*m_pData = *other.m_pData;
+
+	wsprintfW( m_wszFontFace, other.m_wszFontFace );
+
+	return *this;
 }
 
 CxGraphicObject::~CxGraphicObject()
@@ -1254,6 +1356,12 @@ CxGraphicObject::~CxGraphicObject()
 	delete m_pData;
 	//delete m_pGOTable;
 	CxGOTable::ReleaseRef();
+}
+
+void CxGraphicObject::SetDeviceContext( IxDeviceContext* pIDC )
+{
+	XASSERT( pIDC );
+	m_pIDC = pIDC;
 }
 
 void CxGraphicObject::Reset()
@@ -1453,6 +1561,8 @@ void CxGraphicObject::Draw( HDC hDC )
 
 void CxGraphicObject::DrawPolygon( HDC hDC, int nLayer )
 {
+	XASSERT( m_pIDC );
+
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
 	POINT ptScroll = m_pIDC->GetDeviceScrollPosition();
@@ -1594,6 +1704,8 @@ void CxGraphicObject::DrawPolygon( HDC hDC, int nLayer )
 
 void CxGraphicObject::DrawBox( HDC hDC, int nLayer )
 {
+	XASSERT( m_pIDC );
+
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
 	POINT ptScroll = m_pIDC->GetDeviceScrollPosition();
@@ -1717,6 +1829,8 @@ void CxGraphicObject::DrawBox( HDC hDC, int nLayer )
 
 void CxGraphicObject::DrawEllipse( HDC hDC, int nLayer )
 {
+	XASSERT( m_pIDC );
+
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
 	POINT ptScroll = m_pIDC->GetDeviceScrollPosition();
@@ -1845,6 +1959,8 @@ void CxGraphicObject::DrawEllipse( HDC hDC, int nLayer )
 
 void CxGraphicObject::DrawCross( HDC hDC, int nLayer )
 {
+	XASSERT( m_pIDC );
+
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
 	POINT ptScroll = m_pIDC->GetDeviceScrollPosition();
@@ -1990,6 +2106,8 @@ void CxGraphicObject::DrawCross( HDC hDC, int nLayer )
 
 void CxGraphicObject::DrawAlignMark( HDC hDC, int nLayer )
 {
+	XASSERT( m_pIDC );
+
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
 	POINT ptScroll = m_pIDC->GetDeviceScrollPosition();
@@ -2192,6 +2310,8 @@ void CxGraphicObject::DrawAlignMark( HDC hDC, int nLayer )
 
 void CxGraphicObject::DrawLine( HDC hDC, int nLayer )
 {
+	XASSERT( m_pIDC );
+
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
 	POINT ptScroll = m_pIDC->GetDeviceScrollPosition();
@@ -2304,6 +2424,8 @@ void CxGraphicObject::DrawLine( HDC hDC, int nLayer )
 
 void CxGraphicObject::DrawDCross( HDC hDC, int nLayer )
 {
+	XASSERT( m_pIDC );
+
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
 	POINT ptScroll = m_pIDC->GetDeviceScrollPosition();
@@ -2437,6 +2559,8 @@ void CxGraphicObject::DrawDCross( HDC hDC, int nLayer )
 
 void CxGraphicObject::DrawPoint( HDC hDC, int nLayer )
 {
+	XASSERT( m_pIDC );
+
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
 	POINT ptScroll = m_pIDC->GetDeviceScrollPosition();
@@ -2596,6 +2720,8 @@ void CxGraphicObject::DrawArrowHead( HDC hDC, CxGOArrow& Arrow, POINT pt[2], BOO
 
 void CxGraphicObject::DrawArrow( HDC hDC, int nLayer )
 {
+	XASSERT( m_pIDC );
+
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
 	POINT ptScroll = m_pIDC->GetDeviceScrollPosition();
@@ -2756,6 +2882,8 @@ void CxGraphicObject::SetFontFace( LPCTSTR lpszFaceName )
 
 void CxGraphicObject::DrawText( HDC hDC, int nLayer )
 {
+	XASSERT( m_pIDC );
+
 	RECT rcClient;
 	m_pIDC->GetClientRect(&rcClient);
 	POINT ptScroll = m_pIDC->GetDeviceScrollPosition();
