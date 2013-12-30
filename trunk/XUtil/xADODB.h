@@ -30,9 +30,16 @@
 #if 1	// for 64bit OS (Win7 64bit...)
 	#import "C:\Program Files (x86)\Common Files\System\ado\msado28.tlb" rename_namespace("ADOCG") rename("EOF", "EndOfFile")
 	#import "C:\Program Files (x86)\Common Files\System\ado\msjro.dll" no_namespace
-#else	// for 32bit OS (XP, Win7 32bit...)
-	#import "C:\Program Files\Common Files\System\ado\msado28.tlb" rename_namespace("ADOCG") rename("EOF", "EndOfFile")
-	#import "C:\Program Files\Common Files\System\ado\msjro.dll" no_namespace
+#else
+	#if 1		// for 32bit OS (Win7 32bit...)
+		#import "C:\Program Files\Common Files\System\ado\msado28.tlb" rename_namespace("ADOCG") rename("EOF", "EndOfFile")
+		#import "C:\Program Files\Common Files\System\ado\msjro.dll" no_namespace
+	#else		// for 32bit OS (XP)
+		#pragma warning(disable: 4146)
+		#import "C:\Program Files\Common Files\System\ADO\msado15.dll" rename_namespace("ADOCG") rename("EOF", "EndOfFile")
+		#import "C:\Program Files\Common Files\System\ado\msjro.dll" rename_namespace("ADOX")
+		using namespace ADOX;
+	#endif
 #endif
 using namespace ADOCG;
 
