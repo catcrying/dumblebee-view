@@ -709,7 +709,7 @@ void CxImageScrollView::DrawDigitizedValues( CDC* pDC, int nBlockSize, int nOffs
 
 	CRect rcBlock(nOffsetX, nOffsetY, nOffsetX+nBlockSize, nOffsetY+nBlockSize);
 	pDC->SetTextColor( RGB(0xff, 0xff, 0xff) );
-	int nLevel;
+	unsigned int nLevel;
 
 	for ( int i=nSrcY ; i<nT ; i++ )
 	{
@@ -1001,7 +1001,7 @@ void CxImageScrollView::ZoomTo( CPoint ptScreen, float fZoom, BOOL bSyncControl/
 	if (bIsValidPos)
 	{
 		COLORREF dwColor;
-		int nGV;
+		unsigned int nGV;
 		switch ( m_pImageObject->GetBpp() )
 		{
 		case 8:
@@ -1782,7 +1782,7 @@ void CxImageScrollView::OnMouseMove(UINT nFlags, CPoint point)
 	if (bIsValidPos)
 	{
 		COLORREF dwColor;
-		int nGV;
+		unsigned int nGV;
 		switch ( m_pImageObject->GetBpp() )
 		{
 		case 8:

@@ -88,7 +88,7 @@ public:
 
 	// Access Image-Buffer
 	LPVOID GetImageBuffer() const;
-	int GetPixelLevel( int x, int y ) const;
+	unsigned int GetPixelLevel( int x, int y ) const;
 	COLORREF GetPixelColor( int x, int y ) const;
 
 	struct _IplImage* GetImage() const;

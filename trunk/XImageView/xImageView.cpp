@@ -1572,7 +1572,7 @@ void CxImageView::OnMouseMove(UINT nFlags, CPoint point)
 	if (bIsValidPos)
 	{
 		COLORREF dwColor;
-		int nGV;
+		unsigned int nGV;
 		switch ( m_pImageObject->GetBpp() )
 		{
 		case 8:

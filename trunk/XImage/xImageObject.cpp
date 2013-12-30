@@ -419,7 +419,7 @@ void CxImageObject::Destroy()
 	}
 }
 
-int CxImageObject::GetPixelLevel( int x, int y ) const
+unsigned int CxImageObject::GetPixelLevel( int x, int y ) const
 {
 	if ( !m_pIPLImage || x >= m_pIPLImage->width || y >= m_pIPLImage->height || x<0 || y<0 ) return 0;
 	if ( m_pIPLImage->nChannels != 1 ) return 0;

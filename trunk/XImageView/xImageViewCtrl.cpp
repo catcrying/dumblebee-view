@@ -1463,7 +1463,7 @@ BOOL CxImageViewCtrl::PreTranslateMessage(MSG* pMsg)
 	return CWnd::PreTranslateMessage(pMsg);
 }
 
-void CxImageViewCtrl::OnStatusInfo( LONG lX, LONG lY, COLORREF dwColor, int nLevel, int nDepth, int nChannel )
+void CxImageViewCtrl::OnStatusInfo( LONG lX, LONG lY, COLORREF dwColor, unsigned int nLevel, int nDepth, int nChannel )
 {
 	if ((m_ptPixel.x == lX) && (m_ptPixel.y == lY) && 
 		(m_dwPixelColor == dwColor) &&

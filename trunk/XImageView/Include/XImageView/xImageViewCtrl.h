@@ -255,7 +255,7 @@ protected:
 
 	void OnSyncDevContext( IxDeviceContext* pIDC, CPoint& ptImage, BOOL bUpdateImage );
 
-	void OnStatusInfo( LONG lX, LONG lY, COLORREF dwColor, int nLevel, int nDepth, int nChannel );
+	void OnStatusInfo( LONG lX, LONG lY, COLORREF dwColor, unsigned int nLevel, int nDepth, int nChannel );
 	void OnStatusText( LPCTSTR lpszText );
 
 	enum ButtonIconIndex
@@ -345,7 +345,7 @@ protected:
 
 	CRect				m_rcStatus;
 	COLORREF			m_dwPixelColor;
-	int					m_nPixelLevel;
+	unsigned int		m_nPixelLevel;
 	CString				m_strStatus;
 	CPoint				m_ptPixel;
 	int					m_nPixelDepth;
