@@ -41,14 +41,12 @@ public:
 	BOOL m_bLoading;
 
 	CxFile();
-	CxFile(LPCSTR pStrFileName);
-	CxFile(LPCWSTR pStrFileName);
+	CxFile(LPCTSTR pStrFileName);
 
 	CxFile(const CxFile& op);
 	CxFile(HANDLE hFile);
 
-	CxFile(LPCSTR pStrFileName, unsigned nOpenFlags);
-	CxFile(LPCWSTR pStrFileName, unsigned nOpenFlags);
+	CxFile(LPCTSTR pStrFileName, unsigned nOpenFlags);
 
 	virtual ~CxFile();
 	virtual BOOL IsLoading();
@@ -59,8 +57,7 @@ public:
 	virtual unsigned Read(void* lpBuf, unsigned nMax);
 	virtual unsigned Write(const void* lpData, unsigned nSize);
 
-	virtual BOOL Open(LPCSTR lpszFileName, unsigned nOpenFlags);
-	virtual BOOL Open(LPCWSTR lpszFileName, unsigned nOpenFlags);
+	virtual BOOL Open(LPCTSTR lpszFileName, unsigned nOpenFlags);
 
 	virtual void Close();
 	virtual long Seek(long lOff, unsigned nFrom);
@@ -68,12 +65,6 @@ public:
 	virtual DWORD GetLength();
 	DWORD SeekToEnd();
 	void SeekToBegin();
-	BOOL Read(CxString& str);
-	BOOL Read(int& nValue);
-	BOOL Read(DWORD& dwValue);
-	void Write(CxString& str);
-	void Write(int& nValue);
-	void Write(DWORD& dwValue);
 
 protected:
 	HANDLE m_hFile;

@@ -93,7 +93,7 @@ public:
 	// Behavior
 	void SetMiniButtonType( DWORD dwMBType, BOOL bMaximize );
 	void SetMiniButtonTypeAll( DWORD dwMBType );
-	void SetTitleText( LPCTSTR lpszTitle );
+	void SetTitle( LPCTSTR lpszTitle, BOOL bShowIcon=TRUE );
 
 	void SyncDevContext( IxDeviceContext* pIDC, CPoint& ptImage, BOOL bUpdateImage );
 
@@ -292,6 +292,7 @@ protected:
 	CPoint	m_ptLastMouse;
 
 	CString	m_strTitle;
+	BOOL	m_bShowTitleIcon;
 
 	CxImageObject*	m_pImageObject;
 

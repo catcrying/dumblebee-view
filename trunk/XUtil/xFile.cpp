@@ -45,28 +45,13 @@ CxFile::CxFile(HANDLE hFile)
 	m_bLoading = TRUE;
 }
 
-CxFile::CxFile(LPCSTR pStrFileName)
+CxFile::CxFile(LPCTSTR pStrFileName)
 {
-	m_hFile = ::CreateFileA(pStrFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	m_hFile = ::CreateFile(pStrFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	m_bCloseOnDelete = TRUE;
 }
 
-CxFile::CxFile( LPCSTR lpszFileName, unsigned nOpenFlags )
-{
-	m_hFile = NULL;
-	m_dwAccess = 0;
-	m_bCloseOnDelete = FALSE;
-
-	Open(lpszFileName, nOpenFlags);
-}
-
-CxFile::CxFile(LPCWSTR pStrFileName)
-{
-	m_hFile = ::CreateFileW(pStrFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	m_bCloseOnDelete = TRUE;
-}
-
-CxFile::CxFile( LPCWSTR lpszFileName, unsigned nOpenFlags )
+CxFile::CxFile( LPCTSTR lpszFileName, unsigned nOpenFlags )
 {
 	m_hFile = NULL;
 	m_dwAccess = 0;
@@ -147,60 +132,6 @@ unsigned CxFile::Read(void* lpBuf, unsigned nMax)
 	return 0;
 }
 
-BOOL CxFile::Read(CxString& str)
-{
-	int nLength;
-
-	int nRead = Read(&nLength, sizeof(int));
-
-	if (nRead != sizeof(int)) return FALSE;
-
-	LPCTSTR p = (LPCTSTR)alloca(nLength);
-
-	Read((void*)p, nLength);
-
-	for (int i=0; i<nLength; i++)
-	{
-		str += p[i];
-	}
-
-	return TRUE;
-}
-
-BOOL CxFile::Read(int& nValue)
-{
-	int nRead = Read(&nValue, sizeof(int));
-
-	if (nRead == sizeof(int)) return TRUE;
-	else return FALSE;
-}
-
-BOOL CxFile::Read(DWORD& dwValue)
-{
-	int nRead = Read(&dwValue, sizeof(DWORD));
-
-	if (nRead == sizeof(DWORD)) return TRUE;
-	else return FALSE;
-}
-
-void CxFile::Write(CxString& str)
-{
-	int nLength = str.GetLength();
-
-	Write(&nLength, sizeof(int));
-	Write(str, nLength);
-}
-
-void CxFile::Write(int& nValue)
-{
-	Write(&nValue, sizeof(int));
-}
-
-void CxFile::Write(DWORD& dwValue)
-{
-	Write(&dwValue, sizeof(DWORD));
-}
-
 unsigned CxFile::Write(const void* lpData, unsigned nSize)
 {
 	if (nSize == 0) return 0;
@@ -217,7 +148,7 @@ unsigned CxFile::Write(const void* lpData, unsigned nSize)
 	return 0;
 }
 
-BOOL CxFile::Open(LPCSTR lpszFileName, unsigned nOpenFlags)
+BOOL CxFile::Open(LPCTSTR lpszFileName, unsigned nOpenFlags)
 {
 	XASSERT(lpszFileName);
 	XASSERT((nOpenFlags&typeText) == 0);
@@ -294,95 +225,7 @@ BOOL CxFile::Open(LPCSTR lpszFileName, unsigned nOpenFlags)
 	}
 
 	// attempt file creation
-	HANDLE hFile = ::CreateFileA(lpszFileName, m_dwAccess, dwShareMode, &sa,
-		dwCreateFlag, FILE_ATTRIBUTE_NORMAL, NULL);
-
-	if (hFile == INVALID_HANDLE_VALUE) return FALSE;
-
-	m_hFile = hFile;
-	m_bCloseOnDelete = TRUE;
-
-	return TRUE;
-}
-
-BOOL CxFile::Open(LPCWSTR lpszFileName, unsigned nOpenFlags)
-{
-	XASSERT(lpszFileName);
-	XASSERT((nOpenFlags&typeText) == 0);
-
-	// CxFile objects are always binary
-	nOpenFlags &= ~(unsigned)typeBinary;
-
-	Close();
-
-	// map read/write mode
-	XASSERT( (modeRead|modeWrite|modeReadWrite) == 0x0003 );
-	m_dwAccess = 0;
-	m_bLoading = TRUE;
-	switch ( nOpenFlags & 0x0003 )
-	{
-	case modeRead:
-		m_dwAccess = GENERIC_READ;
-		break;
-	case modeWrite:
-		m_dwAccess = GENERIC_WRITE;
-		m_bLoading = FALSE;
-		break;
-	case modeReadWrite:
-		m_dwAccess = GENERIC_RDWR;
-		m_bLoading = FALSE;
-		break;
-	default:
-		XASSERT(FALSE);  // invalid share mode
-	}
-
-	// map share mode
-	DWORD dwShareMode = 0;
-	switch ( nOpenFlags & 0x0070 )
-	{
-	default:
-		XASSERT(FALSE);
-	case shareCompat:
-	case shareExclusive:
-		dwShareMode = 0;
-		break;
-	case shareDenyWrite:
-		dwShareMode = FILE_SHARE_READ;
-		break;
-	case shareDenyRead:
-		dwShareMode = FILE_SHARE_WRITE;
-		break;
-	case shareDenyNone:
-		dwShareMode = FILE_SHARE_WRITE | FILE_SHARE_READ;
-		break;
-	}
-
-	// map modeNoInherit flag
-	SECURITY_ATTRIBUTES sa;
-	sa.nLength = sizeof(sa);
-	sa.lpSecurityDescriptor = NULL;
-	sa.bInheritHandle = ( (nOpenFlags & modeNoInherit) == NULL );
-
-	// map creation flags
-	DWORD dwCreateFlag;
-	if ( nOpenFlags & modeCreate )
-	{
-		if ( nOpenFlags & modeNoTruncate )
-		{
-			dwCreateFlag = OPEN_ALWAYS;
-		}
-		else
-		{
-			dwCreateFlag = CREATE_ALWAYS;
-		}
-	}
-	else
-	{
-		dwCreateFlag = OPEN_EXISTING;
-	}
-
-	// attempt file creation
-	HANDLE hFile = ::CreateFileW(lpszFileName, m_dwAccess, dwShareMode, &sa,
+	HANDLE hFile = ::CreateFile(lpszFileName, m_dwAccess, dwShareMode, &sa,
 		dwCreateFlag, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (hFile == INVALID_HANDLE_VALUE) return FALSE;

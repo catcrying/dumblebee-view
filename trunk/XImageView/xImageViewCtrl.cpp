@@ -241,6 +241,7 @@ CxImageViewCtrl::CxImageViewCtrl(CWnd* pParent /*=NULL*/) :
 	}
 
 	m_strTitle = _T("IMAGE VIEW");
+	m_bShowTitleIcon = TRUE;
 
 	//m_dwTitleBodyColor = RGB(34, 34, 34);
 	//m_dwStatusBodyColor = RGB(34, 34, 34);
@@ -405,9 +406,10 @@ void CxImageViewCtrl::SetTrackerMode( BOOL bSet, BOOL bUseFixedTracker/*=FALSE*/
 	}
 }
 
-void CxImageViewCtrl::SetTitleText( LPCTSTR lpszTitle )
+void CxImageViewCtrl::SetTitle( LPCTSTR lpszTitle, BOOL bShowIcon/*=TRUE*/ )
 {
 	m_strTitle = lpszTitle;
+	m_bShowTitleIcon = bShowIcon;
 	RedrawTitle();
 }
 
@@ -1674,12 +1676,15 @@ void CxImageViewCtrl::DrawTitle( Gdiplus::Graphics& g )
 	g.FillRectangle( &SolidBrush(colorTitleBody), m_rcTitle.left-1, m_rcTitle.top-1, m_rcTitle.Width()+1, m_rcTitle.Height()+1 );
 	//delete pBodyPath;
 
-	int nIconX, nIconY, nIconW, nIconH;
-	nIconW = m_nMiniBtnIconSize;
-	nIconH = m_nMiniBtnIconSize;
-	nIconX = m_rcTitle.left+nOffsetX;
-	nIconY = (int)(( m_rcTitle.Height() - nIconH ) / 2 + m_rcTitle.top);
-	g.DrawImage( m_pMiniBtnIcon, Rect(nIconX, nIconY, nIconW, nIconH), IndexCamera*nIconW, 0, nIconW, nIconH , UnitPixel);
+	int nIconX=0, nIconY=0, nIconW=0, nIconH=0;
+	if (m_bShowTitleIcon)
+	{
+		nIconW = m_nMiniBtnIconSize;
+		nIconH = m_nMiniBtnIconSize;
+		nIconX = m_rcTitle.left+nOffsetX;
+		nIconY = (int)(( m_rcTitle.Height() - nIconH ) / 2 + m_rcTitle.top);
+		g.DrawImage( m_pMiniBtnIcon, Rect(nIconX, nIconY, nIconW, nIconH), IndexCamera*nIconW, 0, nIconW, nIconH , UnitPixel);
+	}
 
 	const int nBtnInterval = 2;
 	const int nBtnSize = m_nMiniBtnIconSize + 6;
@@ -1720,9 +1725,9 @@ void CxImageViewCtrl::DrawTitle( Gdiplus::Graphics& g )
 	stringFormat.SetTrimming( StringTrimmingEllipsisCharacter );
 	BSTR bstrTitle = m_strTitle.AllocSysString();
 	RectF rectTitle(
-		(REAL)m_rcTitle.left + nOffsetX + m_nMiniBtnIconSize, 
+		(REAL)m_rcTitle.left + nOffsetX + nIconW, 
 		(REAL)m_rcTitle.top, 
-		(REAL)m_rcTitle.Width() - m_nMiniBtnIconSize - nOffsetX*2 - nButtonsWidth - (m_rcTitle.Height() - nButtonsHeight), 
+		(REAL)m_rcTitle.Width() - nIconW - nOffsetX*2 - nButtonsWidth - (m_rcTitle.Height() - nButtonsHeight), 
 		(REAL)m_rcTitle.Height());
 
 	Font fontTitle(m_pFontFamily, 12, FontStyleBold, UnitPixel);
