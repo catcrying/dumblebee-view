@@ -7,27 +7,20 @@
 // Static helper methods
 ///////////////////////////////////////////////////////////////////////////////
 
-static HANDLE CreateW(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCWSTR lpName);
-static HANDLE CreateA(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCSTR lpName);
+static HANDLE Create(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCTSTR lpName);
 
 ///////////////////////////////////////////////////////////////////////////////
 // CxEvent
 ///////////////////////////////////////////////////////////////////////////////
 
 CxEvent::CxEvent(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState) :
-	m_hEvent(CreateW(lpEventAttributes, bManualReset, bInitialState, 0))
+	m_hEvent(Create(lpEventAttributes, bManualReset, bInitialState, 0))
 {
 
 }
 
-CxEvent::CxEvent(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCSTR lpszName) :
-	m_hEvent(CreateA(lpEventAttributes, bManualReset, bInitialState, lpszName))
-{
-
-}
-
-CxEvent::CxEvent(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCWSTR lpszName) :
-	m_hEvent(CreateW(lpEventAttributes, bManualReset, bInitialState, lpszName))
+CxEvent::CxEvent(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCTSTR lpszName) :
+	m_hEvent(Create(lpEventAttributes, bManualReset, bInitialState, lpszName))
 {
 
 }
@@ -104,26 +97,9 @@ void CxEvent::Pulse()
 // Static helper methods
 ///////////////////////////////////////////////////////////////////////////////
 
-static HANDLE CreateW(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCWSTR lpName)
+static HANDLE Create(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCTSTR lpName)
 {
-   HANDLE hEvent = ::CreateEventW(lpEventAttributes, bManualReset, bInitialState, lpName);
-   DWORD dwLastError = ::GetLastError();
-   if ( dwLastError == ERROR_ALREADY_EXISTS )
-   {
-	   XTRACE( _T("CxEvent::Create: %s\r\n"), _T("ERROR_ALREADY_EXISTS") );
-   }
-
-   if (hEvent == NULL)
-   {
-      throw CxWin32Exception(_T("CxEvent::Create()"), dwLastError);
-   }
-
-   return hEvent;
-}
-
-static HANDLE CreateA(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCSTR lpName)
-{
-   HANDLE hEvent = ::CreateEventA(lpEventAttributes, bManualReset, bInitialState, lpName);
+   HANDLE hEvent = ::CreateEvent(lpEventAttributes, bManualReset, bInitialState, lpName);
    DWORD dwLastError = ::GetLastError();
    if ( dwLastError == ERROR_ALREADY_EXISTS )
    {

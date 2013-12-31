@@ -330,6 +330,7 @@
     <ClInclude Include="Include\XUtil\xMemFile.h" />
     <ClInclude Include="Include\XUtil\Xml\xXml.h" />
     <ClInclude Include="Include\XUtil\xMmTimers.h" />
+    <ClInclude Include="Include\XUtil\xMultimonSupport.h" />
     <ClInclude Include="Include\XUtil\xOleDateTime.h" />
     <ClInclude Include="Include\XUtil\xSharedCriticalSection.h" />
     <ClInclude Include="Include\XUtil\xStopWatch.h" />
@@ -394,6 +395,7 @@
     <ClCompile Include="xMCSocket.cpp" />
     <ClCompile Include="xMemFile.cpp" />
     <ClCompile Include="xMmTimers.cpp" />
+    <ClCompile Include="xMultimonSupport.cpp" />
     <ClCompile Include="xOleDateTime.cpp" />
     <ClCompile Include="xSerialComm.cpp" />
     <ClCompile Include="xServerSocketTCP.cpp" />

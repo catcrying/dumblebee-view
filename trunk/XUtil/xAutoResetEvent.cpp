@@ -12,13 +12,7 @@ CxAutoResetEvent::CxAutoResetEvent(BOOL bInitialState /* = FALSE */) :
 
 }
 
-CxAutoResetEvent::CxAutoResetEvent(LPCWSTR lpszName, BOOL bInitialState /* = FALSE */) : 
-	CxEvent(0, FALSE, bInitialState, lpszName)
-{
-   
-}
-
-CxAutoResetEvent::CxAutoResetEvent(LPCSTR lpszName, BOOL bInitialState /* = FALSE */) : 
+CxAutoResetEvent::CxAutoResetEvent(LPCTSTR lpszName, BOOL bInitialState /* = FALSE */) : 
 	CxEvent(0, FALSE, bInitialState, lpszName)
 {
    

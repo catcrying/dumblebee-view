@@ -36,7 +36,7 @@ CxString GetError(_com_error &e)
 	CxString MsgBug;
 	_bstr_t Source(e.Source());
 	_bstr_t Description(e.Description());
-	MsgBug.Format( _T("ADODB Error Source = %s\nDescription= %s\nErrorCode=0x%X"),(LPCSTR)Source, (LPCSTR)Description, e.Error() );
+	MsgBug.Format( _T("ADODB Error Source = %s\nDescription= %s\nErrorCode=0x%X"),(LPCTSTR)Source, (LPCTSTR)Description, e.Error() );
 #ifdef _DEBUG
 	XTRACE( MsgBug );
 #endif	

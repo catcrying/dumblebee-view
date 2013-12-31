@@ -22,8 +22,7 @@ class XUTIL_API CxEvent
 {
    public:
       CxEvent(LPSECURITY_ATTRIBUTES lpSecurityAttributes, BOOL bManualReset, BOOL bInitialState);
-	  CxEvent(LPSECURITY_ATTRIBUTES lpSecurityAttributes, BOOL bManualReset, BOOL bInitialState, LPCSTR lpszName);
-	  CxEvent(LPSECURITY_ATTRIBUTES lpSecurityAttributes, BOOL bManualReset, BOOL bInitialState, LPCWSTR lpszName);
+	  CxEvent(LPSECURITY_ATTRIBUTES lpSecurityAttributes, BOOL bManualReset, BOOL bInitialState, LPCTSTR lpszName);
 
       virtual ~CxEvent();
 

@@ -18,8 +18,7 @@ class XUTIL_API CxAutoResetEvent : public CxEvent
    
       explicit CxAutoResetEvent(BOOL bInitialState = FALSE);
       
-      explicit CxAutoResetEvent(LPCWSTR lpszName, BOOL bInitialState = FALSE);
-	  explicit CxAutoResetEvent(LPCSTR lpszName, BOOL bInitialState = FALSE);
+      explicit CxAutoResetEvent(LPCTSTR lpszName, BOOL bInitialState = FALSE);
 
 	  virtual ~CxAutoResetEvent();
 
