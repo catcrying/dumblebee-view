@@ -115,6 +115,7 @@ Global
 		{693B782A-7591-4751-AD37-B2736CAD746E}.Release|Win32.ActiveCfg = Release|Win32
 		{693B782A-7591-4751-AD37-B2736CAD746E}.Release|Win32.Build.0 = Release|Win32
 		{693B782A-7591-4751-AD37-B2736CAD746E}.Release|x64.ActiveCfg = Release|x64
+		{693B782A-7591-4751-AD37-B2736CAD746E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
