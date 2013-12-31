@@ -428,7 +428,7 @@ unsigned int CxImageObject::GetPixelLevel( int x, int y ) const
 
 	if (m_pIPLImage->depth == 8)
 	{
-		return m_pIPLImage->imageData[ y * m_pIPLImage->widthStep + x ];
+		return (unsigned char)m_pIPLImage->imageData[ y * m_pIPLImage->widthStep + x ];
 	}
 	else if (m_pIPLImage->depth == 16)
 	{
