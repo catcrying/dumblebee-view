@@ -2643,7 +2643,7 @@ void CxImageScrollView::DrawScaleMark( HDC hDC, RECT rc, float fZoomRatio, LPCTS
 			_stprintf(szUnitForm, _T("k"));
 		}
 	}
-	else if ( nExpCount <= -3 )
+	else if ( nExpCount <= -2 )
 	{
 		if ( nExpCount <= -7 )
 		{
