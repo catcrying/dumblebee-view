@@ -1183,6 +1183,9 @@ void CxImageViewCtrl::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	if ( ::GetCapture() != m_hWnd ) ::SetCapture( m_hWnd );
 
+	if ( m_fnOnEvent )
+		if ( (*m_fnOnEvent)( ImageViewEvent::ActionEventTitleLButtonDown, m_nIndexData, m_lpUsrDataOnEvent ) ) return;
+
 	for ( int i=0 ; i<sizeof(m_rectMiniBtnBody) / sizeof(Rect) ; i++ )
 	{
 		if ( m_rectMiniBtnBody[i].Contains(point.x, point.y) )
@@ -1206,6 +1209,9 @@ void CxImageViewCtrl::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	if ( ::GetCapture() == m_hWnd )
 		::ReleaseCapture();
+
+	if ( m_fnOnEvent )
+		if ( (*m_fnOnEvent)( ImageViewEvent::ActionEventTitleLButtonUp, m_nIndexData, m_lpUsrDataOnEvent ) ) return;
 
 	ButtonIconIndex eReleaseIndex = IndexNone;
 	for ( int i=0 ; i<sizeof(m_rectMiniBtnBody) / sizeof(Rect) ; i++ )

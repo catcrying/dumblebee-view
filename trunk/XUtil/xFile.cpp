@@ -51,7 +51,7 @@ CxFile::CxFile(LPCTSTR pStrFileName)
 	m_bCloseOnDelete = TRUE;
 }
 
-CxFile::CxFile( LPCTSTR lpszFileName, unsigned nOpenFlags )
+CxFile::CxFile( LPCTSTR lpszFileName, unsigned int nOpenFlags )
 {
 	m_hFile = NULL;
 	m_dwAccess = 0;
@@ -116,7 +116,7 @@ BOOL CxFile::Flush()
 	return ::FlushFileBuffers(m_hFile);
 }
 
-unsigned CxFile::Read(void* lpBuf, unsigned nMax)
+unsigned int CxFile::Read(void* lpBuf, unsigned int nMax)
 {
 	if (nMax == 0) return 0;
 
@@ -126,13 +126,13 @@ unsigned CxFile::Read(void* lpBuf, unsigned nMax)
 	DWORD dwRead;
 	if (::ReadFile(m_hFile, lpBuf, nMax, &dwRead, NULL))
 	{
-		return (unsigned)dwRead;
+		return (unsigned int)dwRead;
 	}
 
 	return 0;
 }
 
-unsigned CxFile::Write(const void* lpData, unsigned nSize)
+unsigned int CxFile::Write(const void* lpData, unsigned int nSize)
 {
 	if (nSize == 0) return 0;
 
@@ -148,13 +148,13 @@ unsigned CxFile::Write(const void* lpData, unsigned nSize)
 	return 0;
 }
 
-BOOL CxFile::Open(LPCTSTR lpszFileName, unsigned nOpenFlags)
+BOOL CxFile::Open(LPCTSTR lpszFileName, unsigned int nOpenFlags)
 {
 	XASSERT(lpszFileName);
 	XASSERT((nOpenFlags&typeText) == 0);
 
 	// CxFile objects are always binary
-	nOpenFlags &= ~(unsigned)typeBinary;
+	nOpenFlags &= ~(unsigned int)typeBinary;
 
 	Close();
 
@@ -250,7 +250,7 @@ void CxFile::Close()
 	m_bCloseOnDelete = FALSE;
 }
 
-long CxFile::Seek( long lOff, unsigned nFrom )
+long CxFile::Seek( long lOff, unsigned int nFrom )
 {
 	XASSERT( nFrom==begin || nFrom==end || nFrom==current );
 	return ::SetFilePointer(m_hFile, lOff, NULL, (DWORD)nFrom);
@@ -259,7 +259,7 @@ long CxFile::Seek( long lOff, unsigned nFrom )
 BOOL CxFile::SetLength( DWORD dwNewLen )
 {
 	XASSERT(m_hFile);
-	if ( (DWORD)Seek((long)dwNewLen, (unsigned)begin) != dwNewLen ) return FALSE;
+	if ( (DWORD)Seek((long)dwNewLen, (unsigned int)begin) != dwNewLen ) return FALSE;
 	return ::SetEndOfFile(m_hFile);
 }
 

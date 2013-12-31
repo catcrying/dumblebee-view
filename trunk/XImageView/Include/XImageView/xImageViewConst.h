@@ -21,7 +21,9 @@ namespace ImageViewEvent
 		ActionEventLoadFile			= 0x206,
 		ActionEventSaveFile			= 0x207,
 		ActionEventMaximizedScreen	= 0x208,
-		ActionEventNormalScreen		= 0x209
+		ActionEventNormalScreen		= 0x209,
+		ActionEventTitleLButtonDown	= 0x20A,
+		ActionEventTitleLButtonUp	= 0x20B
 	};
 }
 

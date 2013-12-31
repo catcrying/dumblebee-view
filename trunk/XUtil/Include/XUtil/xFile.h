@@ -46,7 +46,7 @@ public:
 	CxFile(const CxFile& op);
 	CxFile(HANDLE hFile);
 
-	CxFile(LPCTSTR pStrFileName, unsigned nOpenFlags);
+	CxFile(LPCTSTR pStrFileName, unsigned int nOpenFlags);
 
 	virtual ~CxFile();
 	virtual BOOL IsLoading();
@@ -54,13 +54,13 @@ public:
 	BOOL IsOpen();
 	virtual DWORD GetPosition();
 	virtual BOOL Flush();
-	virtual unsigned Read(void* lpBuf, unsigned nMax);
-	virtual unsigned Write(const void* lpData, unsigned nSize);
+	virtual unsigned int Read(void* lpBuf, unsigned int nMax);
+	virtual unsigned int Write(const void* lpData, unsigned int nSize);
 
-	virtual BOOL Open(LPCTSTR lpszFileName, unsigned nOpenFlags);
+	virtual BOOL Open(LPCTSTR lpszFileName, unsigned int nOpenFlags);
 
 	virtual void Close();
-	virtual long Seek(long lOff, unsigned nFrom);
+	virtual long Seek(long lOff, unsigned int nFrom);
 	virtual BOOL SetLength(DWORD dwNewLen);
 	virtual DWORD GetLength();
 	DWORD SeekToEnd();
