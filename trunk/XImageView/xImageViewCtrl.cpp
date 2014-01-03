@@ -413,6 +413,17 @@ void CxImageViewCtrl::SetTitle( LPCTSTR lpszTitle, BOOL bShowIcon/*=TRUE*/ )
 	RedrawTitle();
 }
 
+void CxImageViewCtrl::SetTitleBarHeight( int nHeight )
+{
+	if (nHeight < 18)
+		nHeight = 18;
+	m_nTitleBarHeight = nHeight;
+	if ( !::IsWindow( GetSafeHwnd() ) ) return;
+	CRect rc;
+	GetClientRect(rc);
+	ArrangeInnerView( rc.Width(), rc.Height() );
+}
+
 void CxImageViewCtrl::SetMiniButtonType( DWORD dwMBType, BOOL bMaximize ) 
 { 
 	m_dwMiniButtonType[bMaximize] = dwMBType;

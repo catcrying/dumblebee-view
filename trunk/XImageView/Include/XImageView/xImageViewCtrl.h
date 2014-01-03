@@ -94,6 +94,7 @@ public:
 	void SetMiniButtonType( DWORD dwMBType, BOOL bMaximize );
 	void SetMiniButtonTypeAll( DWORD dwMBType );
 	void SetTitle( LPCTSTR lpszTitle, BOOL bShowIcon=TRUE );
+	void SetTitleBarHeight( int nHeight );
 
 	void SyncDevContext( IxDeviceContext* pIDC, CPoint& ptImage, BOOL bUpdateImage );
 
