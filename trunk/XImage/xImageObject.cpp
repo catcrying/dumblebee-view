@@ -269,8 +269,8 @@ BOOL CxImageObject::LoadFromFile( LPCTSTR lpszFileName, BOOL bForceGray8/*=FALSE
 {
 	USES_CONVERSION;
 	CxCriticalSection::Owner Lock(*m_pCsLockImage);
-	if ( !m_bDelete )
-		Destroy();
+	//if ( !m_bDelete )
+	Destroy();
 
 	try
 	{
