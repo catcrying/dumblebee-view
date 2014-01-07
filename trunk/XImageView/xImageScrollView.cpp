@@ -222,7 +222,20 @@ BEGIN_MESSAGE_MAP(CxImageScrollView, CScrollView)
 	//}}AFX_MSG_MAP
 	ON_COMMAND_RANGE( ID_TRACKER_START, ID_TRACKER_END, OnContextMenuHandler )
 	ON_WM_PAINT()
+	ON_WM_WINDOWPOSCHANGING()
 END_MESSAGE_MAP()
+
+void CxImageScrollView::OnWindowPosChanging(WINDOWPOS* lpwndpos)
+{
+	CWnd::OnWindowPosChanging(lpwndpos);
+
+	if (!IsShowScrollBar())
+	{
+		CScrollView::ShowScrollBar(SB_HORZ, FALSE);
+		CScrollView::ShowScrollBar(SB_VERT, FALSE);
+		ModifyStyle(WS_HSCROLL|WS_VSCROLL, 0, SWP_DRAWFRAME);
+	}
+}
 
 float CxImageScrollView::CalcZoomValid( float fZoom )
 {
@@ -297,13 +310,12 @@ void CxImageScrollView::ShowScrollBar( BOOL bShow )
 		ModifyStyle( WS_HSCROLL|WS_VSCROLL, 0 );
 	else
 		ModifyStyle( 0, WS_HSCROLL|WS_VSCROLL );
+	m_bShowScrollBar = bShow;
 }
 
 BOOL CxImageScrollView::IsShowScrollBar() const
 {
-	if ((GetStyle() & WS_HSCROLL) == WS_HSCROLL)
-		return TRUE;
-	return FALSE;
+	return m_bShowScrollBar;
 }
 
 void CxImageScrollView::ShowDrawElapsedTime( BOOL bShow )

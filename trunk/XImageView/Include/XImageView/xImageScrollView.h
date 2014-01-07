@@ -62,6 +62,7 @@ protected:
 	BOOL			m_bEnableLockMouse;
 	BOOL			m_bShowDigitize;
 	BOOL			m_bShowScaleBar;
+	BOOL			m_bShowScrollBar;
 
 	BOOL			m_bUseAutoFocus;
 	BOOL			m_bEnableMouseControl;
@@ -285,6 +286,7 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnContextMenuHandler( UINT uID );
+	afx_msg void OnWindowPosChanging(WINDOWPOS* lpwndpos);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
