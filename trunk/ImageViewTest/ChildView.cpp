@@ -153,8 +153,8 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			m_GraphicObject[i].AddDrawPoint(clrPoint);
 			m_GraphicObject[i].AddDrawText(clrText, 0);
 		}
-		m_ImageObject[i].LoadFromFile( _T("C:\\Users\\Public\\Pictures\\Sample Pictures\\Lighthouse.jpg") );
-		//m_ImageObject[i].LoadFromFile( _T("E:\\CropImage.bmp") );
+		//m_ImageObject[i].LoadFromFile( _T("C:\\Users\\Public\\Pictures\\Sample Pictures\\Lighthouse.jpg") );
+		m_ImageObject[i].LoadFromFile( _T("E:\\CropImage.bmp") );
 	}
 
 	//go.GetLayerCount
