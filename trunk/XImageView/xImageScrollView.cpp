@@ -65,6 +65,7 @@ CxImageScrollView::CxImageScrollView() :
 	m_pImageObject(NULL), m_pRenderer(NULL), m_fZoomRatio(1.f),
 	m_pDC(NULL), m_eScreenMode(ImageViewMode::ScreenModeNone),
 	m_fZoomMin(1.f), m_fZoomMax(1.f), m_fZoomFit(1.f),
+	m_fZoomStep(2.f),
 	m_nBodyOffsetX(0), m_nBodyOffsetY(0), m_bLockUpdate(FALSE),
 	m_fnOnDrawExt(NULL), m_lpUsrDataOnDrawExt(NULL),
 	m_fnOnMeasure(NULL), m_lpUsrDataOnMeasure(NULL),
@@ -347,7 +348,7 @@ void CxImageScrollView::UpdateRenderer( CxImageObject* pImageObject )
 {
 	if ( !pImageObject || !pImageObject->IsValid() || pImageObject->GetBpp() == 0 )
 		return;
-	if ( m_nBitCnt == pImageObject->GetBpp() )
+	if ( m_nBitCnt == (pImageObject->GetChannel() << 3) )
 		return;
 
 	CRect rcClient;
@@ -1256,17 +1257,17 @@ void CxImageScrollView::OnLButtonDblClk(UINT nFlags, CPoint point)
 	case ImageViewMode::ScreenModeSmart:
 		if ( m_fZoomRatio == m_fZoomMax )
 			return;
-		fZoom = m_fZoomRatio * 2.f;
+		fZoom = m_fZoomRatio * m_fZoomStep;
 		ZoomTo( point, fZoom );
-		fZoom = m_fZoomRatio * 2.f;
+		fZoom = m_fZoomRatio * m_fZoomStep;
 		ZoomTo( point, fZoom );
 		break;
 	case ImageViewMode::ScreenModeZoomOut:
 		if ( m_fZoomRatio == m_fZoomMin )
 			return;
-		fZoom = m_fZoomRatio / 2.f;
+		fZoom = m_fZoomRatio / m_fZoomStep;
 		ZoomTo( point, fZoom );
-		fZoom = m_fZoomRatio / 2.f;
+		fZoom = m_fZoomRatio / m_fZoomStep;
 		ZoomTo( point, fZoom );
 		break;
 	}
@@ -1302,9 +1303,9 @@ void CxImageScrollView::OnRButtonDblClk(UINT nFlags, CPoint point)
 	case ImageViewMode::ScreenModeSmart:
 		if ( m_fZoomRatio == m_fZoomMin )
 			return;
-		fZoom = m_fZoomRatio / 2.f;
+		fZoom = m_fZoomRatio / m_fZoomStep;
 		ZoomTo( point, fZoom );
-		fZoom = m_fZoomRatio / 2.f;
+		fZoom = m_fZoomRatio / m_fZoomStep;
 		ZoomTo( point, fZoom );
 		break;
 	}
@@ -1433,7 +1434,7 @@ void CxImageScrollView::OnLButtonDown(UINT nFlags, CPoint point)
 			(*m_fnOnEvent)( ImageViewEvent::ActionEventZoomIn, m_nIndexData, m_lpUsrDataOnEvent );
 		else
 			OnEvent( ImageViewEvent::ActionEventZoomIn );
-		fZoom = m_fZoomRatio * 2.f;
+		fZoom = m_fZoomRatio * m_fZoomStep;
 		ZoomTo( point, fZoom );
 		break;
 	case ImageViewMode::ScreenModeZoomOut:
@@ -1443,7 +1444,7 @@ void CxImageScrollView::OnLButtonDown(UINT nFlags, CPoint point)
 			(*m_fnOnEvent)( ImageViewEvent::ActionEventZoomOut, m_nIndexData, m_lpUsrDataOnEvent );
 		else
 			OnEvent( ImageViewEvent::ActionEventZoomOut );
-		fZoom = m_fZoomRatio / 2.f;
+		fZoom = m_fZoomRatio / m_fZoomStep;
 		ZoomTo( point, fZoom );
 		break;
 	}
@@ -1525,7 +1526,7 @@ void CxImageScrollView::OnRButtonDown(UINT nFlags, CPoint point)
 			(*m_fnOnEvent)( ImageViewEvent::ActionEventZoomOut, m_nIndexData, m_lpUsrDataOnEvent );
 		else
 			OnEvent( ImageViewEvent::ActionEventZoomOut );
-		fZoom = m_fZoomRatio / 2.f;
+		fZoom = m_fZoomRatio / m_fZoomStep;
 		ZoomTo( point, fZoom );
 		break;
 	}
@@ -2311,7 +2312,7 @@ void CxImageScrollView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case 0xbb:
 		if ( m_fZoomRatio == m_fZoomMax )
 			return;
-		fZoom = m_fZoomRatio * 2.f;
+		fZoom = m_fZoomRatio * m_fZoomStep;
 		ZoomTo( ptCenter, fZoom );
 		bZoom = TRUE;
 		break;
@@ -2319,7 +2320,7 @@ void CxImageScrollView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case 0xbd:
 		if ( m_fZoomRatio == m_fZoomMin )
 			return;
-		fZoom = m_fZoomRatio / 2.f;
+		fZoom = m_fZoomRatio / m_fZoomStep;
 		ZoomTo( ptCenter, fZoom );
 		bZoom = TRUE;
 		break;
@@ -2435,7 +2436,7 @@ BOOL CxImageScrollView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 				else
 					OnEvent( ImageViewEvent::ActionEventZoomIn );
 
-				fZoom = m_fZoomRatio * 2.f;
+				fZoom = m_fZoomRatio * m_fZoomStep;
 				if ( m_fZoomRatio == m_fZoomMax ) return FALSE;
 				ZoomTo( pt, fZoom );
 			}
@@ -2446,7 +2447,7 @@ BOOL CxImageScrollView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 				else
 					OnEvent( ImageViewEvent::ActionEventZoomOut );
 
-				fZoom = m_fZoomRatio / 2.f;
+				fZoom = m_fZoomRatio / m_fZoomStep;
 				if ( m_fZoomRatio == m_fZoomMin ) return FALSE;
 				ZoomTo( pt, fZoom );
 			}
@@ -2919,6 +2920,9 @@ int CxImageScrollView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//InitGraphics( &m_DirectDraw, rcClient.Width(), rcClient.Height(), 8 );
 
 	m_pDrawDIB->SetDevice( m_pRenderer );
+
+	if (m_MemDC.GetSafeHdc())
+		m_MemDC.FillSolidRect( 0, 0, m_nWidth, m_nHeight, m_dwBackgroundColor );
 	
 	CSize sizeTotal;
 	sizeTotal.cx = sizeTotal.cy = 0;

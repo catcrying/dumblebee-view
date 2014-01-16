@@ -52,6 +52,7 @@ protected:
 	float			m_fZoomRatio;
 	float			m_fZoomMin;
 	float			m_fZoomMax;
+	float			m_fZoomStep;
 	float			m_fZoomFit;
 
 	int				m_nBodyOffsetX;
