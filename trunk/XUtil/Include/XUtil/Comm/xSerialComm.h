@@ -92,7 +92,7 @@ public:
 
 	BOOL IsCreate();
 
-	void OnReceive( BYTE* pData, int nSize );
+	virtual void OnReceive( BYTE* pData, int nSize );
 
 	virtual int OnFindSTX( BYTE* pReceiveBuffer, int nBufferSize ) { return NOT_DEFINE_SYMBOL; }
 	virtual int OnFindETX( BYTE* pReceiveBuffer, int nBufferSize ) { return NOT_DEFINE_SYMBOL; }
