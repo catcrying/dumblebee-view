@@ -33,9 +33,6 @@
     <ClInclude Include="Include\XUtil\Comm\xIoBuffer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Include\XUtil\Comm\xMCSocket.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Include\XUtil\Comm\xSerialComm.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -159,9 +156,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="xManualResetEvent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="xMCSocket.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="xMemFile.cpp">

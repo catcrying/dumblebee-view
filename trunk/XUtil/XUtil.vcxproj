@@ -310,7 +310,6 @@
   <ItemGroup>
     <ClInclude Include="Include\XUtil\Comm\xClientSocketTCP.h" />
     <ClInclude Include="Include\XUtil\Comm\xIoBuffer.h" />
-    <ClInclude Include="Include\XUtil\Comm\xMCSocket.h" />
     <ClInclude Include="Include\XUtil\Comm\xSerialComm.h" />
     <ClInclude Include="Include\XUtil\Comm\xServerSocketTCP.h" />
     <ClInclude Include="Include\XUtil\Comm\xSimpleSocket.h" />
@@ -394,7 +393,6 @@
     <ClCompile Include="xIoBuffer.cpp" />
     <ClCompile Include="xLogSystem.cpp" />
     <ClCompile Include="xManualResetEvent.cpp" />
-    <ClCompile Include="xMCSocket.cpp" />
     <ClCompile Include="xMemFile.cpp" />
     <ClCompile Include="xMmTimers.cpp" />
     <ClCompile Include="xMultimonSupport.cpp" />
