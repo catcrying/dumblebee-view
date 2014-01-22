@@ -47,7 +47,7 @@ BOOL CxMMTimers::StartTimer( UINT nPeriod, BOOL bOneShot )
 	if ( m_bTimerStart && !bOneShot ) return FALSE;
 	m_bTimerStart = TRUE;
 
-	mmResult = timeSetEvent( nPeriod, m_nTimerRes, _TimerProc, (DWORD)this, bOneShot ? TIME_ONESHOT : TIME_PERIODIC );
+	mmResult = timeSetEvent( nPeriod, m_nTimerRes, _TimerProc, (DWORD_PTR)this, bOneShot ? TIME_ONESHOT : TIME_PERIODIC );
 	if ( mmResult != NULL )
 	{
 		m_nTimerId = (UINT)mmResult;
