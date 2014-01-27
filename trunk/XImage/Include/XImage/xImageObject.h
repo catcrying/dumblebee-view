@@ -36,6 +36,11 @@ protected:
 
 	HBITMAP			m_hBitmap;
 
+#ifdef _WIN64
+	BOOL			m_bUseHugeMemory;
+	BYTE*			m_pHugeMemory;
+#endif
+
 public:
 	CxImageObject();
 	virtual ~CxImageObject();

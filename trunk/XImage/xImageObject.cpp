@@ -23,6 +23,10 @@ CxImageObject::CxImageObject() :
 {
 	m_pCsLockImage = new CxCriticalSection();
 	m_nPixelMaximum = 255;
+#ifdef _WIN64
+	m_bUseHugeMemory = FALSE;
+	m_pHugeMemory = NULL;
+#endif
 }
 
 CxImageObject::~CxImageObject()
@@ -389,9 +393,62 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 
         if ( m_pIPLImage && m_pIPLImage->nSize == sizeof(IplImage) )
             Destroy();
-    
-        /* prepare IPL header */
-        m_pIPLImage = cvCreateImage( cvSize( nWidth, nHeight ), nDepth, nChannel );
+
+#ifdef _WIN64
+		m_bUseHugeMemory = FALSE;
+		m_pHugeMemory = NULL;
+
+		if ((DWORD)GetWidthBytes(nWidth, nDepth*nChannel)*nHeight > 0x7ffff)
+		{
+			m_pIPLImage = new IplImage;
+			ZeroMemory( m_pIPLImage, sizeof(IplImage) );
+			m_pIPLImage->nSize = sizeof(IplImage);
+			m_pIPLImage->nChannels = nChannel;
+			m_pIPLImage->depth = nDepth;
+			m_pIPLImage->colorModel[0] = 'G'; m_pIPLImage->colorModel[1] = 'R';
+			m_pIPLImage->colorModel[2] = 'A'; m_pIPLImage->colorModel[3] = 'Y';
+			if (nChannel == 1)
+			{
+				m_pIPLImage->channelSeq[0] = 'G'; m_pIPLImage->channelSeq[1] = 'R';
+				m_pIPLImage->channelSeq[2] = 'A'; m_pIPLImage->channelSeq[3] = 'Y';
+			}
+			else
+			{
+				m_pIPLImage->channelSeq[0] = 'B'; m_pIPLImage->channelSeq[1] = 'G';
+				m_pIPLImage->channelSeq[2] = 'R'; m_pIPLImage->channelSeq[3] = '\0';
+			}
+			m_pIPLImage->align = 4;
+			m_pIPLImage->width = nWidth;
+			m_pIPLImage->height = nHeight;
+			m_pIPLImage->widthStep = GetWidthBytes(nWidth, nDepth*nChannel);
+			m_pIPLImage->imageSize = m_pIPLImage->widthStep * nHeight;
+
+			m_bUseHugeMemory = TRUE;
+			m_pHugeMemory = (BYTE*) malloc( (unsigned int)m_pIPLImage->widthStep * m_pIPLImage->height );
+
+			m_pIPLImage->imageData = m_pIPLImage->imageDataOrigin = (char*)m_pHugeMemory;
+		}
+		else
+		{
+#endif
+			/* prepare IPL header */
+			try
+			{
+				m_pIPLImage = cvCreateImage( cvSize( nWidth, nHeight ), nDepth, nChannel );
+			}
+			catch( cv::Exception& e )
+			{
+				const char* err_msg = e.what();
+				CxString strX;
+				strX = _T("CxImageObject::Create - exception caught: ");
+				strX += err_msg;
+				strX += _T("\n");
+				XTRACE( strX );
+			}
+#ifdef _WIN64
+		}
+#endif
+
     }
 
     if ( m_pIPLImage )
@@ -406,6 +463,23 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 void CxImageObject::Destroy()
 {
 	m_bNotifyChangeImage = TRUE;
+
+#ifdef _WIN64
+	if ( m_bUseHugeMemory )
+	{
+		free (m_pHugeMemory);
+		m_pHugeMemory = NULL;
+
+		if (m_pIPLImage)
+		{
+			delete m_pIPLImage;
+			m_pIPLImage = NULL;
+		}
+
+		m_bUseHugeMemory = FALSE;
+		return;
+	}
+#endif
 
 	if ( !m_bDelete && m_pIPLImage )
 	{
@@ -424,15 +498,15 @@ unsigned int CxImageObject::GetPixelLevel( int x, int y ) const
 	if ( !m_pIPLImage || x >= m_pIPLImage->width || y >= m_pIPLImage->height || x<0 || y<0 ) return 0;
 	if ( m_pIPLImage->nChannels != 1 ) return 0;
 
-	XASSERT( (y * m_pIPLImage->widthStep + x*(GetBpp()>>3)) < m_pIPLImage->imageSize );
+	XASSERT( (unsigned int)(y * m_pIPLImage->widthStep + x*(GetBpp()>>3)) < (unsigned int)m_pIPLImage->imageSize );
 
 	if (m_pIPLImage->depth == 8)
 	{
-		return (unsigned char)m_pIPLImage->imageData[ y * m_pIPLImage->widthStep + x ];
+		return (unsigned char)m_pIPLImage->imageData[ (unsigned int)y * m_pIPLImage->widthStep + x ];
 	}
 	else if (m_pIPLImage->depth == 16)
 	{
-		return *(unsigned short*)(m_pIPLImage->imageData + y * m_pIPLImage->widthStep + x*2);
+		return *(unsigned short*)(m_pIPLImage->imageData + (unsigned int)y * m_pIPLImage->widthStep + x*2);
 	}
 	return 0;
 }
@@ -441,20 +515,20 @@ COLORREF CxImageObject::GetPixelColor( int x, int y ) const
 {
 	if ( !m_pIPLImage || x >= m_pIPLImage->width || y >= m_pIPLImage->height || x<0 || y<0 ) return RGB(0,0,0);
 
-	XASSERT( (y * m_pIPLImage->widthStep + x*(GetBpp()>>3)) < m_pIPLImage->imageSize );
+	XASSERT( (unsigned int)(y * m_pIPLImage->widthStep + x*(GetBpp()>>3)) < (unsigned int)m_pIPLImage->imageSize );
 
 	BYTE cR, cG, cB;
 	switch ( GetBpp() )
 	{
 	case 8:
 		BYTE cGray;
-		cGray = m_pIPLImage->imageData[ y * m_pIPLImage->widthStep + x ];
+		cGray = m_pIPLImage->imageData[ (unsigned int)y * m_pIPLImage->widthStep + x ];
 		return RGB(cGray, cGray, cGray);
 	case 16:	// 5 6 5 (r, g, b)
 		if (GetChannel() == 3)
 		{
 			WORD wValue;
-			wValue = m_pIPLImage->imageData[ y*m_pIPLImage->widthStep + x*2+0 ] << 8 | m_pIPLImage->imageData[ y*m_pIPLImage->widthStep + x*2+1 ];
+			wValue = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*2+0 ] << 8 | m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*2+1 ];
 			cB = (BYTE)( (wValue & 0x1F) );
 			cG = (BYTE)( (wValue >> 5) & 0x3F );
 			cR = (BYTE)( (wValue) >> 11 );
@@ -463,15 +537,15 @@ COLORREF CxImageObject::GetPixelColor( int x, int y ) const
 		}
 		else // 16bit 1channel
 		{
-			unsigned short nGray = *(unsigned short*)(m_pIPLImage->imageData + y * m_pIPLImage->widthStep + x*2);
+			unsigned short nGray = *(unsigned short*)(m_pIPLImage->imageData + (unsigned int)y * m_pIPLImage->widthStep + x*2);
 			nGray = nGray * 255 / m_nPixelMaximum;
 			return RGB(nGray, nGray, nGray);
 		}
 	case 24:
 	case 32:
-		cB = m_pIPLImage->imageData[ y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+0 ];
-		cG = m_pIPLImage->imageData[ y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+1 ];
-		cR = m_pIPLImage->imageData[ y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+2 ];
+		cB = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+0 ];
+		cG = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+1 ];
+		cR = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+2 ];
 
 		return RGB(cR, cG, cB);
 	}

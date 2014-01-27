@@ -121,7 +121,8 @@ void CxDrawDIB::ScreenBlit( BYTE* pScreenBuffer, const int nScrnWidthBytes, CxIm
 	int nImgHeight = pImgObj->GetHeight();
 	int nImgWidth = pImgObj->GetWidth();
 
-	int i, nIndex;
+	int i;
+	size_t nIndex;
 
 	#define OFF_BUF( x, y ) (*( pScreenBuffer + (y * nScrnWidthBytes) + (x) ))
 
@@ -138,7 +139,7 @@ void CxDrawDIB::ScreenBlit( BYTE* pScreenBuffer, const int nScrnWidthBytes, CxIm
 		nIndex = 0;
 		for ( i=nDstY+nDstOffsetY ; i < nDstOffH-nDstOffsetH ; i++ )
 		{
-			int nTH = (i-nDstY)+nSrcY;
+			size_t nTH = size_t(i-nDstY)+nSrcY;
 
 			memcpy( pScreenBuffer+i*nScrnWidthBytes+nDstX, pImgBuf+nSrcX+nTH*nSrcWidthBytes, nSrcW );
 		}
@@ -147,7 +148,7 @@ void CxDrawDIB::ScreenBlit( BYTE* pScreenBuffer, const int nScrnWidthBytes, CxIm
 		nIndex = 0;
 		for ( i=nDstY+nDstOffsetY ; i < nDstOffH-nDstOffsetH ; i++ )
 		{
-			int nTH = (i-nDstY)+nSrcY;
+			size_t nTH = size_t(i-nDstY)+nSrcY;
 
 			memcpy( pScreenBuffer+i*nScrnWidthBytes+nDstX*3, pImgBuf+nSrcX*3+nTH*nSrcWidthBytes, nSrcW*3 );
 		}
@@ -173,11 +174,11 @@ void CxDrawDIB::Screen32Blit( BYTE* pScreenBuffer, const int nScrnWidthBytes, Cx
 	int nImgHeight = pImgObj->GetHeight();
 	int nImgWidth = pImgObj->GetWidth();
 
-	int nIndex;
+	size_t nIndex;
 
-	int nIndex1;
-	int nIndex2;
-	int nIndex3;
+	size_t nIndex1;
+	size_t nIndex2;
+	size_t nIndex3;
 	#define OFF_BUF_B( x, y ) (*( pScreenBuffer + (y * nScrnWidthBytes) + ((x)<<2)+0 ))
 	#define OFF_BUF_G( x, y ) (*( pScreenBuffer + (y * nScrnWidthBytes) + ((x)<<2)+1 ))
 	#define OFF_BUF_R( x, y ) (*( pScreenBuffer + (y * nScrnWidthBytes) + ((x)<<2)+2 ))
@@ -197,54 +198,54 @@ void CxDrawDIB::Screen32Blit( BYTE* pScreenBuffer, const int nScrnWidthBytes, Cx
 		nIndex = 0;
 		for ( int i=nDstY+nDstOffsetY ; i < nDstOffH-nDstOffsetH ; i++ )
 		{
-			int nTH = (i-nDstY)+nSrcY;
+			size_t nTH = size_t(i-nDstY)+nSrcY;
 			if ( nTH >= nImgHeight || nTH < 0 ) continue;
 
 			for ( int j=nDstX ; j < (nDstOffW & ~7) ; j+=8 ) 
 			{ 
-				int nTW0 = (j-nDstX)+nSrcX;
+				size_t nTW0 = size_t(j-nDstX)+nSrcX;
 				if ( nTW0 >= nImgWidth || nTW0 < 0 ) continue;
 				nIndex = nTH * nSrcWidthBytes + nTW0;
 				OFF_BUF_B( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 2];
 				OFF_BUF_G( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
-				int nTW1 = (j+1-nDstX)+nSrcX;
+				size_t nTW1 = size_t(j+1-nDstX)+nSrcX;
 				if ( nTW1 >= nImgWidth || nTW1 < 0 ) continue;
 				nIndex = nTH * nSrcWidthBytes + nTW1;
 				OFF_BUF_B( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 2];
 				OFF_BUF_G( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
-				int nTW2 = (j+2-nDstX)+nSrcX;
+				size_t nTW2 = size_t(j+2-nDstX)+nSrcX;
 				if ( nTW2 >= nImgWidth || nTW2 < 0 ) continue;
 				nIndex = nTH * nSrcWidthBytes + nTW2;
 				OFF_BUF_B( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 2];
 				OFF_BUF_G( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
-				int nTW3 = (j+3-nDstX)+nSrcX;
+				size_t nTW3 = size_t(j+3-nDstX)+nSrcX;
 				if ( nTW3 >= nImgWidth || nTW3 < 0 ) continue;
 				nIndex = nTH * nSrcWidthBytes + nTW3;
 				OFF_BUF_B( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 2];
 				OFF_BUF_G( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
-				int nTW4 = (j+4-nDstX)+nSrcX;
+				size_t nTW4 = size_t(j+4-nDstX)+nSrcX;
 				if ( nTW4 >= nImgWidth || nTW4 < 0 ) continue;
 				nIndex = nTH * nSrcWidthBytes + nTW4;
 				OFF_BUF_B( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 2];
 				OFF_BUF_G( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
-				int nTW5 = (j+5-nDstX)+nSrcX;
+				size_t nTW5 = size_t(j+5-nDstX)+nSrcX;
 				if ( nTW5 >= nImgWidth || nTW5 < 0 ) continue;
 				nIndex = nTH * nSrcWidthBytes + nTW5;
 				OFF_BUF_B( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 2];
 				OFF_BUF_G( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
-				int nTW6 = (j+6-nDstX)+nSrcX;
+				size_t nTW6 = size_t(j+6-nDstX)+nSrcX;
 				if ( nTW6 >= nImgWidth || nTW6 < 0 ) continue;
 				nIndex = nTH * nSrcWidthBytes + nTW6;
 				OFF_BUF_B( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 2];
 				OFF_BUF_G( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
-				int nTW7 = (j+7-nDstX)+nSrcX;
+				size_t nTW7 = size_t(j+7-nDstX)+nSrcX;
 				if ( nTW7 >= nImgWidth || nTW7 < 0 ) continue;
 				nIndex = nTH * nSrcWidthBytes + nTW7;
 				OFF_BUF_B( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 2];
@@ -254,7 +255,7 @@ void CxDrawDIB::Screen32Blit( BYTE* pScreenBuffer, const int nScrnWidthBytes, Cx
 
 			for ( int j=(nDstOffW & ~7) ; j < nDstOffW ; j++ ) 
 			{ 
-				int nTW = (j-nDstX)+nSrcX;
+				size_t nTW = size_t(j-nDstX)+nSrcX;
 				if ( nTW >= nImgWidth || nTW < 0 ) continue;
 
 				nIndex = nTH * nSrcWidthBytes + nTW;
@@ -272,7 +273,7 @@ void CxDrawDIB::Screen32Blit( BYTE* pScreenBuffer, const int nScrnWidthBytes, Cx
 		nIndex3 = 0;
 		for ( int i=nDstY+nDstOffsetY ; i < nDstOffH-nDstOffsetH ; i++ )
 		{
-			int nTH = (i-nDstY)+nSrcY;
+			size_t nTH = size_t(i-nDstY)+nSrcY;
 
 			//memcpy( pScreenBuffer+i*nScrnWidthBytes+nDstX*3, pImgBuf+nSrcX*3+nTH*nSrcWidthBytes, nSrcW*3 );
 		}
@@ -301,76 +302,77 @@ void CxDrawDIB::ScreenScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthBytes
 	int nImgHeight = pImgObj->GetHeight();
 	int nImgWidth = pImgObj->GetWidth();
 
-	int i, j, nIndex;
+	int i, j;
+	size_t nIndex;
 
 	int nPixelMax = pImgObj->GetPixelMaximum();
 
-	int nIndex1;
-	int nIndex2;
-	int nIndex3;
-	#define OFF_BUF( x, y ) (*( pScreenBuffer + ((y) * nScrnWidthBytes) + (x) ))
+	size_t nIndex1;
+	size_t nIndex2;
+	size_t nIndex3;
+	#define OFF_BUF( x, y ) (*( pScreenBuffer + (size_t(y) * nScrnWidthBytes) + (x) ))
 
 	// 2009/06/29
 	nDstOffW += nDstX;
 	nDstOffH += nDstY;
 
-	int nTHSrcWidthBytes;
+	size_t nTHSrcWidthBytes;
 	switch ( pImgObj->GetBpp() )
 	{
 	case 8:
 		nIndex = 0;
 		for ( i=nDstY+nDstOffsetY ; i < nDstOffH-nDstOffsetH ; i++ )
 		{
-			int nTH = int((i-nDstY)*fRatioY+nSrcY);
+			size_t nTH = size_t((i-nDstY)*fRatioY+nSrcY);
 			if ( nTH >= nImgHeight || nTH < 0 ) continue;
 
 			nTHSrcWidthBytes = nTH*nSrcWidthBytes;
 
 			for ( j=nDstX ; j < ((nDstOffW) & ~7) ; j+=8 ) 
 			{ 
-				int nTW0 = int((j-nDstX)*fRatioX+nSrcX);
+				size_t nTW0 = size_t((j-nDstX)*fRatioX+nSrcX);
 				if ( nTW0 >= nImgWidth || nTW0 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW0;
 				OFF_BUF( j, i ) = pImgBuf[ nIndex ];
 
-				int nTW1 = int((j+1-nDstX)*fRatioX+nSrcX);
+				size_t nTW1 = size_t((j+1-nDstX)*fRatioX+nSrcX);
 				if ( nTW1 >= nImgWidth || nTW1 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW1;
 				OFF_BUF( j+1, i ) = pImgBuf[ nIndex ];
 
-				int nTW2 = int((j+2-nDstX)*fRatioX+nSrcX);
+				size_t nTW2 = size_t((j+2-nDstX)*fRatioX+nSrcX);
 				if ( nTW2 >= nImgWidth || nTW2 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW2;
 				OFF_BUF( j+2, i ) = pImgBuf[ nIndex ];
 
-				int nTW3 = int((j+3-nDstX)*fRatioX+nSrcX);
+				size_t nTW3 = size_t((j+3-nDstX)*fRatioX+nSrcX);
 				if ( nTW3 >= nImgWidth || nTW3 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW3;
 				OFF_BUF( j+3, i ) = pImgBuf[ nIndex ];
 
-				int nTW4 = int((j+4-nDstX)*fRatioX+nSrcX);
+				size_t nTW4 = size_t((j+4-nDstX)*fRatioX+nSrcX);
 				if ( nTW4 >= nImgWidth || nTW4 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW4;
 				OFF_BUF( j+4, i ) = pImgBuf[ nIndex ];
 
-				int nTW5 = int((j+5-nDstX)*fRatioX+nSrcX);
+				size_t nTW5 = size_t((j+5-nDstX)*fRatioX+nSrcX);
 				if ( nTW5 >= nImgWidth || nTW5 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW5;
 				OFF_BUF( j+5, i ) = pImgBuf[ nIndex ];
 
-				int nTW6 = int((j+6-nDstX)*fRatioX+nSrcX);
+				size_t nTW6 = size_t((j+6-nDstX)*fRatioX+nSrcX);
 				if ( nTW6 >= nImgWidth || nTW6 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW6;
 				OFF_BUF( j+6, i ) = pImgBuf[ nIndex ];
 
-				int nTW7 = int((j+7-nDstX)*fRatioX+nSrcX);
+				size_t nTW7 = size_t((j+7-nDstX)*fRatioX+nSrcX);
 				if ( nTW7 >= nImgWidth || nTW7 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW7;
@@ -379,7 +381,7 @@ void CxDrawDIB::ScreenScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthBytes
 
 			for ( j=((nDstOffW) & ~7) ; j < nDstOffW ; j++ ) 
 			{ 
-				int nTW = int((j-nDstX)*fRatioX+nSrcX);
+				size_t nTW = size_t((j-nDstX)*fRatioX+nSrcX);
 				if ( nTH >= nImgHeight || nTW >= nImgWidth || nTW < 0 || nTH < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW;
@@ -392,12 +394,12 @@ void CxDrawDIB::ScreenScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthBytes
 			break;
 		for ( i=nDstY+nDstOffsetY ; i < nDstOffH-nDstOffsetH ; i++ )
 		{
-			int nTH = int((i-nDstY)*fRatioY+nSrcY);
+			size_t nTH = size_t((i-nDstY)*fRatioY+nSrcY);
 			if ( nTH >= nImgHeight || nTH < 0 ) continue;
 			nTHSrcWidthBytes = nTH*nSrcWidthBytes;
 			for ( j=nDstX ; j < nDstOffW ; j++ ) 
 			{ 
-				int nTW = int((j-nDstX)*fRatioX+nSrcX);
+				size_t nTW = size_t((j-nDstX)*fRatioX+nSrcX);
 				if ( nTW >= nImgWidth || nTW < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW*2;
@@ -411,12 +413,12 @@ void CxDrawDIB::ScreenScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthBytes
 		nIndex3 = 0;
 		for ( i=nDstY+nDstOffsetY ; i < nDstOffH-nDstOffsetH ; i++ )
 		{
-			int nTH = int((i-nDstY)*fRatioY+nSrcY);
+			size_t nTH = size_t((i-nDstY)*fRatioY+nSrcY);
 			if ( nTH >= nImgHeight || nTH < 0 ) continue;
 			nTHSrcWidthBytes = nTH*nSrcWidthBytes;
 			for ( j=nDstX ; j < nDstOffW ; j++ ) 
 			{ 
-				int nTW = int((j-nDstX)*fRatioX+nSrcX);
+				size_t nTW = size_t((j-nDstX)*fRatioX+nSrcX);
 
 				if ( nTW >= nImgWidth || nTW < 0 ) continue;
 
@@ -452,14 +454,15 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 	int nImgHeight = pImgObj->GetHeight();
 	int nImgWidth = pImgObj->GetWidth();
 
-	int i, j, nIndex;
+	int i, j;
+	size_t nIndex;
 
-	int nIndex1;
-	int nIndex2;
-	int nIndex3;
-	#define OFF_BUF_B( x, y ) (*( pScreenBuffer + ((y) * nScrnWidthBytes) + ((x)<<2)+0 ))
-	#define OFF_BUF_G( x, y ) (*( pScreenBuffer + ((y) * nScrnWidthBytes) + ((x)<<2)+1 ))
-	#define OFF_BUF_R( x, y ) (*( pScreenBuffer + ((y) * nScrnWidthBytes) + ((x)<<2)+2 ))
+	size_t nIndex1;
+	size_t nIndex2;
+	size_t nIndex3;
+	#define OFF_BUF_B( x, y ) (*( pScreenBuffer + (size_t(y) * nScrnWidthBytes) + ((x)<<2)+0 ))
+	#define OFF_BUF_G( x, y ) (*( pScreenBuffer + (size_t(y) * nScrnWidthBytes) + ((x)<<2)+1 ))
+	#define OFF_BUF_R( x, y ) (*( pScreenBuffer + (size_t(y) * nScrnWidthBytes) + ((x)<<2)+2 ))
 
 	const BYTE* pPalette = m_pRenderer->GetPalette();
 
@@ -467,20 +470,20 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 	nDstOffW += nDstX;
 	nDstOffH += nDstY;
 	
-	int nTHSrcWidthBytes;
+	size_t nTHSrcWidthBytes;
 	switch ( pImgObj->GetBpp() )
 	{
 	case 8:
 		nIndex = 0;
 		for ( i=nDstY+nDstOffsetY ; i < nDstOffH-nDstOffsetH ; i++ )
 		{
-			int nTH = int((i-nDstY)*fRatioY+nSrcY);
+			size_t nTH = size_t((i-nDstY)*fRatioY+nSrcY);
 			if ( nTH >= nImgHeight || nTH < 0 ) continue;
 
 			nTHSrcWidthBytes = nTH*nSrcWidthBytes;
 			for ( j=nDstX ; j < (nDstOffW & ~7) ; j+=8 ) 
 			{ 
-				int nTW0 = int((j-nDstX)*fRatioX+nSrcX);
+				size_t nTW0 = size_t((j-nDstX)*fRatioX+nSrcX);
 				if ( nTW0 >= nImgWidth || nTW0 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW0;
@@ -488,7 +491,7 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 				OFF_BUF_G( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
 
-				int nTW1 = int((j+1-nDstX)*fRatioX+nSrcX);
+				size_t nTW1 = size_t((j+1-nDstX)*fRatioX+nSrcX);
 				if ( nTW1 >= nImgWidth || nTW1 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW1;
@@ -496,7 +499,7 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 				OFF_BUF_G( j+1, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j+1, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
 
-				int nTW2 = int((j+2-nDstX)*fRatioX+nSrcX);
+				size_t nTW2 = size_t((j+2-nDstX)*fRatioX+nSrcX);
 				if ( nTW2 >= nImgWidth || nTW2 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW2;
@@ -504,7 +507,7 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 				OFF_BUF_G( j+2, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j+2, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
 
-				int nTW3 = int((j+3-nDstX)*fRatioX+nSrcX);
+				size_t nTW3 = size_t((j+3-nDstX)*fRatioX+nSrcX);
 				if ( nTW3 >= nImgWidth || nTW3 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW3;
@@ -512,7 +515,7 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 				OFF_BUF_G( j+3, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j+3, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
 
-				int nTW4 = int((j+4-nDstX)*fRatioX+nSrcX);
+				size_t nTW4 = size_t((j+4-nDstX)*fRatioX+nSrcX);
 				if ( nTW4 >= nImgWidth || nTW4 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW4;
@@ -520,7 +523,7 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 				OFF_BUF_G( j+4, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j+4, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
 
-				int nTW5 = int((j+5-nDstX)*fRatioX+nSrcX);
+				size_t nTW5 = size_t((j+5-nDstX)*fRatioX+nSrcX);
 				if ( nTW5 >= nImgWidth || nTW5 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW5;
@@ -528,7 +531,7 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 				OFF_BUF_G( j+5, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j+5, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
 
-				int nTW6 = int((j+6-nDstX)*fRatioX+nSrcX);
+				size_t nTW6 = size_t((j+6-nDstX)*fRatioX+nSrcX);
 				if ( nTW6 >= nImgWidth || nTW6 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW6;
@@ -536,7 +539,7 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 				OFF_BUF_G( j+6, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 1];
 				OFF_BUF_R( j+6, i ) = pPalette[ (pImgBuf[ nIndex ] << 2) + 0];
 
-				int nTW7 = int((j+7-nDstX)*fRatioX+nSrcX);
+				size_t nTW7 = size_t((j+7-nDstX)*fRatioX+nSrcX);
 				if ( nTW7 >= nImgWidth || nTW7 < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW7;
@@ -547,7 +550,7 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 
 			for ( j=(nDstOffW & ~7) ; j < nDstOffW ; j++ ) 
 			{ 
-				int nTW = int((j-nDstX)*fRatioX+nSrcX);
+				size_t nTW = size_t((j-nDstX)*fRatioX+nSrcX);
 				if ( nTW >= nImgWidth || nTW < 0 ) continue;
 
 				nIndex = nTHSrcWidthBytes + nTW;
@@ -563,13 +566,13 @@ void CxDrawDIB::Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthByt
 		nIndex3 = 0;
 		for ( i=nDstY+nDstOffsetY ; i < nDstOffH-nDstOffsetH ; i++ )
 		{
-			int nTH = int((i-nDstY)*fRatioY+nSrcY);
+			size_t nTH = size_t((i-nDstY)*fRatioY+nSrcY);
 			if ( nTH >= nImgHeight || nTH < 0 ) continue;
 
 			nTHSrcWidthBytes = nTH * nSrcWidthBytes;
 			for ( j=nDstX ; j < nDstOffW ; j++ ) 
 			{ 
-				int nTW = int((j-nDstX)*fRatioX+nSrcX);
+				size_t nTW = size_t((j-nDstX)*fRatioX+nSrcX);
 				if ( nTW >= nImgWidth || nTW < 0 ) continue;
 
 				nIndex1 = nTHSrcWidthBytes + nTW*3+0;
