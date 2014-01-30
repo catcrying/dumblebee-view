@@ -310,6 +310,7 @@
   <ItemGroup>
     <ClInclude Include="Include\XUtil\Comm\xClientSocketTCP.h" />
     <ClInclude Include="Include\XUtil\Comm\xIoBuffer.h" />
+    <ClInclude Include="Include\XUtil\Comm\xPingUtil.h" />
     <ClInclude Include="Include\XUtil\Comm\xSerialComm.h" />
     <ClInclude Include="Include\XUtil\Comm\xServerSocketTCP.h" />
     <ClInclude Include="Include\XUtil\Comm\xSimpleSocket.h" />
@@ -397,6 +398,7 @@
     <ClCompile Include="xMmTimers.cpp" />
     <ClCompile Include="xMultimonSupport.cpp" />
     <ClCompile Include="xOleDateTime.cpp" />
+    <ClCompile Include="xPingUtil.cpp" />
     <ClCompile Include="xSerialComm.cpp" />
     <ClCompile Include="xServerSocketTCP.cpp" />
     <ClCompile Include="xSharedCriticalSection.cpp" />

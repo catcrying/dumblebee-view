@@ -640,8 +640,9 @@ void CxImageViewCtrl::SetImageObject( CxImageObject* pImageObject, BOOL bZoomFit
 	else
 	{
 		m_pImageView->RecalcZoomRatio();
-	}	
-	
+	}
+
+	Invalidate();
 }
 
 /*

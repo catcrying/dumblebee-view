@@ -23,6 +23,7 @@ CxImageObject::CxImageObject() :
 {
 	m_pCsLockImage = new CxCriticalSection();
 	m_nPixelMaximum = 255;
+	m_ChannelSeq = ChannelSeqUnknown;
 #ifdef _WIN64
 	m_bUseHugeMemory = FALSE;
 	m_pHugeMemory = NULL;
@@ -137,6 +138,11 @@ int CxImageObject::GetDepth() const
 	return m_pIPLImage ? (m_pIPLImage->depth & 255) : 0;
 }
 
+CxImageObject::ChannelSeqModel CxImageObject::GetChannelSeq() const
+{
+	return m_ChannelSeq;
+}
+
 CxCriticalSection*	CxImageObject::GetImageLockObject()
 {
 	return m_pCsLockImage;
@@ -195,9 +201,9 @@ void CxImageObject::AttachHBitmap( HBITMAP hBitmap )
 	int nDestH = bm.bmWidth;
 
 	if ( cClrBits == 8 )
-		Create( nDestW, nDestH, 8, 1, 0 );
+		Create( nDestW, nDestH, 8, 1, 0, ChannelSeqGray );
 	else
-		Create( nDestW, nDestH, 8, 3, 0 );
+		Create( nDestW, nDestH, 8, 3, 0, ChannelSeqBGR );
 
 	int nDestWBytes = GetWidthBytes();
 
@@ -279,6 +285,25 @@ BOOL CxImageObject::LoadFromFile( LPCTSTR lpszFileName, BOOL bForceGray8/*=FALSE
 	try
 	{
 		m_pIPLImage = cvLoadImage( T2A((LPTSTR)lpszFileName), bForceGray8 ? CV_LOAD_IMAGE_GRAYSCALE : CV_LOAD_IMAGE_ANYDEPTH|CV_LOAD_IMAGE_ANYCOLOR );	// 2nd parameter: 0-gray, 1-color
+		if ((m_pIPLImage->channelSeq[0] == 'G') && (m_pIPLImage->channelSeq[1] == 'R') && 
+			(m_pIPLImage->channelSeq[2] == 'A') && (m_pIPLImage->channelSeq[3] == 'Y'))
+		{
+			m_ChannelSeq = ChannelSeqGray;
+		}
+		else if ((m_pIPLImage->channelSeq[0] == 'B') && (m_pIPLImage->channelSeq[1] == 'G') && 
+			(m_pIPLImage->channelSeq[2] == 'R'))
+		{
+			m_ChannelSeq = ChannelSeqBGR;
+		}
+		else if ((m_pIPLImage->channelSeq[0] == 'R') && (m_pIPLImage->channelSeq[1] == 'G') && 
+			(m_pIPLImage->channelSeq[2] == 'B'))
+		{
+			m_ChannelSeq = ChannelSeqRGB;
+		}
+		else
+		{
+			m_ChannelSeq = ChannelSeqUnknown;
+		}
 	}
 	catch (cv::Exception& e)
 	{
@@ -300,7 +325,53 @@ BOOL CxImageObject::SaveToFile( LPCTSTR lpszFileName )
 
 	if ( m_pIPLImage && m_pIPLImage->nSize == sizeof(IplImage) )
 	{
+		if (m_pIPLImage->nChannels == 3)
+		{
+			if (m_pIPLImage->depth == 8)
+			{
+				if (m_ChannelSeq == ChannelSeqRGB)
+				{
+					BYTE cTemp;
+					for (int j=0 ; j<m_pIPLImage->height ; j++)
+					{
+						for (int i=0 ; i<m_pIPLImage->width*3 ; i+=3)
+						{
+							cTemp = m_pIPLImage->imageData[j*m_pIPLImage->widthStep + i + 0];
+							m_pIPLImage->imageData[j*m_pIPLImage->widthStep + i + 0] = m_pIPLImage->imageData[j*m_pIPLImage->widthStep + i + 2];
+							m_pIPLImage->imageData[j*m_pIPLImage->widthStep + i + 2] = cTemp;
+						}
+					}
+				}
+			}
+			else if (m_pIPLImage->depth == 16)
+			{
+				// TODO: 16bit color image
+			}
+		}
 		cvSaveImage( T2A((LPTSTR)lpszFileName), m_pIPLImage );
+		if (m_pIPLImage->nChannels == 3)
+		{
+			if (m_pIPLImage->depth == 8)
+			{
+				if (m_ChannelSeq == ChannelSeqRGB)
+				{
+					BYTE cTemp;
+					for (int j=0 ; j<m_pIPLImage->height ; j++)
+					{
+						for (int i=0 ; i<m_pIPLImage->width*3 ; i+=3)
+						{
+							cTemp = m_pIPLImage->imageData[j*m_pIPLImage->widthStep + i + 0];
+							m_pIPLImage->imageData[j*m_pIPLImage->widthStep + i + 0] = m_pIPLImage->imageData[j*m_pIPLImage->widthStep + i + 2];
+							m_pIPLImage->imageData[j*m_pIPLImage->widthStep + i + 2] = cTemp;
+						}
+					}
+				}
+			}
+			else if (m_pIPLImage->depth == 16)
+			{
+				// TODO: 16bit color image
+			}
+		}
 		return TRUE;
 	}
 	return FALSE;
@@ -309,6 +380,7 @@ BOOL CxImageObject::SaveToFile( LPCTSTR lpszFileName )
 BOOL CxImageObject::CopyImage( const CxImageObject* pSrcImage )
 {
 	cvCopy( pSrcImage->GetImage(), m_pIPLImage );
+	m_ChannelSeq = pSrcImage->GetChannelSeq();
 	m_bNotifyChangeImage = TRUE;
 	return TRUE;
 }
@@ -316,13 +388,13 @@ BOOL CxImageObject::CopyImage( const CxImageObject* pSrcImage )
 BOOL CxImageObject::Clone( const CxImageObject* pSrcImage )
 {
 	if ( !pSrcImage ) return FALSE;
-	if ( !Create( pSrcImage->GetWidth(), pSrcImage->GetHeight(), pSrcImage->GetDepth(), pSrcImage->GetChannel(), pSrcImage->GetImage()->origin ) )
+	if ( !Create( pSrcImage->GetWidth(), pSrcImage->GetHeight(), pSrcImage->GetDepth(), pSrcImage->GetChannel(), pSrcImage->GetImage()->origin, pSrcImage->GetChannelSeq() ) )
 		return FALSE;
 	m_bNotifyChangeImage = TRUE;
 	return CopyImage( pSrcImage );
 }
 
-BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel )
+BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, ChannelSeqModel seq/*=ChannelSeqUnknown*/ )
 {
     if ( (nDepth != 8 && nDepth != 16) || 
 		(nChannel != 1 && nChannel != 3) )
@@ -352,13 +424,27 @@ BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, 
 		m_pIPLImage->colorModel[2] = 'A'; m_pIPLImage->colorModel[3] = 'Y';
 		if (nChannel == 1)
 		{
+			m_ChannelSeq = ChannelSeqGray;
 			m_pIPLImage->channelSeq[0] = 'G'; m_pIPLImage->channelSeq[1] = 'R';
 			m_pIPLImage->channelSeq[2] = 'A'; m_pIPLImage->channelSeq[3] = 'Y';
 		}
 		else
 		{
-			m_pIPLImage->channelSeq[0] = 'B'; m_pIPLImage->channelSeq[1] = 'G';
-			m_pIPLImage->channelSeq[2] = 'R'; m_pIPLImage->channelSeq[3] = '\0';
+			switch (seq)
+			{
+			case ChannelSeqGray:
+			case ChannelSeqBGR:
+			case ChannelSeqUnknown:
+				m_ChannelSeq = ChannelSeqBGR;
+				m_pIPLImage->channelSeq[0] = 'B'; m_pIPLImage->channelSeq[1] = 'G';
+				m_pIPLImage->channelSeq[2] = 'R'; m_pIPLImage->channelSeq[3] = '\0';
+				break;
+			case ChannelSeqRGB:
+				m_ChannelSeq = ChannelSeqRGB;
+				m_pIPLImage->channelSeq[0] = 'R'; m_pIPLImage->channelSeq[1] = 'G';
+				m_pIPLImage->channelSeq[2] = 'B'; m_pIPLImage->channelSeq[3] = '\0';
+				break;
+			}
 		}
 		m_pIPLImage->align = 4;
 		m_pIPLImage->width = nWidth;
@@ -374,7 +460,7 @@ BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, 
 	return TRUE;
 }
 
-BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin/*=0*/ )
+BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin/*=0*/, ChannelSeqModel seq/*=ChannelSeqUnknown*/ )
 {
     if ( (nDepth != 8 && nDepth != 16) || 
 		(nChannel != 1 && nChannel != 3) ||
@@ -387,7 +473,8 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
     if ( !m_bDelete || !m_pIPLImage || 
 		GetChannel() != nChannel || 
 		GetDepth() != nDepth || 
-		m_pIPLImage->width != nWidth || m_pIPLImage->height != nHeight )
+		m_pIPLImage->width != nWidth || m_pIPLImage->height != nHeight ||
+		m_ChannelSeq != seq )
     {	
 		CxCriticalSection::Owner Lock(*m_pCsLockImage);
 
@@ -409,13 +496,27 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 			m_pIPLImage->colorModel[2] = 'A'; m_pIPLImage->colorModel[3] = 'Y';
 			if (nChannel == 1)
 			{
+				m_ChannelSeq = ChannelSeqGray;
 				m_pIPLImage->channelSeq[0] = 'G'; m_pIPLImage->channelSeq[1] = 'R';
 				m_pIPLImage->channelSeq[2] = 'A'; m_pIPLImage->channelSeq[3] = 'Y';
 			}
 			else
 			{
-				m_pIPLImage->channelSeq[0] = 'B'; m_pIPLImage->channelSeq[1] = 'G';
-				m_pIPLImage->channelSeq[2] = 'R'; m_pIPLImage->channelSeq[3] = '\0';
+				switch (seq)
+				{
+				case ChannelSeqGray:
+				case ChannelSeqBGR:
+				case ChannelSeqUnknown:
+					m_ChannelSeq = ChannelSeqBGR;
+					m_pIPLImage->channelSeq[0] = 'B'; m_pIPLImage->channelSeq[1] = 'G';
+					m_pIPLImage->channelSeq[2] = 'R'; m_pIPLImage->channelSeq[3] = '\0';
+					break;
+				case ChannelSeqRGB:
+					m_ChannelSeq = ChannelSeqRGB;
+					m_pIPLImage->channelSeq[0] = 'R'; m_pIPLImage->channelSeq[1] = 'G';
+					m_pIPLImage->channelSeq[2] = 'B'; m_pIPLImage->channelSeq[3] = '\0';
+					break;
+				}
 			}
 			m_pIPLImage->align = 4;
 			m_pIPLImage->width = nWidth;
@@ -435,6 +536,31 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 			try
 			{
 				m_pIPLImage = cvCreateImage( cvSize( nWidth, nHeight ), nDepth, nChannel );
+
+				if (nChannel == 1)
+				{
+					m_ChannelSeq = ChannelSeqGray;
+					m_pIPLImage->channelSeq[0] = 'G'; m_pIPLImage->channelSeq[1] = 'R';
+					m_pIPLImage->channelSeq[2] = 'A'; m_pIPLImage->channelSeq[3] = 'Y';
+				}
+				else
+				{
+					switch (seq)
+					{
+					case ChannelSeqGray:
+					case ChannelSeqBGR:
+					case ChannelSeqUnknown:
+						m_ChannelSeq = ChannelSeqBGR;
+						m_pIPLImage->channelSeq[0] = 'B'; m_pIPLImage->channelSeq[1] = 'G';
+						m_pIPLImage->channelSeq[2] = 'R'; m_pIPLImage->channelSeq[3] = '\0';
+						break;
+					case ChannelSeqRGB:
+						m_ChannelSeq = ChannelSeqRGB;
+						m_pIPLImage->channelSeq[0] = 'R'; m_pIPLImage->channelSeq[1] = 'G';
+						m_pIPLImage->channelSeq[2] = 'B'; m_pIPLImage->channelSeq[3] = '\0';
+						break;
+					}
+				}
 			}
 			catch( cv::Exception& e )
 			{
@@ -529,9 +655,18 @@ COLORREF CxImageObject::GetPixelColor( int x, int y ) const
 		{
 			WORD wValue;
 			wValue = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*2+0 ] << 8 | m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*2+1 ];
-			cB = (BYTE)( (wValue & 0x1F) );
-			cG = (BYTE)( (wValue >> 5) & 0x3F );
-			cR = (BYTE)( (wValue) >> 11 );
+			if ((m_ChannelSeq == ChannelSeqBGR) || (m_ChannelSeq == ChannelSeqUnknown))
+			{
+				cB = (BYTE)( (wValue & 0x1F) );
+				cG = (BYTE)( (wValue >> 5) & 0x3F );
+				cR = (BYTE)( (wValue) >> 11 );
+			}
+			else
+			{
+				cR = (BYTE)( (wValue & 0x1F) );
+				cG = (BYTE)( (wValue >> 5) & 0x3F );
+				cB = (BYTE)( (wValue) >> 11 );
+			}
 
 			return RGB(cR, cG, cB);
 		}
@@ -543,9 +678,18 @@ COLORREF CxImageObject::GetPixelColor( int x, int y ) const
 		}
 	case 24:
 	case 32:
-		cB = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+0 ];
-		cG = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+1 ];
-		cR = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+2 ];
+		if ((m_ChannelSeq == ChannelSeqBGR) || (m_ChannelSeq == ChannelSeqUnknown))
+		{
+			cB = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+0 ];
+			cG = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+1 ];
+			cR = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+2 ];
+		}
+		else
+		{
+			cR = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+0 ];
+			cG = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+1 ];
+			cB = m_pIPLImage->imageData[ (unsigned int)y*m_pIPLImage->widthStep + x*m_pIPLImage->nChannels+2 ];
+		}
 
 		return RGB(cR, cG, cB);
 	}

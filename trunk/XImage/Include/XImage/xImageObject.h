@@ -20,6 +20,8 @@ class CxCriticalSection;
 struct _IplImage;
 class XIMAGE_API CxImageObject  
 {
+public:
+	enum ChannelSeqModel { ChannelSeqUnknown, ChannelSeqGray, ChannelSeqBGR, ChannelSeqRGB };
 protected:
 	struct _IplImage*	m_pIPLImage;
 	BOOL			m_bDelete;
@@ -35,6 +37,8 @@ protected:
 	CxCriticalSection*	m_pCsLockImage;
 
 	HBITMAP			m_hBitmap;
+
+	ChannelSeqModel	m_ChannelSeq;
 
 #ifdef _WIN64
 	BOOL			m_bUseHugeMemory;
@@ -70,8 +74,8 @@ public:
 	BOOL IsValid() const;
 
 	// Construction
-	BOOL CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel ); // lpImgBuf must be 4-aligned
-	BOOL Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin=0 );
+	BOOL CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, ChannelSeqModel seq=ChannelSeqUnknown ); // lpImgBuf must be 4-aligned
+	BOOL Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin=0, ChannelSeqModel seq=ChannelSeqUnknown );
 	void Destroy();
 
 	virtual BOOL LoadFromFile( LPCTSTR lpszFileName, BOOL bForceGray8=FALSE );
@@ -90,6 +94,7 @@ public:
 
 	static int GetWidthBytes( int nCx, int nBitCount );	// only 4-byte align
 	int GetWidthBytes() const;
+	ChannelSeqModel GetChannelSeq() const;
 
 	// Access Image-Buffer
 	LPVOID GetImageBuffer() const;

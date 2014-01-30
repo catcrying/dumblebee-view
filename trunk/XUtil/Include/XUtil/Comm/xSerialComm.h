@@ -31,7 +31,8 @@
 
 #define	NOT_DEFINE_SYMBOL	(-0x4c0de)
 
-XUTIL_API BOOL WINAPI XCommInit( HINSTANCE hInstance = NULL );
+XUTIL_API BOOL WINAPI XCommInitialize( HINSTANCE hInstance = NULL );
+XUTIL_API void WINAPI XCommTerminate();
 
 class XUTIL_API CxSerialComm
 {

@@ -30,13 +30,24 @@ protected:
 							int nDstOffsetY=0,
 							int nDstOffsetH=0 );
 
-	void Screen32ScaledBlit( BYTE* pScreenBuffer, const int nScrnWidthBytes, CxImageObject* pImgObj, 
+	void Screen32ScaledBlitBGR( BYTE* pScreenBuffer, const int nScrnWidthBytes, CxImageObject* pImgObj, 
 							int nDstX, int nDstY, int nDstOffW, int nDstOffH, 
 							int nSrcX, int nSrcY, int nSrcW, int nSrcH,
 							float fRatioX, float fRatioY,
 							int nDstOffsetY=0,
 							int nDstOffsetH=0 );
-	void Screen32Blit( BYTE* pScreenBuffer, const int nScrnWidthBytes, CxImageObject* pImgObj, 
+	void Screen32BlitBGR( BYTE* pScreenBuffer, const int nScrnWidthBytes, CxImageObject* pImgObj, 
+							int nDstX, int nDstY, int nDstOffW, int nDstOffH, 
+							int nSrcX, int nSrcY, int nSrcW, int nSrcH,
+							int nDstOffsetY=0,
+							int nDstOffsetH=0 );
+	void Screen32ScaledBlitRGB( BYTE* pScreenBuffer, const int nScrnWidthBytes, CxImageObject* pImgObj, 
+							int nDstX, int nDstY, int nDstOffW, int nDstOffH, 
+							int nSrcX, int nSrcY, int nSrcW, int nSrcH,
+							float fRatioX, float fRatioY,
+							int nDstOffsetY=0,
+							int nDstOffsetH=0 );
+	void Screen32BlitRGB( BYTE* pScreenBuffer, const int nScrnWidthBytes, CxImageObject* pImgObj, 
 							int nDstX, int nDstY, int nDstOffW, int nDstOffH, 
 							int nSrcX, int nSrcY, int nSrcW, int nSrcH,
 							int nDstOffsetY=0,

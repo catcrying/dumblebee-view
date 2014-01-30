@@ -157,6 +157,21 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_ImageObject[i].LoadFromFile( _T("E:\\CropImage.bmp") );
 	}
 
+	m_ImageObject[0].Create( 200, 200, 8, 3, 0, CxImageObject::ChannelSeqRGB );
+	int nWBytes = m_ImageObject[0].GetWidthBytes();
+	int nWidth = m_ImageObject[0].GetWidth();
+	int nHeight = m_ImageObject[0].GetHeight();
+	BYTE* pImgBufColor = (BYTE*)m_ImageObject[0].GetImageBuffer();
+	for ( int i=0 ; i<nHeight ; i++ )
+	{
+		for (int j=0 ; j<nWidth ; j++)
+		{
+			pImgBufColor[i*nWBytes+j*3+0] = 255;
+			pImgBufColor[i*nWBytes+j*3+1] = 0;
+			pImgBufColor[i*nWBytes+j*3+2] = 0;
+		}
+	}
+
 	//go.GetLayerCount
 	CxGOAlignMark mark;
 	mark.CreateObject( RGB(255, 0, 0), 400, 400, 200, 50 );

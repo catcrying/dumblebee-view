@@ -20,11 +20,9 @@ class CxCommWorkGroup
 {
 public:
 	CxCommWorkGroup()
-		{ m_hWnd = NULL; m_bOwnerClassDestroy = FALSE; }
+		{ m_hWnd = NULL; }
 	~CxCommWorkGroup()
 		{ DestroyCommWindow(); }
-
-	BOOL	m_bOwnerClassDestroy;
 
 private:
 	HWND m_hWnd;
@@ -84,21 +82,28 @@ public:
 	}
 	BOOL PostMessage( CxSerialComm * pComm, UINT uMsg, DWORD dwRet )
 	{
-		if ( m_bOwnerClassDestroy )
-			return FALSE;
 		if ( m_hWnd == NULL || pComm == NULL ) return FALSE;
 		return ::PostMessage(m_hWnd, uMsg, (WPARAM)pComm, dwRet );
 	}
 	LRESULT SendMessage( CxSerialComm* pComm, UINT uMsg, DWORD dwRet )
 	{
-		if ( m_bOwnerClassDestroy )
-			return FALSE;
 		if ( m_hWnd == NULL || pComm == NULL ) return FALSE;
 		return ::SendMessage(m_hWnd, uMsg, (WPARAM)pComm, dwRet );
 	}
+	void ResetQueuedMessage( CxSerialComm* pComm )
+	{
+		MSG msg;
+		while (::PeekMessage(&msg, m_hWnd, WM_XCOMM_CLOSE, WM_XCOMM_DISCONNECT_DEVICE, PM_REMOVE))
+		{
+			//TranslateMessage( &msg );
+			//DispatchMessage( &msg );
+		}
+	}
 private:
 	static LRESULT CALLBACK XCOMMWGProc( HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam );
-} s_CommWorkGroup;
+};
+
+CxCommWorkGroup* g_pWorkGroup = NULL;
 
 const TCHAR CxCommWorkGroup::c_szWindowName[] = _T("A_Window_for_The_CxCommWorkGroup");
 
@@ -119,11 +124,6 @@ LRESULT CALLBACK CxCommWorkGroup::XCOMMWGProc( HWND hwnd, UINT iMsg, WPARAM wPar
 		{
 			break;
 		}
-		if ( pWorkGroup->m_bOwnerClassDestroy )
-		{
-			//NTRACE( "Owner Class Destory!" );
-			break;
-		}
 		pComm->OnCommClose((DWORD)lParam);
 		break;
 
@@ -133,11 +133,6 @@ LRESULT CALLBACK CxCommWorkGroup::XCOMMWGProc( HWND hwnd, UINT iMsg, WPARAM wPar
 		{
 			break;
 		}
-		if ( pWorkGroup->m_bOwnerClassDestroy )
-		{
-			//NTRACE( "Owner Class Destory!" );
-			break;
-		}
 		pComm->OnCommReceive((CxSerialComm::ReceivedPacket*)lParam);
 		break;
 
@@ -145,11 +140,6 @@ LRESULT CALLBACK CxCommWorkGroup::XCOMMWGProc( HWND hwnd, UINT iMsg, WPARAM wPar
 		if ( (pWorkGroup=(CxCommWorkGroup*)::GetWindowLongPtr(hwnd, GWLP_USERDATA)) == NULL ||
 			(pComm=(CxSerialComm*)wParam) == NULL )
 		{
-			break;
-		}
-		if ( pWorkGroup->m_bOwnerClassDestroy )
-		{
-			//XTRACE( "Owner Class Destory!" );
 			break;
 		}
 		pComm->OnCommDisconnectDevice((DWORD)lParam);
@@ -163,7 +153,7 @@ LRESULT CALLBACK CxCommWorkGroup::XCOMMWGProc( HWND hwnd, UINT iMsg, WPARAM wPar
 }
 
 
-BOOL WINAPI XCommInit( HINSTANCE hInstance )
+BOOL WINAPI XCommInitialize( HINSTANCE hInstance )
 {
 	// register a socket window class
 	if ( hInstance == NULL )
@@ -172,7 +162,19 @@ BOOL WINAPI XCommInit( HINSTANCE hInstance )
 	}
 	CxCommWorkGroup::RegisterClassWnd(hInstance);
 
+	if (!g_pWorkGroup)
+		g_pWorkGroup = new CxCommWorkGroup();
+
 	return TRUE;
+}
+
+void WINAPI XCommTerminate()
+{
+	if (g_pWorkGroup)
+	{
+		delete g_pWorkGroup;
+		g_pWorkGroup = NULL;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -214,7 +216,8 @@ CxSerialComm::~CxSerialComm()
 		m_ReceivedPacket.pReceiveBuf = NULL;
 	}
 
-	s_CommWorkGroup.m_bOwnerClassDestroy = TRUE;
+	if (g_pWorkGroup)
+		g_pWorkGroup->ResetQueuedMessage( this );
 	Destroy();
 }
 
@@ -422,8 +425,15 @@ BOOL CxSerialComm::Create( long lPort, DWORD dwBaudRate /*= CBR_4800*/, BYTE byB
 
 	m_pReceiveBuf = new BYTE[ MAX_BUF_SIZE ];
 
-	if ( !s_CommWorkGroup.CreateCommWindow() )
+	if (!g_pWorkGroup)
 	{
+		XTRACE( _T("CxSerialComm::Create - Error \"XCommInit()\" missing\n") );
+		return FALSE;
+	}
+
+	if ( !g_pWorkGroup->CreateCommWindow() )
+	{
+		XTRACE( _T("CxSerialComm::Create - Error \"XCommInit()\" missing\n") );
 		return FALSE;
 	}
 
@@ -605,7 +615,8 @@ void CxSerialComm::CheckModemStatus()
 		XTRACE( _T("ERROR: MS_CTS_ON\r\n") );
 		// Disconnect Device
 		DWORD dwRet = 0x00;
-		s_CommWorkGroup.PostMessage( this, WM_XCOMM_DISCONNECT_DEVICE, dwRet );
+		if (g_pWorkGroup)
+			g_pWorkGroup->PostMessage( this, WM_XCOMM_DISCONNECT_DEVICE, dwRet );
 	}
 
 	if ( (dwEvtMask & (MS_RING_ON|MS_RLSD_ON)) == (MS_RING_ON|MS_RLSD_ON) )		// cable disconnect
@@ -613,7 +624,8 @@ void CxSerialComm::CheckModemStatus()
 		XTRACE( _T("ERROR: MS_RING_ON|MS_RLSD_ON\r\n") );
 		// Disconnect Device
 		DWORD dwRet = 0x00;
-		s_CommWorkGroup.PostMessage( this, WM_XCOMM_DISCONNECT_DEVICE, dwRet );
+		if (g_pWorkGroup)
+			g_pWorkGroup->PostMessage( this, WM_XCOMM_DISCONNECT_DEVICE, dwRet );
 	}
 }
 
@@ -671,7 +683,8 @@ unsigned int __stdcall CxSerialComm::CommWatchProc( LPVOID lpData )
 		else
 		{
 			XTRACE( _T("ERROR: WaitCommEvent\r\n") );
-			s_CommWorkGroup.PostMessage( pComm, WM_XCOMM_DISCONNECT_DEVICE, 0 );
+			if (g_pWorkGroup)
+				g_pWorkGroup->PostMessage( pComm, WM_XCOMM_DISCONNECT_DEVICE, 0 );
 			break;
 		}
 
@@ -686,7 +699,8 @@ unsigned int __stdcall CxSerialComm::CommWatchProc( LPVOID lpData )
 
 	// notify close
 	DWORD dwRet = 0x00;
-	s_CommWorkGroup.PostMessage( pComm, WM_XCOMM_CLOSE, dwRet );
+	if (g_pWorkGroup)
+		g_pWorkGroup->PostMessage( pComm, WM_XCOMM_CLOSE, dwRet );
 
 	::_endthreadex(0);
 	
@@ -913,7 +927,8 @@ void CxSerialComm::ParsePacket( BYTE* pReceiveBuffer, int nBufferSize )
 		ReceivedPacket* pPacket = GetPacket( nSTXPos, nETXPos );
 		if ( pPacket )
 		{
-			s_CommWorkGroup.PostMessage( this, WM_XCOMM_RECEIVE, (DWORD)pPacket );
+			if (g_pWorkGroup)
+				g_pWorkGroup->PostMessage( this, WM_XCOMM_RECEIVE, (DWORD)pPacket );
 			ParsePacket( m_pReceiveBuf, m_nFilledSize );
 		}
 		return;
@@ -929,7 +944,8 @@ void CxSerialComm::ParsePacket( BYTE* pReceiveBuffer, int nBufferSize )
 		ReceivedPacket* pPacket = GetPacket( nSTXPos, nETXPos );
 		if ( pPacket )
 		{
-			s_CommWorkGroup.PostMessage( this, WM_XCOMM_RECEIVE, (DWORD)pPacket );
+			if (g_pWorkGroup)
+				g_pWorkGroup->PostMessage( this, WM_XCOMM_RECEIVE, (DWORD)pPacket );
 			ParsePacket( m_pReceiveBuf, m_nFilledSize );
 		}
 		return;
@@ -943,7 +959,8 @@ void CxSerialComm::ParsePacket( BYTE* pReceiveBuffer, int nBufferSize )
 		ReceivedPacket* pPacket = GetPacket( nSTXPos, nETXPos );
 		if ( pPacket )
 		{
-			s_CommWorkGroup.PostMessage( this, WM_XCOMM_RECEIVE, (DWORD)pPacket );
+			if (g_pWorkGroup)
+				g_pWorkGroup->PostMessage( this, WM_XCOMM_RECEIVE, (DWORD)pPacket );
 			ParsePacket( m_pReceiveBuf, m_nFilledSize );
 		}
 		return;
@@ -956,7 +973,8 @@ void CxSerialComm::ParsePacket( BYTE* pReceiveBuffer, int nBufferSize )
 			ReceivedPacket* pPacket = GetPacket( nSTXPos, nETXPos );
 			if ( pPacket )
 			{
-				s_CommWorkGroup.PostMessage( this, WM_XCOMM_RECEIVE, (DWORD)pPacket );
+				if (g_pWorkGroup)
+					g_pWorkGroup->PostMessage( this, WM_XCOMM_RECEIVE, (DWORD)pPacket );
 				ParsePacket( m_pReceiveBuf, m_nFilledSize );
 			}
 			return;

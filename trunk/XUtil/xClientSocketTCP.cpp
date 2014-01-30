@@ -100,7 +100,8 @@ unsigned int __stdcall CxClientSocketTCP::WorkerThread( LPVOID lpParam )
 		{
 			nEventIndex = WSAWaitForMultipleEvents( 1, &pContext->hNetEvent[ix], TRUE, 0, FALSE );
 
-			if ( nEventIndex == WSA_WAIT_FAILED ) continue;
+			if ( nEventIndex == WSA_WAIT_FAILED )
+				continue;
 			else if ( nEventIndex == WSA_WAIT_TIMEOUT )
 			{
 			}
