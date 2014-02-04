@@ -370,6 +370,10 @@ BOOL CxImageScrollView::SetImageObject( CxImageObject* pImgObj )
 		return FALSE;
 	}
 	m_pImageObject = pImgObj;
+	if (m_pImageObject)
+	{
+		m_pImageObject->SetNotifyFlag();
+	}
 	//ASSERT( m_pImageObject );
 	return TRUE;
 }
@@ -495,6 +499,20 @@ void CxImageScrollView::DrawScreen( CDC* pDC )
 	
 	if ( !m_pImageObject || m_bLockUpdate || !m_pImageObject->IsValid() )
 	{
+#ifdef USE_MEMDC_IMAGE_VIEW
+	CDC* pGDC = &m_MemDC;
+#else
+	CDC* pGDC = pDC;
+#endif
+
+	if ( m_fnOnDrawExt )
+	{
+		(*m_fnOnDrawExt)( this, pGDC, m_nIndexData, m_lpUsrDataOnDrawExt );
+	}
+	else
+	{
+		OnDrawExt( this, pGDC );
+	}
 
 #ifdef USE_MEMDC_IMAGE_VIEW
 		m_MemDC.SetMapMode( MM_TEXT );

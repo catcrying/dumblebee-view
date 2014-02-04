@@ -91,6 +91,7 @@ public:
     int GetBpp() const;
 	int GetDepth() const;
 	int GetChannel() const;
+	size_t GetBufferSize() const;
 
 	static int GetWidthBytes( int nCx, int nBitCount );	// only 4-byte align
 	int GetWidthBytes() const;
@@ -108,6 +109,7 @@ public:
 
 	void ClearNotifyFlag();
 	BOOL IsNotifyFlag();
+	void SetNotifyFlag();
 
 	CxCriticalSection*	GetImageLockObject();
 };

@@ -138,6 +138,11 @@ int CxImageObject::GetDepth() const
 	return m_pIPLImage ? (m_pIPLImage->depth & 255) : 0;
 }
 
+size_t CxImageObject::GetBufferSize() const
+{
+	return m_pIPLImage ? ((size_t)m_pIPLImage->widthStep * m_pIPLImage->height) : 0;
+}
+
 CxImageObject::ChannelSeqModel CxImageObject::GetChannelSeq() const
 {
 	return m_ChannelSeq;
@@ -273,6 +278,11 @@ void CxImageObject::ClearNotifyFlag()
 BOOL CxImageObject::IsNotifyFlag()
 {
 	return m_bNotifyChangeImage;
+}
+
+void CxImageObject::SetNotifyFlag()
+{
+	m_bNotifyChangeImage = TRUE;
 }
 
 BOOL CxImageObject::LoadFromFile( LPCTSTR lpszFileName, BOOL bForceGray8/*=FALSE*/ )
