@@ -426,7 +426,7 @@ void CxImageViewCtrl::SetTitleBarHeight( int nHeight )
 
 void CxImageViewCtrl::SetMiniButtonType( DWORD dwMBType, BOOL bMaximize ) 
 { 
-	m_dwMiniButtonType[bMaximize] = dwMBType;
+	m_dwMiniButtonType[bMaximize ? 1 : 0] = dwMBType;
 	if ( !::IsWindow( GetSafeHwnd() ) ) return;
 
 	InvalidateRect( m_rcMiniButton );
@@ -435,6 +435,28 @@ void CxImageViewCtrl::SetMiniButtonType( DWORD dwMBType, BOOL bMaximize )
 void CxImageViewCtrl::SetMiniButtonTypeAll( DWORD dwMBType )
 {
 	m_dwMiniButtonType[0] = m_dwMiniButtonType[1] = dwMBType;
+	if ( !::IsWindow( GetSafeHwnd() ) ) return;
+
+	InvalidateRect( m_rcMiniButton );
+}
+
+void CxImageViewCtrl::ModifyMiniButtonType( DWORD dwRemoveType, DWORD dwAddType, BOOL bMaximize )
+{
+	m_dwMiniButtonType[bMaximize ? 1 : 0] &= ~dwRemoveType;
+	m_dwMiniButtonType[bMaximize ? 1 : 0] |= dwAddType;
+
+	if ( !::IsWindow( GetSafeHwnd() ) ) return;
+
+	InvalidateRect( m_rcMiniButton );
+}
+
+void CxImageViewCtrl::ModifyMiniButtonTypeAll( DWORD dwRemoveType, DWORD dwAddType )
+{
+	m_dwMiniButtonType[0] &= ~dwRemoveType;
+	m_dwMiniButtonType[0] |= dwAddType;
+	m_dwMiniButtonType[1] &= ~dwRemoveType;
+	m_dwMiniButtonType[1] |= dwAddType;
+
 	if ( !::IsWindow( GetSafeHwnd() ) ) return;
 
 	InvalidateRect( m_rcMiniButton );

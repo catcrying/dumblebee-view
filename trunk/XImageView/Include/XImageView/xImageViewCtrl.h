@@ -93,6 +93,8 @@ public:
 	// Behavior
 	void SetMiniButtonType( DWORD dwMBType, BOOL bMaximize );
 	void SetMiniButtonTypeAll( DWORD dwMBType );
+	void ModifyMiniButtonType( DWORD dwRemoveType, DWORD dwAddType, BOOL bMaximize );
+	void ModifyMiniButtonTypeAll( DWORD dwRemoveType, DWORD dwAddType );
 	void SetTitle( LPCTSTR lpszTitle, BOOL bShowIcon=TRUE );
 	void SetTitleBarHeight( int nHeight );
 

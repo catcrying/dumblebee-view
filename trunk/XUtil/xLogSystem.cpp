@@ -163,6 +163,74 @@ BOOL CxLogSystem::OpenCSVFile( CxString& strCSVPathName )
 	return TRUE;
 }
 
+static BOOL ConvertStringToUTF8(LPCTSTR lpszString, std::vector<BYTE>& buffer)
+{
+#ifdef _UNICODE
+	int n = ::WideCharToMultiByte(CP_UTF8, 0, lpszString, -1, NULL, 0, NULL, NULL);
+	if (n == 0)
+	{
+		DWORD err = ::GetLastError();
+		buffer.clear();
+		return FALSE;
+	}
+	else
+	{
+		buffer.resize(n);
+		n = ::WideCharToMultiByte(CP_UTF8, 0, lpszString, -1, (LPSTR)buffer.data(), n, NULL, NULL);
+		if (n == 0)
+		{
+			DWORD err = ::GetLastError();
+			buffer.clear();
+			return FALSE;
+		}
+		else
+		{
+			buffer.resize(n-1);
+			return TRUE;
+		}
+	}
+#else // ANSI
+	std::vector<WCHAR> wc;
+
+	int n = ::MultiByteToWideChar(CP_ACP, 0, lpszString, -1, NULL, 0);
+	if (n == 0)
+	{
+		DWORD err = ::GetLastError();
+		buffer.clear();
+		return FALSE;
+	}
+	else
+	{
+		wc.resize(n);
+		n = ::MultiByteToWideChar(CP_ACP, 0, lpszString, -1, wc.data(), n);
+	}
+
+	n = ::WideCharToMultiByte(CP_UTF8, 0, wc.data(), -1, NULL, 0, NULL, NULL);
+	if (n == 0)
+	{
+		DWORD err = ::GetLastError();
+		buffer.clear();
+		return FALSE;
+	}
+	else
+	{
+		buffer.resize(n);
+		n = ::WideCharToMultiByte(CP_UTF8, 0, wc.data(), -1, (LPSTR)buffer.data(), n, NULL, NULL);
+		if (n == 0)
+		{
+			DWORD err = ::GetLastError();
+			buffer.clear();
+			return FALSE;
+		}
+		else
+		{
+			buffer.resize(n-1);
+			return TRUE;
+		}
+	}
+#endif
+}
+
 void CxLogSystem::LogOut( LPCTSTR lpszId, LPCTSTR lpszFormat, ... )
 {
 	if ( lpszFormat == NULL || !m_bStart )
@@ -234,7 +302,12 @@ void CxLogSystem::LogOut( LPCTSTR lpszId, LPCTSTR lpszFormat, ... )
 		if ( m_bUseTxtFile )
 		{
 			m_strCurrentLog.Format( _T("%02d:%02d:%02d\t%s\t\t%s\r\n"), CurTime.GetHour(), CurTime.GetMinute(), CurTime.GetSecond(), strId, strLog );
-			m_File.Write( T2A((LPTSTR)(LPCTSTR)m_strCurrentLog), m_strCurrentLog.GetLength() );
+			std::vector<BYTE> buffer;
+			if (ConvertStringToUTF8(m_strCurrentLog, buffer))
+			{
+				m_File.Write( buffer.data(), (int)buffer.size() );
+			}
+			//m_File.Write( T2A((LPTSTR)(LPCTSTR)m_strCurrentLog), m_strCurrentLog.GetLength() );
 		}
 
 	} while ( FALSE );
