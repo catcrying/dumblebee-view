@@ -237,6 +237,7 @@ public:
 	void SetBackgroundColor( DWORD dwColor );
 
 	void UpdateRenderer( CxImageObject* pImageObject );
+	void ResetRenderer();
 // Operations
 public:
 

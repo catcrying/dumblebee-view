@@ -45,6 +45,9 @@
     <ClInclude Include="SinCosTable.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Include\XGraphic\xColorConverter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -63,6 +66,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="xArrowDrawer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="xColorConverter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -362,6 +362,22 @@ void CxImageScrollView::UpdateRenderer( CxImageObject* pImageObject )
 	m_MemDC.FillSolidRect( 0, 0, m_nWidth, m_nHeight, m_dwBackgroundColor );
 }
 
+void CxImageScrollView::ResetRenderer()
+{
+	CRect rcClient;
+	GetClientRect( &rcClient );
+	
+	int nChannel = 1;
+	if (m_pImageObject)
+		nChannel = m_pImageObject->GetChannel();
+	// initialize renderer
+	InitGraphics( m_pDirectDIB, rcClient.Width(), rcClient.Height(), nChannel << 3 );
+
+	m_pDrawDIB->SetDevice( m_pRenderer );
+
+	m_MemDC.FillSolidRect( 0, 0, m_nWidth, m_nHeight, m_dwBackgroundColor );
+}
+
 BOOL CxImageScrollView::SetImageObject( CxImageObject* pImgObj ) 
 { 
 	// assign pointer of CxImageObject

@@ -2216,6 +2216,7 @@ void CxImageViewCtrl::SetPalette( const BYTE* pPal )
 	if ( m_pImageView )
 	{
 		m_pImageView->SetPalette( pPal );
+		m_pImageView->ResetRenderer();
 	}
 }
 

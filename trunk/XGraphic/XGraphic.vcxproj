@@ -338,6 +338,7 @@
   <ItemGroup>
     <ClInclude Include="Include\XGraphic\IxDeviceContext.h" />
     <ClInclude Include="Include\XGraphic\xArrowDrawer.h" />
+    <ClInclude Include="Include\XGraphic\xColorConverter.h" />
     <ClInclude Include="Include\XGraphic\xDataTypes.h" />
     <ClInclude Include="Include\XGraphic\xGraphicObject.h" />
     <ClInclude Include="Include\XGraphic\xGraphicPrimitive.h" />
@@ -384,6 +385,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Multibyte_Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="xArrowDrawer.cpp" />
+    <ClCompile Include="xColorConverter.cpp" />
     <ClCompile Include="xGraphicObject.cpp" />
     <ClCompile Include="xGraphicPrimitive.cpp" />
     <ClCompile Include="xPointClipper.cpp" />
