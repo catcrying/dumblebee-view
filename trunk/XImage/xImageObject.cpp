@@ -482,13 +482,19 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
         XASSERT( FALSE ); // most probably, it is a programming error
         return FALSE;
     }
+
+	if (nWidth == 0 || nHeight == 0)
+		return FALSE;
+
+	if (seq == ChannelSeqUnknown)
+		seq = m_ChannelSeq;
     
     if ( !m_bDelete || !m_pIPLImage || 
 		GetChannel() != nChannel || 
 		GetDepth() != nDepth || 
 		m_pIPLImage->width != nWidth || m_pIPLImage->height != nHeight ||
-		m_ChannelSeq != seq )
-    {	
+		(m_ChannelSeq != seq) )
+    {
 		CxCriticalSection::Owner Lock(*m_pCsLockImage);
 
         if ( m_pIPLImage && m_pIPLImage->nSize == sizeof(IplImage) )
@@ -539,7 +545,15 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 
 			m_bUseHugeMemory = TRUE;
 			m_pHugeMemory = (BYTE*) malloc( (size_t)m_pIPLImage->widthStep * m_pIPLImage->height );
-			XTRACE( _T("CxImageObject::Create HugeMemory! - %d bytes\n"), (size_t)m_pIPLImage->widthStep * m_pIPLImage->height );
+			XTRACE( _T("CxImageObject::Create HugeMemory! %p - %d bytes\n"), m_pHugeMemory, (size_t)m_pIPLImage->widthStep * m_pIPLImage->height );
+
+			if (!m_pHugeMemory)
+			{
+				m_bUseHugeMemory = FALSE;
+				delete m_pIPLImage;
+				m_pIPLImage = NULL;
+				return FALSE;
+			}
 
 			m_pIPLImage->imageData = m_pIPLImage->imageDataOrigin = (char*)m_pHugeMemory;
 		}
