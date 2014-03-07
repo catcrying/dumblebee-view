@@ -295,6 +295,9 @@ BOOL CxImageObject::LoadFromFile( LPCTSTR lpszFileName, BOOL bForceGray8/*=FALSE
 	try
 	{
 		m_pIPLImage = cvLoadImage( T2A((LPTSTR)lpszFileName), bForceGray8 ? CV_LOAD_IMAGE_GRAYSCALE : CV_LOAD_IMAGE_ANYDEPTH|CV_LOAD_IMAGE_ANYCOLOR );	// 2nd parameter: 0-gray, 1-color
+		if (!m_pIPLImage)
+			return FALSE;
+
 		if ((m_pIPLImage->channelSeq[0] == 'G') && (m_pIPLImage->channelSeq[1] == 'R') && 
 			(m_pIPLImage->channelSeq[2] == 'A') && (m_pIPLImage->channelSeq[3] == 'Y'))
 		{
@@ -535,7 +538,8 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 			m_pIPLImage->imageSize = m_pIPLImage->widthStep * nHeight;
 
 			m_bUseHugeMemory = TRUE;
-			m_pHugeMemory = (BYTE*) malloc( (unsigned int)m_pIPLImage->widthStep * m_pIPLImage->height );
+			m_pHugeMemory = (BYTE*) malloc( (size_t)m_pIPLImage->widthStep * m_pIPLImage->height );
+			XTRACE( _T("CxImageObject::Create HugeMemory! - %d bytes\n"), (size_t)m_pIPLImage->widthStep * m_pIPLImage->height );
 
 			m_pIPLImage->imageData = m_pIPLImage->imageDataOrigin = (char*)m_pHugeMemory;
 		}
