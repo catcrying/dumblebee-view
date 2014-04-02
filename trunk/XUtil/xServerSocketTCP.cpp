@@ -153,7 +153,7 @@ unsigned int __stdcall CxServerSocketTCP::WorkerThread( LPVOID lpParam )
 	ServerThreadContext* pContext = (ServerThreadContext*) lpParam;
 	CxServerSocketTCP *pThis = (CxServerSocketTCP *)pContext->pThis;
 
-	XTRACE( _T("Starting thread 0x%x\r\n"), pContext->hThread );
+	XTRACE( _T("Starting thread [%p]0x%x\r\n"), pContext, pContext->hThread );
 
 	if ( !pContext->bListen )
 		pThis->OnClientConnected( pContext, pContext->strClientIP, pContext->nClientPort );
@@ -188,7 +188,7 @@ unsigned int __stdcall CxServerSocketTCP::WorkerThread( LPVOID lpParam )
 					{
 						if ( hNetworkEvents.iErrorCode[FD_READ_BIT] != 0 )
 						{
-							XTRACE( _T("Socket Read Error!\r\n") );
+							XTRACE( _T("Socket Read Error![%p]\r\n"), pContext );
 							break;
 						}
 						int nRecvBytes = recv( pContext->hSocket, pRecvBuffer, nRecvBufferSize, 0 );
@@ -204,7 +204,7 @@ unsigned int __stdcall CxServerSocketTCP::WorkerThread( LPVOID lpParam )
 							send( pContext->hSocket, szBye, 3, 0 );
 							shutdown( pContext->hSocket, SD_BOTH );
 							closesocket( pContext->hSocket );
-							XTRACE( _T("Closed socket handle %x\r\n"), pContext->hSocket );
+							XTRACE( _T("Closed socket handle [%p]%x\r\n"), pContext, pContext->hSocket );
 							
 							pContext->hSocket = INVALID_SOCKET;
 
@@ -223,7 +223,7 @@ unsigned int __stdcall CxServerSocketTCP::WorkerThread( LPVOID lpParam )
 					{
 						if ( hNetworkEvents.iErrorCode[FD_ACCEPT_BIT] != 0 )
 						{
-							XTRACE( _T("Accept Error!\r\n") );
+							XTRACE( _T("[%p] Accept Error!\r\n"), pContext );
 						}
 
 						SOCKADDR_IN addrinClient;
@@ -232,7 +232,8 @@ unsigned int __stdcall CxServerSocketTCP::WorkerThread( LPVOID lpParam )
 
 						if ( hClientSocket == INVALID_SOCKET )
 						{
-							XTRACE( _T("accept() failed: %d\r\n"), WSAGetLastError() );
+							XTRACE( _T("[%p] accept() failed: %d\r\n"), pContext, WSAGetLastError() );
+							bWork = FALSE;
 							break;
 						}
 
@@ -278,10 +279,6 @@ unsigned int __stdcall CxServerSocketTCP::WorkerThread( LPVOID lpParam )
 						pThreadContext->strClientIP = strClientIP;
 						pThreadContext->nClientPort = nPort;
 						pThreadContext->dwUserData = 0;
-						
-						unsigned int nThreadID = 0;
-						pThreadContext->hThread = (HANDLE)::_beginthreadex( NULL, 0, WorkerThread, pThreadContext, 0, &nThreadID );
-
 
 						pThreadContext->hNetEvent[1] = WSACreateEvent();
 						if ( WSAEventSelect( pThreadContext->hSocket, pThreadContext->hNetEvent[1], FD_READ|FD_CLOSE ) == SOCKET_ERROR )
@@ -289,6 +286,9 @@ unsigned int __stdcall CxServerSocketTCP::WorkerThread( LPVOID lpParam )
 							XTRACE( _T("WSAEventSelect() error\r\n") );
 							break;
 						}
+						
+						unsigned int nThreadID = 0;
+						pThreadContext->hThread = (HANDLE)::_beginthreadex( NULL, 0, WorkerThread, pThreadContext, 0, &nThreadID );
 						
 						if ( pThreadContext->hThread == NULL )
 						{
@@ -315,7 +315,7 @@ unsigned int __stdcall CxServerSocketTCP::WorkerThread( LPVOID lpParam )
 						send( pContext->hSocket, szBye, 3, 0 );
 						shutdown( pContext->hSocket, SD_BOTH );
 						closesocket( pContext->hSocket );
-						XTRACE( _T("Closed socket handle %x\r\n"), pContext->hSocket );
+						XTRACE( _T("Closed socket handle [%p]%x\r\n"), pContext, pContext->hSocket );
 
 						pContext->hSocket = INVALID_SOCKET;
 
@@ -340,6 +340,8 @@ unsigned int __stdcall CxServerSocketTCP::WorkerThread( LPVOID lpParam )
 
 	if ( pRecvBuffer )
 		xfree(pRecvBuffer);
+
+	XTRACE( _T("Exit thread [%p]0x%x\r\n"), pContext, pContext->hThread );
 
 	if ( !pContext->bListen )
 	{
@@ -417,8 +419,8 @@ BOOL CxServerSocketTCP::DisconnectConnection( ServerThreadContext* pContext )
 		char szBye[3] = { 0, };
 		send( pContext->hSocket, szBye, 3, 0 );
 		shutdown( pContext->hSocket, SD_BOTH );
-		closesocket( pContext->hSocket );
-		pContext->hSocket = INVALID_SOCKET;
+		//closesocket( pContext->hSocket );
+		//pContext->hSocket = INVALID_SOCKET;
 	}
 	return TRUE;
 }

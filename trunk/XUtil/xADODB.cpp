@@ -1183,7 +1183,7 @@ BOOL CxADOField::GetValue(long& lVal)
 	vt = field->Value;
 	try
 	{
-		if (vt.vt==VT_I4)
+		if (vt.vt==VT_I4 || vt.vt==VT_DECIMAL)
 		{
 			lVal=vt.lVal;
 			return TRUE;

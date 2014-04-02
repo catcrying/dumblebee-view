@@ -51,10 +51,11 @@ public:
 		friend class CxSimpleADO;
 	protected:
 		CxADORecordSet* m_pRecordSet;
+		CxADOCommand*&  m_pCommand;
 		int*			m_pnRef;
-		IRecordSetPtr(CxADORecordSet* pPtr);
+		IRecordSetPtr(CxADOCommand*& pCmd, CxADORecordSet* pPtr);
 	public:
-		IRecordSetPtr();
+		IRecordSetPtr(CxADOCommand*& pCmd);
 		IRecordSetPtr(const IRecordSetPtr& other);
 		const IRecordSetPtr& operator = ( const IRecordSetPtr& Other );
 		~IRecordSetPtr();
@@ -91,9 +92,8 @@ public:
 
 	IRecordSetPtr ExecuteDirectSql(LPCWSTR lpszSql);
 
-	void SetSqlCommand(LPCWSTR lpszSql);
 	void AppendBlobParameter(LPCWSTR lpParamName, _variant_t& vtBlob, int nBlobSize);
-	IRecordSetPtr Execute();
+	IRecordSetPtr Execute(LPCWSTR lpszSql);
 
 	long BeginTrans();
 	void RollbackTrans();

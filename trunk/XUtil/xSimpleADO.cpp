@@ -173,20 +173,20 @@ long CxSimpleADO::IFieldPtr::GetAttributes()
 	return m_pField->GetAttributes();
 }
 
-CxSimpleADO::IRecordSetPtr::IRecordSetPtr()
+CxSimpleADO::IRecordSetPtr::IRecordSetPtr(CxADOCommand*& pCmd) : m_pCommand(pCmd)
 {
 	m_pnRef = NULL;
 	m_pRecordSet = NULL;
 }
 
-CxSimpleADO::IRecordSetPtr::IRecordSetPtr(CxADORecordSet* pPtr)
+CxSimpleADO::IRecordSetPtr::IRecordSetPtr(CxADOCommand*& pCmd, CxADORecordSet* pPtr) : m_pCommand(pCmd)
 {
 	m_pnRef = new int(1);
 	m_pRecordSet = pPtr;
 	XTRACE( _T("Create RecordSet: %p\n"), m_pRecordSet );
 }
 
-CxSimpleADO::IRecordSetPtr::IRecordSetPtr(const IRecordSetPtr& cother)
+CxSimpleADO::IRecordSetPtr::IRecordSetPtr(const IRecordSetPtr& cother) : m_pCommand(cother.m_pCommand)
 {
 	IRecordSetPtr& other = const_cast<IRecordSetPtr&> (cother);
 	m_pnRef = other.m_pnRef;
@@ -217,6 +217,12 @@ CxSimpleADO::IRecordSetPtr::~IRecordSetPtr()
 		m_pRecordSet = NULL;
 		delete m_pnRef;
 		m_pnRef = NULL;
+	}
+	XTRACE( _T("Reset Command\n") );
+	if (m_pCommand)
+	{
+		delete m_pCommand;
+		m_pCommand = new CxADOCommand();
 	}
 }
 
@@ -311,9 +317,21 @@ CxSimpleADO::CxSimpleADO(void)
 
 CxSimpleADO::~CxSimpleADO(void)
 {
-	delete m_pParameterSet;
-	delete m_pConnection;
-	delete m_pCommand;
+	if (m_pParameterSet)
+	{
+		delete m_pParameterSet;
+		m_pParameterSet = NULL;
+	}
+	if (m_pConnection)
+	{
+		delete m_pConnection;
+		m_pConnection = NULL;
+	}
+	if (m_pCommand)
+	{
+		delete m_pCommand;
+		m_pCommand = NULL;
+	}
 }
 
 BOOL CxSimpleADO::Connect(LPCWSTR lpszConnectionString)
@@ -362,23 +380,17 @@ HRESULT CxSimpleADO::GetLastError()
 CxSimpleADO::IRecordSetPtr CxSimpleADO::ExecuteDirectSql(LPCWSTR lpszSql)
 {
 	if (!IsConnect())
-		return IRecordSetPtr(NULL);
+		return IRecordSetPtr(m_pCommand, NULL);
 	USES_CONVERSION;
-	CxADOCommand cmd;
-	cmd.SetActiveConnection( m_pConnection );
-	cmd.SetCommandText( W2T((LPWSTR)lpszSql) );
 
-	CxADORecordSet* pRs = cmd.Execute();
-	if (!pRs)
-		return IRecordSetPtr(NULL);
-
-	return IRecordSetPtr(pRs);
-}
-
-void CxSimpleADO::SetSqlCommand(LPCWSTR lpszSql)
-{
-	USES_CONVERSION;
+	m_pCommand->SetActiveConnection( m_pConnection );
 	m_pCommand->SetCommandText( W2T((LPWSTR)lpszSql) );
+
+	CxADORecordSet* pRs = m_pCommand->Execute();
+	if (!pRs)
+		return IRecordSetPtr(m_pCommand, NULL);
+
+	return IRecordSetPtr(m_pCommand, pRs);
 }
 
 void CxSimpleADO::AppendBlobParameter(LPCWSTR lpParamName, _variant_t& vtBlob, int nBlobSize)
@@ -392,19 +404,21 @@ void CxSimpleADO::AppendBlobParameter(LPCWSTR lpParamName, _variant_t& vtBlob, i
 	m_pParameterSet->AddParameter(pParamSet);
 }
 
-CxSimpleADO::IRecordSetPtr CxSimpleADO::Execute()
+CxSimpleADO::IRecordSetPtr CxSimpleADO::Execute(LPCWSTR lpszSql)
 {
 	if (!IsConnect())
-		return IRecordSetPtr(NULL);
+		return IRecordSetPtr(m_pCommand, NULL);
 
 	USES_CONVERSION;
+
 	m_pCommand->SetActiveConnection( m_pConnection );
+	m_pCommand->SetCommandText( W2T((LPWSTR)lpszSql) );
 
 	int nParamCount = m_pParameterSet->GetCount();
 	for ( int i=0 ; i<nParamCount ; i++ )
 	{
 		CxADOParameterSet::ParameterSet* pParamSet = m_pParameterSet->GetAt(i);
-		XASSERT( pParamSet->pParameter );
+		XASSERT( !pParamSet->pParameter );
 		pParamSet->pParameter = m_pCommand->CreateParameter( pParamSet->strName, pParamSet->size, adLongVarBinary );
 		m_pCommand->Append(pParamSet->pParameter);
 		pParamSet->pParameter->AppendChunk(pParamSet->var);
@@ -415,9 +429,9 @@ CxSimpleADO::IRecordSetPtr CxSimpleADO::Execute()
 	m_pParameterSet->Clear();
 
 	if (!pRs)
-		return IRecordSetPtr(NULL);
+		return IRecordSetPtr(m_pCommand, NULL);
 
-	return IRecordSetPtr(pRs);
+	return IRecordSetPtr(m_pCommand, pRs);
 }
 
 long CxSimpleADO::BeginTrans()

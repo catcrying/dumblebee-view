@@ -504,7 +504,7 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 		m_bUseHugeMemory = FALSE;
 		m_pHugeMemory = NULL;
 
-		if ((DWORD)GetWidthBytes(nWidth, nDepth*nChannel)*nHeight > 0x7ffff)
+		if ((DWORD)GetWidthBytes(nWidth, nDepth*nChannel)*nHeight > 0x7FFFFFFF)
 		{
 			m_pIPLImage = new IplImage;
 			ZeroMemory( m_pIPLImage, sizeof(IplImage) );
