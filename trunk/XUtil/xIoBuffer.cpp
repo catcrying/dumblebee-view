@@ -65,7 +65,7 @@ BOOL CxIoBuffer::Add( char* pBuffer, int nBufSize )
 
 BOOL CxIoBuffer::Remove( int nStart, int nEnd )
 {
-	if ( nStart < 0 || nEnd >= m_nSize || nStart == nEnd )
+	if ( nStart < 0 || nEnd >= m_nSize )
 		return FALSE;
 
 	if ( m_nSize != nEnd+1 )

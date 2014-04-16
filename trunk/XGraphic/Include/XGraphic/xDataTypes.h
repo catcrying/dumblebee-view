@@ -175,6 +175,19 @@ public:
 		return TRUE;
 	}
 
+	void OffsetRect( DPOINT point )
+	{
+		OffsetRect(point.x, point.y);
+	}
+
+	void OffsetRect( double x, double y )
+	{
+		left += x;
+		top += y;
+		right += x;
+		bottom += y;
+	}
+
 	void DeflateRect(double l, double t, double r, double b) { left+=l; top+=t; right-=r; bottom-=b; }
 	void InflateRect(double l, double t, double r, double b) { left-=l; top-=t; right+=r; bottom+=b; }
 
