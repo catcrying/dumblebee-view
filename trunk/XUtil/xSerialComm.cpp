@@ -463,7 +463,7 @@ int CxSerialComm::WriteCommBlock( BYTE* pData, DWORD dwBytesToWrite )
 	
 	if ( !bWriteStat )
 	{
-		if ( ::GetLastError() == ERROR_IO_PENDING )
+		if ( (dwError = ::GetLastError()) == ERROR_IO_PENDING )
 		{
 			while ( !::GetOverlappedResult( m_hComm,	&m_osWrite, &dwBytesWritten, TRUE ) )
 			{
@@ -508,7 +508,7 @@ int CxSerialComm::WriteCommBlock( BYTE* pData, DWORD dwBytesToWrite )
 			if ( dwErrorFlags > 0)
 			{
 				wsprintf( szError, TEXT("<CE-%u>"), dwErrorFlags );
-				XTRACE( TEXT("%s\r\n"), szError );
+				XTRACE( TEXT("%s: %d\r\n"), szError, dwError );
 			}
 			return FALSE;
 		}
@@ -684,7 +684,7 @@ unsigned int __stdcall CxSerialComm::CommWatchProc( LPVOID lpData )
 		{
 			XTRACE( _T("ERROR: WaitCommEvent\r\n") );
 			if (g_pWorkGroup)
-				g_pWorkGroup->PostMessage( pComm, WM_XCOMM_DISCONNECT_DEVICE, 0 );
+				g_pWorkGroup->PostMessage( pComm, WM_XCOMM_DISCONNECT_DEVICE, ::GetLastError() );
 			break;
 		}
 

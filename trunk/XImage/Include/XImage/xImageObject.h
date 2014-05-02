@@ -40,10 +40,8 @@ protected:
 
 	ChannelSeqModel	m_ChannelSeq;
 
-#ifdef _WIN64
-	BOOL			m_bUseHugeMemory;
-	BYTE*			m_pHugeMemory;
-#endif
+	BOOL			m_bUseCustomizedMemory;
+	BYTE*			m_pCustomizedMemory;
 
 public:
 	CxImageObject();
@@ -74,8 +72,8 @@ public:
 	BOOL IsValid() const;
 
 	// Construction
-	BOOL CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, ChannelSeqModel seq=ChannelSeqUnknown ); // lpImgBuf must be 4-aligned
-	BOOL Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin=0, ChannelSeqModel seq=ChannelSeqUnknown );
+	BOOL CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, ChannelSeqModel seq=ChannelSeqUnknown, int nAlignBytes=4 ); // lpImgBuf must be 4-aligned
+	BOOL Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin=0, ChannelSeqModel seq=ChannelSeqUnknown, int nAlignBytes=4 );
 	void Destroy();
 
 	virtual BOOL LoadFromFile( LPCTSTR lpszFileName, BOOL bForceGray8=FALSE );
@@ -85,15 +83,18 @@ public:
 
 	BOOL CopyImage( const CxImageObject* pSrcImage );
 
+	BOOL ChangeBufferAlignment( int nAlignBytes );
+
 	// Retrieve Information
     int GetWidth() const;
     int GetHeight() const;
     int GetBpp() const;
 	int GetDepth() const;
+	int GetAlignBytes() const;
 	int GetChannel() const;
 	size_t GetBufferSize() const;
 
-	static int GetWidthBytes( int nCx, int nBitCount );	// only 4-byte align
+	static int GetWidthBytes( int nCx, int nBitCount, int nAlignBytes=4 );
 	int GetWidthBytes() const;
 	ChannelSeqModel GetChannelSeq() const;
 

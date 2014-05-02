@@ -517,16 +517,23 @@ CxGOEllipse::CxGOEllipse( const CxGOEllipse& Other )
 	rcAreaDouble	= Other.rcAreaDouble;
 	nIndex			= Other.nIndex;
 	*m_pPolygonDPointArray = *Other.m_pPolygonDPointArray;
+	nSplitDiv		= Other.nSplitDiv;
 }
 
 CxGOEllipse::CxGOEllipse() : bIsFloat(FALSE)
 {
 	m_pPolygonDPointArray = new PolygonDPointArray();
 	m_GraphicObjectType = GraphicObjectTypeEllipse;
+	nSplitDiv = 1;
 }
 CxGOEllipse::~CxGOEllipse()
 {
 	delete m_pPolygonDPointArray;
+}
+
+void CxGOEllipse::SetSplitDiv( int nDiv )
+{
+	nSplitDiv = nDiv;
 }
 
 BOOL CxGOEllipse::IsPolygon() { return m_pPolygonDPointArray->IsEmpty() ? FALSE : TRUE; }
@@ -874,12 +881,21 @@ void CxGOEllipse::ToPolygon()
 	CxDPoint ptCenter = rect.CenterPoint();
 	
 	int nSplitCount = s_SinCosTable.GetTableIndexCount();
+	if (nSplitDiv > nSplitCount/3)
+	{
+		nSplitDiv = nSplitCount/3;
+	}
+	if (nSplitDiv < 0)
+	{
+		nSplitDiv = 1;
+	}
 	
 	double a = rect.Width()/2;
 	double b = rect.Height()/2;
 	
 	CxDPoint ptPoly;
-	for ( int i = 0 ; i < nSplitCount ; i ++ )
+	int i=0;
+	for ( i = 0 ; i < nSplitCount ; i +=nSplitDiv )
 	{
 		double dSinT = s_SinCosTable.GetSinAt(i);
 		double dCosT = s_SinCosTable.GetCosAt(i);
@@ -889,6 +905,17 @@ void CxGOEllipse::ToPolygon()
 		
 		m_pPolygonDPointArray->Add( ptPoly );
 		//pDC->Rectangle( CRect(ptVector.x-2, ptVector.y-2, ptVector.x+2, ptVector.y+2) );
+	}
+
+	if (nSplitCount-1 != i)
+	{
+		double dSinT = s_SinCosTable.GetSinAt(nSplitCount-1);
+		double dCosT = s_SinCosTable.GetCosAt(nSplitCount-1);
+		
+		ptPoly.x = (dCosT * a) + ptCenter.x; 
+		ptPoly.y = (dSinT * b) + ptCenter.y;
+		
+		m_pPolygonDPointArray->Add( ptPoly );
 	}
 }
 
@@ -1599,6 +1626,7 @@ void CxGraphicObject::DrawPolygon( HDC hDC, int nLayer )
 				nOldBkColor = ::SetBkColor( hDC, clrPolygon.m_pPenStyle->dwBgColor );
 			}
 
+			DPOINT* lptPolygon = NULL;
 			do
 			{
 				int nPtCnt;
@@ -1613,7 +1641,7 @@ void CxGraphicObject::DrawPolygon( HDC hDC, int nLayer )
 					break;
 				}
 
-				DPOINT* lptPolygon = (DPOINT*)alloca( sizeof(DPOINT) * nPtCnt );
+				lptPolygon = (DPOINT*)malloc( sizeof(DPOINT) * nPtCnt );
 
 				if ( nLayer != 0 )
 				{
@@ -1692,6 +1720,9 @@ void CxGraphicObject::DrawPolygon( HDC hDC, int nLayer )
 				::Polygon( hDC, lpClippedPoints, nClippedCount );
 
 			} while ( FALSE );
+
+			if (lptPolygon)
+				free(lptPolygon);
 			
 			if ( clrPolygon.m_pPenStyle->nThickness == 1 && clrPolygon.m_pPenStyle->dwBgColor != PDC_NULL )
 			{
@@ -1872,13 +1903,14 @@ void CxGraphicObject::DrawEllipse( HDC hDC, int nLayer )
 				nOldBkColor = ::SetBkColor( hDC, clrEllipse.m_pPenStyle->dwBgColor );
 			}
 
+			DPOINT* pDevPolygon = NULL;
 			do
 			{
 				if ( !clrEllipse.IsPolygon() )
 					break;
 				
 				int nDPtCnt = clrEllipse.m_pPolygonDPointArray->Count();
-				DPOINT* pDevPolygon = (DPOINT*)alloca( sizeof(DPOINT)*nDPtCnt );
+				pDevPolygon = (DPOINT*)malloc( sizeof(DPOINT)*nDPtCnt );
 				for ( int nP = 0 ; nP<nDPtCnt ; nP++ )
 				{
 					DPOINT& dpP = clrEllipse.m_pPolygonDPointArray->GetAt(nP);
@@ -1951,6 +1983,9 @@ void CxGraphicObject::DrawEllipse( HDC hDC, int nLayer )
 				::Polygon( hDC, lpClippedPoints, nClippedCount );
 				
 			} while ( FALSE );
+
+			if (pDevPolygon)
+				free(pDevPolygon);
 									
 			if ( clrEllipse.m_pPenStyle->nThickness == 1 && clrEllipse.m_pPenStyle->dwBgColor != PDC_NULL )
 			{

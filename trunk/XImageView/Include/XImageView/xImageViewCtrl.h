@@ -154,6 +154,7 @@ public:
 	// Screen control
 	void ZoomFit( BOOL bCalcScrollBar = TRUE );
 	void ZoomTo( CPoint ptImageCenter, float fZoom, BOOL bSyncControl=FALSE );
+	void ZoomTo( CRect rcZoom, BOOL bSyncControl=FALSE );
 
 	void ImageUpdate();
 	void RedrawTitle();

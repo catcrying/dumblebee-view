@@ -243,11 +243,13 @@ protected:
 	int			nIndex;
 	PolygonDPointArray*	m_pPolygonDPointArray;
 	BOOL		bIsFloat;
+	int			nSplitDiv;
 
 	void ToPolygon();
 	BOOL IsPolygon();
 public:
 
+	void SetSplitDiv( int nDiv );
 	void CreateObject( COLORREF dwFgColor, int nLeft, int nTop, int nRight, int nBottom, int nStyle = PS_SOLID, int nThickness=1, COLORREF dwBgColor=-1 );
 	void CreateObject( COLORREF dwFgColor, double dLeft, double dTop, double dRight, double dBottom, int nStyle = PS_SOLID, int nThickness=1, COLORREF dwBgColor=-1 );
 	void CreateObject( COLORREF dwFgColor, RECT rcArea, int nStyle = PS_SOLID, int nThickness=1, COLORREF dwBgColor=-1 );

@@ -253,7 +253,7 @@ void CxLogSystem::LogOut( LPCTSTR lpszId, LPCTSTR lpszFormat, ... )
 	if (lpszId == NULL)
 		strId = _T("internal");
 	else
-		strId = A2T((LPSTR)lpszId);
+		strId = lpszId;
 
 	do 
 	{
@@ -295,7 +295,11 @@ void CxLogSystem::LogOut( LPCTSTR lpszId, LPCTSTR lpszFormat, ... )
 			if ( m_CSVFile.IsOpen() )
 			{
 				m_strCurrentLog.Format( _T("%02d:%02d:%02d,%s,%s\r\n"), CurTime.GetHour(), CurTime.GetMinute(), CurTime.GetSecond(), strId, strLog );
-				m_CSVFile.Write( T2A((LPTSTR)(LPCTSTR)m_strCurrentLog), m_strCurrentLog.GetLength() );
+				std::vector<BYTE> buffer;
+				if (ConvertStringToUTF8(m_strCurrentLog, buffer))
+				{
+					m_CSVFile.Write( buffer.data(), (int)buffer.size() );
+				}
 			}
 		}
 
@@ -307,7 +311,6 @@ void CxLogSystem::LogOut( LPCTSTR lpszId, LPCTSTR lpszFormat, ... )
 			{
 				m_File.Write( buffer.data(), (int)buffer.size() );
 			}
-			//m_File.Write( T2A((LPTSTR)(LPCTSTR)m_strCurrentLog), m_strCurrentLog.GetLength() );
 		}
 
 	} while ( FALSE );

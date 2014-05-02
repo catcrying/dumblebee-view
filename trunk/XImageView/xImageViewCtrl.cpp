@@ -482,6 +482,33 @@ void CxImageViewCtrl::ZoomTo( CPoint ptImageCenter, float fZoom, BOOL bSyncContr
 		m_pImageView->ImageZoomTo( ptImageCenter, fZoom, bSyncControl );
 }
 
+void CxImageViewCtrl::ZoomTo( CRect rcZoom, BOOL bSyncControl/*=FALSE*/ )
+{
+	if ( !m_pImageView )
+		return;
+
+	CPoint ptImageCenter = rcZoom.CenterPoint();
+	float fZoom;
+
+	int nViewWidth = m_pImageView->GetViewWidth();
+	int nViewHeight = m_pImageView->GetViewHeight();
+
+	if (rcZoom.Width() > rcZoom.Height())
+	{
+		int nOffset = rcZoom.Width() * 10 / 100;
+		rcZoom.InflateRect(nOffset, nOffset, nOffset, nOffset);
+		fZoom = (float)nViewWidth / rcZoom.Width();
+	}
+	else
+	{
+		int nOffset = rcZoom.Height() * 10 / 100;
+		rcZoom.InflateRect(nOffset, nOffset, nOffset, nOffset);
+		fZoom = (float)nViewHeight / rcZoom.Height();
+	}
+	
+	m_pImageView->ImageZoomTo( ptImageCenter, fZoom, bSyncControl );
+}
+
 CxImageViewManager* CxImageViewCtrl::GetImageViewManager()
 {
 	return m_pViewManager;
@@ -2044,7 +2071,7 @@ void CxImageViewCtrl::DrawStatus( Gdiplus::Graphics& g )
 
 	Font fontStatus(m_pFontFamily, 11, FontStyleBold, UnitPixel);
 
-	RectF rectPixelInfo((REAL)m_rcStatus.left+nOffsetX, (REAL)m_rcStatus.top, (REAL)m_rcStatus.Width()/2-nOffsetX, (REAL)m_rcStatus.Height());
+	RectF rectPixelInfo((REAL)m_rcStatus.left+nOffsetX, (REAL)m_rcStatus.top, (REAL)m_rcStatus.Width()*2/3-nOffsetX, (REAL)m_rcStatus.Height());
 
 	if ( m_strStatus.IsEmpty() )
 	{
@@ -2081,7 +2108,7 @@ void CxImageViewCtrl::DrawStatus( Gdiplus::Graphics& g )
 		SysFreeString(bstrStatus);
 	}
 
-	RectF rectZoom((REAL)m_rcStatus.left+(REAL)m_rcStatus.Width()/2, (REAL)m_rcStatus.top, (REAL)m_rcStatus.Width()/2-nOffsetX, (REAL)m_rcStatus.Height());
+	RectF rectZoom((REAL)m_rcStatus.left+(REAL)m_rcStatus.Width()*2/3, (REAL)m_rcStatus.top, (REAL)m_rcStatus.Width()/3-nOffsetX, (REAL)m_rcStatus.Height());
 
 	CString strZoom;
 	strZoom.Format( _T("1 : %.3f"), m_pImageView->GetZoomRatio() );

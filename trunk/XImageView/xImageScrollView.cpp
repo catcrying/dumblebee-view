@@ -508,6 +508,7 @@ void CxImageScrollView::DrawScreen( CDC* pDC )
 		{
 			m_pImageObject->ClearNotifyFlag();
 			UpdateRenderer( m_pImageObject );
+			ZoomFit();
 		}
 	}
 

@@ -24,10 +24,10 @@ CxImageObject::CxImageObject() :
 	m_pCsLockImage = new CxCriticalSection();
 	m_nPixelMaximum = 255;
 	m_ChannelSeq = ChannelSeqUnknown;
-#ifdef _WIN64
-	m_bUseHugeMemory = FALSE;
-	m_pHugeMemory = NULL;
-#endif
+
+	m_bUseCustomizedMemory = FALSE;
+	m_pCustomizedMemory = NULL;
+
 }
 
 CxImageObject::~CxImageObject()
@@ -100,12 +100,9 @@ int CxImageObject::GetWidthBytes() const
 	return !m_pIPLImage ? 0 : m_pIPLImage->widthStep;
 }
 
-int CxImageObject::GetWidthBytes( int nCx, int nBitCount )
+int CxImageObject::GetWidthBytes( int nCx, int nBitCount, int nAlignBytes/*=4*/ )
 {
-	return ( ( (nCx * nBitCount + 7) / 8) + 4 - 1) & (~(4 - 1));
-
-	//DWORD dwBytes = nCx * nBitCount;
-	//return ((dwBytes & 0x001f) ? (dwBytes >> 5) + 1 : dwBytes >> 5) << 2;
+	return ( ( (nCx * nBitCount + 7) / 8) + nAlignBytes - 1) & (~(nAlignBytes - 1));
 }
 
 LPVOID CxImageObject::GetImageBuffer() const
@@ -136,6 +133,11 @@ int CxImageObject::GetChannel() const
 int CxImageObject::GetDepth() const
 {
 	return m_pIPLImage ? (m_pIPLImage->depth & 255) : 0;
+}
+
+int CxImageObject::GetAlignBytes() const
+{
+	return m_pIPLImage ? (m_pIPLImage->align) : 0;
 }
 
 size_t CxImageObject::GetBufferSize() const
@@ -392,22 +394,85 @@ BOOL CxImageObject::SaveToFile( LPCTSTR lpszFileName )
 
 BOOL CxImageObject::CopyImage( const CxImageObject* pSrcImage )
 {
-	cvCopy( pSrcImage->GetImage(), m_pIPLImage );
+	if (!pSrcImage || !pSrcImage->IsValid())
+		return FALSE;
+	if (!IsValid())
+		return FALSE;
+	if ((GetWidth() != pSrcImage->GetWidth()) ||
+		(GetHeight() != pSrcImage->GetHeight()) ||
+		(GetDepth() != pSrcImage->GetDepth()) ||
+		(GetChannel() != pSrcImage->GetChannel()) ||
+		(GetChannelSeq() != pSrcImage->GetChannelSeq()) ||
+		(GetAlignBytes() != pSrcImage->GetAlignBytes()))
+		return FALSE;
+
+	BYTE* pSrcBuf = (BYTE*)pSrcImage->GetImageBuffer();
+	BYTE* pDstBuf = (BYTE*)GetImageBuffer();
+	int nSrcWBytes = pSrcImage->GetWidthBytes();
+	int nDstWBytes = GetWidthBytes();
+	int nWBytes = nSrcWBytes > nDstWBytes ? nDstWBytes : nSrcWBytes;
+
+	for (unsigned int y=0 ; y<(unsigned int)GetHeight() ; y++)
+	{
+		memcpy( pDstBuf+y*nDstWBytes, pSrcBuf+y*nSrcWBytes, nWBytes );
+	}
+
 	m_ChannelSeq = pSrcImage->GetChannelSeq();
 	m_bNotifyChangeImage = TRUE;
+	return TRUE;
+}
+
+BOOL CxImageObject::ChangeBufferAlignment( int nAlignBytes )
+{
+	if (!m_bDelete)
+	{
+		XTRACE( _T("CxImageObject::ChangeBufferAlignment - DO NOT USE EXTERNAL MEMORY!\n") );
+		return FALSE;
+	}
+
+	if (GetAlignBytes() == nAlignBytes)
+		return TRUE;
+	if (GetWidthBytes() == CxImageObject::GetWidthBytes(GetWidth(), GetDepth()*GetChannel(), nAlignBytes))
+	{
+		m_pIPLImage->align = nAlignBytes;
+		return TRUE;
+	}
+
+	CxImageObject ImageTemp;
+	ImageTemp.Create(GetWidth(), GetHeight(), GetDepth(), GetChannel(), 0, GetChannelSeq(), nAlignBytes);
+
+	BYTE* pSrcBuf = (BYTE*)GetImageBuffer();
+	BYTE* pDstBuf = (BYTE*)ImageTemp.GetImageBuffer();
+	int nSrcWBytes = GetWidthBytes();
+	int nDstWBytes = ImageTemp.GetWidthBytes();
+	int nWBytes = nSrcWBytes > nDstWBytes ? nDstWBytes : nSrcWBytes;
+
+	for (unsigned int y=0 ; y<(unsigned int)GetHeight() ; y++)
+	{
+		memcpy( pDstBuf+y*nDstWBytes, pSrcBuf+y*nSrcWBytes, nWBytes );
+	}
+
+	int nWidth = GetWidth();
+	int nHeight = GetHeight();
+	int nDepth = GetDepth();
+	int nChannel = GetChannel();
+	ChannelSeqModel seq = GetChannelSeq();
+	Destroy();
+	Clone(&ImageTemp);
+
 	return TRUE;
 }
 
 BOOL CxImageObject::Clone( const CxImageObject* pSrcImage )
 {
 	if ( !pSrcImage ) return FALSE;
-	if ( !Create( pSrcImage->GetWidth(), pSrcImage->GetHeight(), pSrcImage->GetDepth(), pSrcImage->GetChannel(), pSrcImage->GetImage()->origin, pSrcImage->GetChannelSeq() ) )
+	if ( !Create( pSrcImage->GetWidth(), pSrcImage->GetHeight(), pSrcImage->GetDepth(), pSrcImage->GetChannel(), pSrcImage->GetImage()->origin, pSrcImage->GetChannelSeq(), pSrcImage->GetAlignBytes() ) )
 		return FALSE;
 	m_bNotifyChangeImage = TRUE;
 	return CopyImage( pSrcImage );
 }
 
-BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, ChannelSeqModel seq/*=ChannelSeqUnknown*/ )
+BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, ChannelSeqModel seq/*=ChannelSeqUnknown*/, int nAlignBytes/*=4*/ )
 {
     if ( (nDepth != 8 && nDepth != 16) || 
 		(nChannel != 1 && nChannel != 3) )
@@ -421,7 +486,8 @@ BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, 
 	if ( m_bDelete || !m_pIPLImage || 
 		GetChannel() != nChannel || 
 		GetDepth() != nDepth || 
-		m_pIPLImage->width != nWidth || m_pIPLImage->height != nHeight )
+		m_pIPLImage->width != nWidth || m_pIPLImage->height != nHeight ||
+		m_pIPLImage->align != nAlignBytes )
     {
         if ( m_pIPLImage && m_pIPLImage->nSize == sizeof(IplImage) )
             Destroy();
@@ -459,10 +525,10 @@ BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, 
 				break;
 			}
 		}
-		m_pIPLImage->align = 4;
+		m_pIPLImage->align = nAlignBytes;
 		m_pIPLImage->width = nWidth;
 		m_pIPLImage->height = nHeight;
-		m_pIPLImage->widthStep = GetWidthBytes(nWidth, nDepth*nChannel);
+		m_pIPLImage->widthStep = GetWidthBytes(nWidth, nDepth*nChannel, nAlignBytes);
  		m_pIPLImage->imageSize = m_pIPLImage->widthStep * nHeight;
     }
 
@@ -473,7 +539,7 @@ BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, 
 	return TRUE;
 }
 
-BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin/*=0*/, ChannelSeqModel seq/*=ChannelSeqUnknown*/ )
+BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin/*=0*/, ChannelSeqModel seq/*=ChannelSeqUnknown*/, int nAlignBytes/*=4*/ )
 {
     if ( (nDepth != 8 && nDepth != 16) || 
 		(nChannel != 1 && nChannel != 3) ||
@@ -500,11 +566,10 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
         if ( m_pIPLImage && m_pIPLImage->nSize == sizeof(IplImage) )
             Destroy();
 
-#ifdef _WIN64
-		m_bUseHugeMemory = FALSE;
-		m_pHugeMemory = NULL;
+		m_bUseCustomizedMemory = FALSE;
+		m_pCustomizedMemory = NULL;
 
-		if ((DWORD)GetWidthBytes(nWidth, nDepth*nChannel)*nHeight > 0x7FFFFFFF)
+		//if (((DWORD)GetWidthBytes(nWidth, nDepth*nChannel, nAlignBytes)*nHeight > 0x7FFFFFFF) || (nAlignBytes != 4))
 		{
 			m_pIPLImage = new IplImage;
 			ZeroMemory( m_pIPLImage, sizeof(IplImage) );
@@ -537,30 +602,28 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 					break;
 				}
 			}
-			m_pIPLImage->align = 4;
+			m_pIPLImage->align = nAlignBytes;
 			m_pIPLImage->width = nWidth;
 			m_pIPLImage->height = nHeight;
-			m_pIPLImage->widthStep = GetWidthBytes(nWidth, nDepth*nChannel);
+			m_pIPLImage->widthStep = GetWidthBytes(nWidth, nDepth*nChannel, nAlignBytes);
 			m_pIPLImage->imageSize = m_pIPLImage->widthStep * nHeight;
 
-			m_bUseHugeMemory = TRUE;
-			m_pHugeMemory = (BYTE*) malloc( (size_t)m_pIPLImage->widthStep * m_pIPLImage->height );
-			XTRACE( _T("CxImageObject::Create HugeMemory! %p - %d bytes\n"), m_pHugeMemory, (size_t)m_pIPLImage->widthStep * m_pIPLImage->height );
+			m_bUseCustomizedMemory = TRUE;
+			m_pCustomizedMemory = (BYTE*) malloc( (size_t)m_pIPLImage->widthStep * m_pIPLImage->height );
+			XTRACE( _T("CxImageObject::Create CustomizedMemory! %p - %d bytes\n"), m_pCustomizedMemory, (size_t)m_pIPLImage->widthStep * m_pIPLImage->height );
 
-			if (!m_pHugeMemory)
+			if (!m_pCustomizedMemory)
 			{
-				m_bUseHugeMemory = FALSE;
+				m_bUseCustomizedMemory = FALSE;
 				delete m_pIPLImage;
 				m_pIPLImage = NULL;
 				return FALSE;
 			}
 
-			m_pIPLImage->imageData = m_pIPLImage->imageDataOrigin = (char*)m_pHugeMemory;
+			m_pIPLImage->imageData = m_pIPLImage->imageDataOrigin = (char*)m_pCustomizedMemory;
 		}
-		else
+		/*else
 		{
-#endif
-			/* prepare IPL header */
 			try
 			{
 				m_pIPLImage = cvCreateImage( cvSize( nWidth, nHeight ), nDepth, nChannel );
@@ -599,9 +662,7 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 				strX += _T("\n");
 				XTRACE( strX );
 			}
-#ifdef _WIN64
-		}
-#endif
+		}*/
 
     }
 
@@ -618,11 +679,10 @@ void CxImageObject::Destroy()
 {
 	m_bNotifyChangeImage = TRUE;
 
-#ifdef _WIN64
-	if ( m_bUseHugeMemory )
+	if ( m_pCustomizedMemory )
 	{
-		free (m_pHugeMemory);
-		m_pHugeMemory = NULL;
+		free (m_pCustomizedMemory);
+		m_pCustomizedMemory = NULL;
 
 		if (m_pIPLImage)
 		{
@@ -630,10 +690,9 @@ void CxImageObject::Destroy()
 			m_pIPLImage = NULL;
 		}
 
-		m_bUseHugeMemory = FALSE;
+		m_bUseCustomizedMemory = FALSE;
 		return;
 	}
-#endif
 
 	if ( !m_bDelete && m_pIPLImage )
 	{
