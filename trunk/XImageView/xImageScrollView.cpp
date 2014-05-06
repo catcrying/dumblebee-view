@@ -1791,7 +1791,9 @@ void CxImageScrollView::OnMouseMove(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if ( ((MK_LBUTTON & nFlags) != 0 || (MK_MBUTTON & nFlags) != 0)  && ((m_eScreenMode==ImageViewMode::ScreenModePanning)||(m_eScreenMode==ImageViewMode::ScreenModeNone)) )
+	//if ( ((MK_LBUTTON & nFlags) != 0 || (MK_MBUTTON & nFlags) != 0)  && ((m_eScreenMode==ImageViewMode::ScreenModePanning)||(m_eScreenMode==ImageViewMode::ScreenModeNone)) )
+	if ( (((MK_LBUTTON & nFlags) != 0)  && ((m_eScreenMode==ImageViewMode::ScreenModePanning)||(m_eScreenMode==ImageViewMode::ScreenModeNone))) ||
+		((MK_MBUTTON & nFlags) != 0) )
 	{
 		if ( m_ptViewLastMouse.x == -1 &&  m_ptViewLastMouse.y == -1 ) 
 		{
