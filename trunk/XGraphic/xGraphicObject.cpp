@@ -457,6 +457,7 @@ public:
 		polygonPoints.clear();
 		polygonPoints.resize( Other.polygonPoints.size() );
 		std::copy( Other.polygonPoints.begin(), Other.polygonPoints.end(), polygonPoints.begin() );
+		return (*this);
 	}
 	const POINT& operator[] (int index) const
 	{
@@ -828,6 +829,32 @@ CxGOText::~CxGOText() {}
 
 //////////////////////////////////////////////////////////////////////////
 // CxGOPolygon
+const CxGOPolygon& CxGOPolygon::operator = ( const CxGOPolygon& Other )
+{
+	bIsFloat		= Other.bIsFloat;	
+	*m_pPenStyle	= *Other.m_pPenStyle;
+	m_hPen			= Other.m_hPen;
+	m_GraphicObjectType		= Other.m_GraphicObjectType;
+	nIndex			= Other.nIndex;
+	*m_pPolygonPointArray = *Other.m_pPolygonPointArray;
+	*m_pPolygonDPointArray = *Other.m_pPolygonDPointArray;
+	return (*this);
+}
+
+CxGOPolygon::CxGOPolygon( const CxGOPolygon& Other )
+{
+	m_pPolygonPointArray = new PolygonPointArray();
+	m_pPolygonDPointArray = new PolygonDPointArray();
+	m_GraphicObjectType = GraphicObjectTypePolygon;
+	bIsFloat		= Other.bIsFloat;	
+	*m_pPenStyle	= *Other.m_pPenStyle;
+	m_hPen			= Other.m_hPen;
+	m_GraphicObjectType		= Other.m_GraphicObjectType;
+	nIndex			= Other.nIndex;
+	*m_pPolygonPointArray = *Other.m_pPolygonPointArray;
+	*m_pPolygonDPointArray = *Other.m_pPolygonDPointArray;
+}
+
 void CxGOPolygon::CreateObject( COLORREF dwFgColor, POINT* lptPolygon, int nPtCnt, BOOL bClosed /*= TRUE*/, int nStyle /*= PS_SOLID*/, int nThickness/*=1*/, COLORREF dwBgColor/*=-1*/ )
 {
 	m_pPolygonPointArray->Clear();

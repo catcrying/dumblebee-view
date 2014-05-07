@@ -257,7 +257,6 @@ public:
 	void NormalizeRect();
 
 	const CxGOEllipse& operator = ( const CxGOEllipse& Other );
-
 	CxGOEllipse( const CxGOEllipse& Other );
 
 	CxGOEllipse();
@@ -312,6 +311,7 @@ public:
 		ArrowDirection arrowDirection, ArrowHeadType arrowType, int nArrowSize, int nLineStyle=PS_SOLID );
 	void CreateObject( COLORREF dwFgColor, DPOINT pt1, DPOINT pt2, 
 		ArrowDirection arrowDirection, ArrowHeadType arrowType, int nArrowSize, int nLineStyle=PS_SOLID );
+
 	CxGOArrow();
 	virtual ~CxGOArrow();
 };
@@ -446,6 +446,9 @@ protected:
 public:
 	void CreateObject( COLORREF dwFgColor, POINT* lptPolygon, int nPtCnt, BOOL bClosed = TRUE, int nStyle = PS_SOLID, int nThickness=1, COLORREF dwBgColor=-1 );
 	void CreateObject( COLORREF dwFgColor, DPOINT* lptPolygon, int nPtCnt, BOOL bClosed = TRUE, int nStyle = PS_SOLID, int nThickness=1, COLORREF dwBgColor=-1 );
+
+	const CxGOPolygon& operator = ( const CxGOPolygon& Other );
+	CxGOPolygon( const CxGOPolygon& Other );
 
 	CxGOPolygon();
 	virtual ~CxGOPolygon();
