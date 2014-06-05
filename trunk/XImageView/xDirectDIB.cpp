@@ -252,6 +252,8 @@ void CxDirectDIB::SetPalette( const BYTE * pPal )
 
 void CxDirectDIB::Shutdown()
 {
+	if ( !m_hDC ) return;
+
 	if ( m_bPalettized && m_bSystemcolorsSaved )
 		RestoreSystemColors();
 
@@ -288,11 +290,14 @@ void CxDirectDIB::Shutdown()
 		::DrawDibClose( m_hDrawDib );
 		m_hDrawDib = NULL;
 	}
+
+	m_hDC = NULL;
 }
 
 BOOL CxDirectDIB::EndDraw()
 {
 	ASSERT( m_hDC != NULL );
+	if ( !m_hDC ) return FALSE;
 	if ( !m_hDrawDib ) return FALSE;
 
 	BITMAPINFO *pbmiDIB = ( BITMAPINFO * ) &m_dibheader;
@@ -321,6 +326,7 @@ BOOL CxDirectDIB::EndDraw()
 BOOL CxDirectDIB::EndDraw( RECT rectRedraw )
 {
 	ASSERT( m_hDC != NULL );
+	if ( !m_hDC ) return FALSE;
 	ASSERT( m_hDrawDib != NULL );
 	
 	BITMAPINFO *pbmiDIB = ( BITMAPINFO * ) &m_dibheader;

@@ -60,6 +60,8 @@ CxSimpleADO::IFieldPtr::IFieldPtr(CxADOField* pPtr)
 {
 	m_pnRef = new int(1);
 	m_pField = pPtr;
+	if (!m_pField)
+		(*m_pnRef) = 0;
 	XTRACE( _T("Create Field: %p\n"), m_pField );
 }
 
@@ -183,6 +185,8 @@ CxSimpleADO::IRecordSetPtr::IRecordSetPtr(CxADOCommand*& pCmd, CxADORecordSet* p
 {
 	m_pnRef = new int(1);
 	m_pRecordSet = pPtr;
+	if (!m_pRecordSet)
+		*m_pnRef = 0;
 	XTRACE( _T("Create RecordSet: %p\n"), m_pRecordSet );
 }
 

@@ -10,7 +10,7 @@
 #include <wtypes.h>
 #include <tchar.h>
 
-typedef void (APIENTRY* FnOnImageProgress)( int nProgress );
+typedef void (APIENTRY* CbOnImageDestroy)(LPVOID lpImgBuf, LPVOID lpContext);
 
 #if _MSC_VER > 1000
 #pragma once
@@ -32,8 +32,6 @@ protected:
 
 	BOOL			m_bNotifyChangeImage;
 
-	FnOnImageProgress	m_fnOnImageProgress;
-
 	CxCriticalSection*	m_pCsLockImage;
 
 	HBITMAP			m_hBitmap;
@@ -43,14 +41,12 @@ protected:
 	BOOL			m_bUseCustomizedMemory;
 	BYTE*			m_pCustomizedMemory;
 
+	CbOnImageDestroy	m_cbOnImageDestroy;
+	LPVOID				m_pOnImageDestroyContext;
+
 public:
 	CxImageObject();
 	virtual ~CxImageObject();
-
-	static void CDECL _OnProgress( int nProgress, LPVOID lpUsrData );
-
-	virtual void OnProgress( int nProgress ) {}
-	FnOnImageProgress SetOnImageProgress( FnOnImageProgress _fnOnImageProgress );
 
 	// User-defined data In/Out
 	void SetData1( DWORD_PTR dwUsrData1 );
@@ -72,7 +68,9 @@ public:
 	BOOL IsValid() const;
 
 	// Construction
-	BOOL CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, ChannelSeqModel seq=ChannelSeqUnknown, int nAlignBytes=4 ); // lpImgBuf must be 4-aligned
+	BOOL CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, 
+		ChannelSeqModel seq=ChannelSeqUnknown, int nAlignBytes=4, 
+		CbOnImageDestroy cbOnDestroy=NULL, LPVOID lpContext=NULL ); // lpImgBuf must be 4-aligned
 	BOOL Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin=0, ChannelSeqModel seq=ChannelSeqUnknown, int nAlignBytes=4 );
 	void Destroy();
 

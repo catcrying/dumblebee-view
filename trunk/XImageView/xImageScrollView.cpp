@@ -459,13 +459,18 @@ void  CxImageScrollView::SetZoomRatio( float fZoom, BOOL bInvalidate/*=TRUE*/ )
 	// to limit zoom-range
 	fZoom = CalcZoomValid( fZoom );
 
-	if ( m_pImageObject != NULL )
+	if ( m_pImageObject && m_pImageObject->IsValid() )
 	{
 		CSize sizeTotal;
 		sizeTotal.cx = int(m_pImageObject->GetWidth() * fZoom);
 		sizeTotal.cy = int(m_pImageObject->GetHeight() * fZoom);
 		SetScrollSizes(MM_TEXT, sizeTotal);
-	}	
+	}
+	else
+	{
+		CSize sizeTotal(0, 0);
+		SetScrollSizes(MM_TEXT, sizeTotal);
+	}
 
 	if ( m_pInnerUI->m_bFixedTracker )
 	{
@@ -483,7 +488,7 @@ void  CxImageScrollView::SetZoomRatio( float fZoom, BOOL bInvalidate/*=TRUE*/ )
 	{
 		if ( pWnd && IsWindow(pWnd->GetSafeHwnd()) )
 		{
-			pWnd->RedrawTitle();
+			pWnd->RedrawStatus();
 		}
 	}
 	
@@ -872,7 +877,11 @@ LRESULT CxImageScrollView::WindowProc(UINT message, WPARAM wParam, LPARAM lParam
 	if ( message == WM_CLOSE || message == WM_DESTROY )
 	{
 		BOOL bIsWindow = IsWindow( GetSafeHwnd() );
-		ExitGraphics(); 
+		if (bIsWindow)
+		{
+			TRACE( _T("TERMINATE CxImageScrollView by WM_CLOSE or WM_DESTROY\n") );
+			ExitGraphics();
+		}
 	}
 	return CScrollView::WindowProc(message, wParam, lParam);
 }
@@ -1023,7 +1032,7 @@ BOOL CxImageScrollView::OnEraseBkgnd(CDC* pDC)
 
 void CxImageScrollView::ZoomTo( CPoint ptScreen, float fZoom, BOOL bSyncControl/*=FALSE*/ )
 {
-	if ( m_pImageObject == NULL || m_pImageObject->GetImageBuffer() == NULL ) return;
+	if ( !m_pImageObject || !m_pImageObject->IsValid() ) return;
 	
 	CRect rcClient;
 	GetClientRect( &rcClient );
@@ -1107,33 +1116,34 @@ void CxImageScrollView::ImageZoomTo( CPoint ptImage, float fZoom, BOOL bSyncCont
 	if ( fZoom != 0.f )
 		SetZoomRatio( fZoom, FALSE );
 
-	CPoint ptScroll = GetDeviceScrollPosition();
-
-	if ( !m_pImageObject )
-		return;
-	// move image to window's center
-	m_nBodyOffsetX = 0;
-	m_nBodyOffsetY = 0;
-	int nRW = int(m_pImageObject->GetWidth()*m_fZoomRatio);
-	int nRH = int(m_pImageObject->GetHeight()*m_fZoomRatio);
-	if ( nRW < m_nWidth )
+	if ( m_pImageObject && m_pImageObject->IsValid() )
 	{
-		m_nBodyOffsetX = (m_nWidth-nRW);
-		m_nBodyOffsetX >>= 1;
+		CPoint ptScroll = GetDeviceScrollPosition();
+
+		// move image to window's center
+		m_nBodyOffsetX = 0;
+		m_nBodyOffsetY = 0;
+		int nRW = int(m_pImageObject->GetWidth()*m_fZoomRatio);
+		int nRH = int(m_pImageObject->GetHeight()*m_fZoomRatio);
+		if ( nRW < m_nWidth )
+		{
+			m_nBodyOffsetX = (m_nWidth-nRW);
+			m_nBodyOffsetX >>= 1;
+		}
+		if ( nRH < m_nHeight )
+		{
+			m_nBodyOffsetY = (m_nHeight-nRH);
+			m_nBodyOffsetY >>= 1;
+		}
+
+		m_nSrcX = int(ptScroll.x/m_fZoomRatio); m_nSrcY = int(ptScroll.y/m_fZoomRatio);
+		m_nSrcW = int(m_nWidth/m_fZoomRatio);   m_nSrcH = int(m_nHeight/m_fZoomRatio);
+
+		MoveTo( ptImage, bSyncControl );
+
+	//	SetRedraw( TRUE );
+		Invalidate();
 	}
-	if ( nRH < m_nHeight )
-	{
-		m_nBodyOffsetY = (m_nHeight-nRH);
-		m_nBodyOffsetY >>= 1;
-	}
-
-	m_nSrcX = int(ptScroll.x/m_fZoomRatio); m_nSrcY = int(ptScroll.y/m_fZoomRatio);
-	m_nSrcW = int(m_nWidth/m_fZoomRatio);   m_nSrcH = int(m_nHeight/m_fZoomRatio);
-
-	MoveTo( ptImage, bSyncControl );
-
-//	SetRedraw( TRUE );
-	Invalidate();
 }
 
 void CxImageScrollView::MoveTo( CPoint ptImage, BOOL bSyncControl/*=FALSE*/ )
@@ -1171,9 +1181,6 @@ void CxImageScrollView::MoveTo( CPoint ptImage, BOOL bSyncControl/*=FALSE*/ )
 
 void CxImageScrollView::ZoomNot()
 {
-	if ( m_pImageObject == NULL || m_pImageObject->GetImageBuffer() == NULL ) 
-		return;
-
 	SetZoomRatio( 1.f );
 
 	CxImageViewCtrl* pWnd = (CxImageViewCtrl*)GetParent();
@@ -1189,14 +1196,7 @@ void CxImageScrollView::ZoomNot()
 void CxImageScrollView::OnZoomFit( BOOL bCalcScrollBar /*=TRUE*/ )
 {
 	SetRedraw( FALSE );
-
-	if ( m_pImageObject == NULL || m_pImageObject->GetImageBuffer() == NULL ) 
-	{
-		return;
-	}
-
 	RecalcZoomRatio( bCalcScrollBar );
-
 	SetRedraw( TRUE );
 
 	SetZoomRatio( m_fZoomMin );	
@@ -1205,14 +1205,7 @@ void CxImageScrollView::OnZoomFit( BOOL bCalcScrollBar /*=TRUE*/ )
 void CxImageScrollView::ZoomFit( BOOL bCalcScrollBar /*= TRUE*/ )
 {
 	SetRedraw( FALSE );
-
-	if ( m_pImageObject == NULL || m_pImageObject->GetImageBuffer() == NULL ) 
-	{
-		return;
-	}
-
 	RecalcZoomRatio( bCalcScrollBar );
-
 	SetRedraw( TRUE );
 
 	SetZoomRatio( m_fZoomFit );
@@ -1229,7 +1222,11 @@ void CxImageScrollView::ZoomFit( BOOL bCalcScrollBar /*= TRUE*/ )
 
 void CxImageScrollView::RecalcZoomRatio( BOOL bCalcScrollBar /*= TRUE*/ )
 {
-	if ( m_pImageObject == NULL || m_pImageObject->GetImageBuffer() == NULL ) return;
+	if ( !m_pImageObject || !m_pImageObject->IsValid() )
+	{
+		m_fZoomFit = 1.f;
+		return;
+	}
 	
 	int nSWW = ::GetSystemMetrics(SM_CXHSCROLL);
 	int nSWH = ::GetSystemMetrics(SM_CYHSCROLL);
@@ -2933,10 +2930,9 @@ void CxImageScrollView::GetScrollBarDimension( int& nSWW, int &nSWH )
 	nSWH = ::GetSystemMetrics(SM_CYHSCROLL);
 
 	CSize szNSb, szRange;
-	CRect rcView; 	CPoint ptMove;
-	GetClientRect( &rcView );
-	GetScrollBarState( CSize(rcView.Width(), rcView.Height()), szNSb, szRange, ptMove, FALSE );
-	if ( !szNSb.cx ) nSWW = 0; if ( !szNSb.cy ) nSWH = 0;
+	CPoint ptMove;
+	GetScrollBarState( CSize(m_nWidth, m_nHeight), szNSb, szRange, ptMove, FALSE );
+	if ( !szNSb.cx ) nSWH = 0; if ( !szNSb.cy ) nSWW = 0;
 }
 
 void CxImageScrollView::SetPalette( const BYTE* pPal )

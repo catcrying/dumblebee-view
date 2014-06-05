@@ -18,7 +18,9 @@
 
 CxImageObject::CxImageObject() :
 	m_pIPLImage(NULL), m_bDelete(FALSE), 
-	m_fnOnImageProgress(NULL), m_bNotifyChangeImage(FALSE),
+	m_bNotifyChangeImage(FALSE),
+	m_cbOnImageDestroy(NULL),
+	m_pOnImageDestroyContext(NULL),
 	m_hBitmap(NULL)
 {
 	m_pCsLockImage = new CxCriticalSection();
@@ -158,17 +160,6 @@ CxCriticalSection*	CxImageObject::GetImageLockObject()
 struct _IplImage* CxImageObject::GetImage() const
 {
 	return m_pIPLImage;
-}
-
-void CxImageObject::_OnProgress( int nProgress, LPVOID lpUsrData )
-{
-	XTRACE( _T("Progress: %d\r\n"), nProgress );
-	CxImageObject* pThis = (CxImageObject*)lpUsrData;
-	pThis->OnProgress( nProgress );
-	if ( pThis->m_fnOnImageProgress )
-	{
-		(*pThis->m_fnOnImageProgress)( nProgress );
-	}
 }
 
 BOOL CxImageObject::IsHBitmapAttached()
@@ -472,7 +463,9 @@ BOOL CxImageObject::Clone( const CxImageObject* pSrcImage )
 	return CopyImage( pSrcImage );
 }
 
-BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, ChannelSeqModel seq/*=ChannelSeqUnknown*/, int nAlignBytes/*=4*/ )
+BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, 
+									 ChannelSeqModel seq/*=ChannelSeqUnknown*/, int nAlignBytes/*=4*/,
+									 CbOnImageDestroy cbOnDestroy/*=NULL*/, LPVOID lpContext/*=NULL*/)
 {
     if ( (nDepth != 8 && nDepth != 16) || 
 		(nChannel != 1 && nChannel != 3) )
@@ -491,6 +484,9 @@ BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, 
     {
         if ( m_pIPLImage && m_pIPLImage->nSize == sizeof(IplImage) )
             Destroy();
+
+		m_cbOnImageDestroy = cbOnDestroy;
+		m_pOnImageDestroyContext = lpContext;
     
 		m_bDelete = FALSE;
 
@@ -565,6 +561,9 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 
         if ( m_pIPLImage && m_pIPLImage->nSize == sizeof(IplImage) )
             Destroy();
+
+		m_cbOnImageDestroy = NULL;
+		m_pOnImageDestroyContext = NULL;
 
 		m_bUseCustomizedMemory = FALSE;
 		m_pCustomizedMemory = NULL;
@@ -696,8 +695,15 @@ void CxImageObject::Destroy()
 
 	if ( !m_bDelete && m_pIPLImage )
 	{
+		if (m_cbOnImageDestroy)
+		{
+			m_cbOnImageDestroy(m_pIPLImage->imageData, m_pOnImageDestroyContext);
+		}
 		delete m_pIPLImage;
 		m_pIPLImage = NULL;
+		m_pCustomizedMemory = NULL;
+		m_pOnImageDestroyContext = NULL;
+		m_cbOnImageDestroy = NULL;
 		return;
 	}
 	if ( m_pIPLImage != NULL )
@@ -782,11 +788,4 @@ COLORREF CxImageObject::GetPixelColor( int x, int y ) const
 	}
 
 	return RGB(0,0,0);
-}
-
-FnOnImageProgress CxImageObject::SetOnImageProgress( FnOnImageProgress _fnOnImageProgress )
-{ 
-	FnOnImageProgress OldProgressFn = m_fnOnImageProgress;
-	m_fnOnImageProgress = _fnOnImageProgress; 
-	return OldProgressFn;
 }

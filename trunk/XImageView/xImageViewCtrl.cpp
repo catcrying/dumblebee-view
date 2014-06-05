@@ -490,8 +490,11 @@ void CxImageViewCtrl::ZoomTo( CRect rcZoom, BOOL bSyncControl/*=FALSE*/ )
 	CPoint ptImageCenter = rcZoom.CenterPoint();
 	float fZoom;
 
-	int nViewWidth = m_pImageView->GetViewWidth();
-	int nViewHeight = m_pImageView->GetViewHeight();
+	int nSWW, nSWH;
+	m_pImageView->GetScrollBarDimension(nSWW, nSWH);
+
+	int nViewWidth = m_pImageView->GetViewWidth() + nSWW;
+	int nViewHeight = m_pImageView->GetViewHeight() + nSWH;
 
 	if (rcZoom.Width() > rcZoom.Height())
 	{
@@ -685,6 +688,10 @@ void CxImageViewCtrl::SetImageObject( CxImageObject* pImageObject, BOOL bZoomFit
 	if ( bZoomFit )
 	{
 		m_pImageView->ZoomFit();
+		if (pImageObject)
+		{
+			pImageObject->ClearNotifyFlag();
+		}
 	}
 	else
 	{
