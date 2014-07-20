@@ -1662,11 +1662,13 @@ void CxGraphicObject::DrawPolygon( HDC hDC, int nLayer )
 				else
 					nPtCnt = clrPolygon.m_pPolygonPointArray->Count();
 
+				/*
 				if ( nPtCnt > 100 )
 				{
 					XASSERT( FALSE );
 					break;
 				}
+				*/
 
 				lptPolygon = (DPOINT*)malloc( sizeof(DPOINT) * nPtCnt );
 

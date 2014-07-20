@@ -4,7 +4,7 @@
 #ifdef XGRAPHIC_EXPORTS
 #define XGRAPHIC_API	__declspec(dllexport)
 #else
-#define XGRAPHIC_API	__declspec(dllexport)
+#define XGRAPHIC_API	__declspec(dllimport)
 #endif
 
 #endif //__XGRAPHIC_EXPORT_H__

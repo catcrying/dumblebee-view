@@ -7,7 +7,7 @@
 #include <XGraphic/IxDeviceContext.h>
 
 //CHECK!!
-#define USE_MEMDC_IMAGE_VIEW
+//#define USE_MEMDC_IMAGE_VIEW
 
 #if _MSC_VER > 1000
 #pragma once
@@ -36,12 +36,12 @@ protected:
 
 	BOOL			m_bMouseOverCheck;
 
-	CDC*			m_pDC;
-#ifdef USE_MEMDC_IMAGE_VIEW
+	//CDC*			m_pDC;
+//#ifdef USE_MEMDC_IMAGE_VIEW
 	CDC				m_MemDC;
 	CBitmap*		m_pBitmap;
 	CBitmap*		m_pOldBitmap;
-#endif
+//#endif
 
 	BYTE			m_cClearColor;
 	COLORREF		m_dwBackgroundColor;

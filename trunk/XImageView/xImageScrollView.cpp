@@ -30,9 +30,10 @@
 #define ID_TRACKER_CLEAR							10
 #define ID_TRACKER_CONFIRM_REGION					11
 #define ID_WHEEL_SET_TO_VSCROLL						12
-#define ID_WHEEL_SET_TO_ZOOM						13
-#define ID_WHEELBTN_SET_TO_SMART_MOVE				14
-#define ID_LBUTTON_LIMIT_LOCK						15
+#define ID_WHEEL_SET_TO_HSCROLL						13
+#define ID_WHEEL_SET_TO_ZOOM						14
+#define ID_WHEELBTN_SET_TO_SMART_MOVE				15
+#define ID_LBUTTON_LIMIT_LOCK						16
 #define ID_TRACKER_START							ID_TRACKER_CLEAR
 #define ID_TRACKER_END								ID_LBUTTON_LIMIT_LOCK
 
@@ -63,7 +64,7 @@ IMPLEMENT_DYNCREATE(CxImageScrollView, CScrollView)
 
 CxImageScrollView::CxImageScrollView() : 
 	m_pImageObject(NULL), m_pRenderer(NULL), m_fZoomRatio(1.f),
-	m_pDC(NULL), m_eScreenMode(ImageViewMode::ScreenModeNone),
+	/*m_pDC(NULL), */m_eScreenMode(ImageViewMode::ScreenModeNone),
 	m_fZoomMin(1.f), m_fZoomMax(1.f), m_fZoomFit(1.f),
 	m_fZoomStep(2.f),
 	m_nBodyOffsetX(0), m_nBodyOffsetY(0), m_bLockUpdate(FALSE),
@@ -76,10 +77,10 @@ CxImageScrollView::CxImageScrollView() :
 	m_bShowScaleBar(TRUE),
 	m_bShowDigitize(TRUE), m_bMouseOverCheck(FALSE)
 {
-#ifdef USE_MEMDC_IMAGE_VIEW
+//#ifdef USE_MEMDC_IMAGE_VIEW
 	m_pBitmap = NULL;
 	m_pOldBitmap = NULL;
-#endif
+//#endif
 
 	m_pInnerUI = new CInnerUI();
 	m_pDirectDIB = new CxDirectDIB();
@@ -158,6 +159,9 @@ _tsetlocale(LC_ALL, _T("korean"));
 	static CString strWheelSetToVScroll;
 	strWheelSetToVScroll.LoadString(GetResourceHandle(), IDS_WHEEL_SET_TO_VSCROLL);
 	m_pInnerUI->m_WheelPopupMenu.AppendMenu( MFT_STRING|MFT_OWNERDRAW, ID_WHEEL_SET_TO_VSCROLL, strWheelSetToVScroll );
+	static CString strWheelSetToHScroll;
+	strWheelSetToHScroll.LoadString(GetResourceHandle(), IDS_WHEEL_SET_TO_HSCROLL);
+	m_pInnerUI->m_WheelPopupMenu.AppendMenu( MFT_STRING|MFT_OWNERDRAW, ID_WHEEL_SET_TO_HSCROLL, strWheelSetToHScroll );
 	//m_pInnerUI->m_WheelPopupMenu.AppendMenu( MFT_SEPARATOR|MFT_OWNERDRAW, 0, _T("") );
 	//static CString strWheelSetToSmartMove;
 	//strWheelSetToSmartMove.LoadString(GetResourceHandle(), IDS_WHEEL_SET_TO_SMART_MOVE);
@@ -170,13 +174,14 @@ _tsetlocale(LC_ALL, _T("korean"));
 
 CxImageScrollView::~CxImageScrollView()
 {
-#ifdef USE_MEMDC_IMAGE_VIEW
+//#ifdef USE_MEMDC_IMAGE_VIEW
 	if (m_pBitmap)
 	{
+		m_pBitmap->DeleteObject();
 		delete m_pBitmap;
 		m_pBitmap=NULL;
 	}
-#endif
+//#endif
 
 	delete m_pInnerUI;
 	delete m_pDirectDIB;
@@ -521,11 +526,11 @@ void CxImageScrollView::DrawScreen( CDC* pDC )
 	
 	if ( !m_pImageObject || m_bLockUpdate || !m_pImageObject->IsValid() )
 	{
-#ifdef USE_MEMDC_IMAGE_VIEW
+//#ifdef USE_MEMDC_IMAGE_VIEW
 	CDC* pGDC = &m_MemDC;
-#else
-	CDC* pGDC = pDC;
-#endif
+//#else
+//	CDC* pGDC = pDC;
+//#endif
 
 	if ( m_fnOnDrawExt )
 	{
@@ -536,12 +541,12 @@ void CxImageScrollView::DrawScreen( CDC* pDC )
 		OnDrawExt( this, pGDC );
 	}
 
-#ifdef USE_MEMDC_IMAGE_VIEW
+//#ifdef USE_MEMDC_IMAGE_VIEW
 		m_MemDC.SetMapMode( MM_TEXT );
 		m_MemDC.SetViewportOrg( 0, 0 );
 
 		pDC->BitBlt( 0, 0, m_nWidth, m_nHeight, &m_MemDC, 0, 0, SRCCOPY );
-#endif
+//#endif
 		return;
 	}
 
@@ -622,11 +627,11 @@ void CxImageScrollView::DrawScreen( CDC* pDC )
 	ptScroll = GetDeviceScrollPosition();
 	
 // 	CDC* pDC = GetDC();
-#ifdef USE_MEMDC_IMAGE_VIEW
+//#ifdef USE_MEMDC_IMAGE_VIEW
 	CDC* pGDC = &m_MemDC;
-#else
-	CDC* pGDC = pDC;
-#endif
+//#else
+//	CDC* pGDC = pDC;
+//#endif
 
 	OnPrepareDC( pGDC );
 
@@ -672,12 +677,12 @@ void CxImageScrollView::DrawScreen( CDC* pDC )
 		m_pInnerUI->m_RectTracker.Draw( pGDC );
 	}
 
-#ifdef USE_MEMDC_IMAGE_VIEW
+//#ifdef USE_MEMDC_IMAGE_VIEW
 	m_MemDC.SetMapMode( MM_TEXT );
 	m_MemDC.SetViewportOrg( 0, 0 );
 
 	pDC->BitBlt( 0, 0, m_nWidth, m_nHeight, &m_MemDC, 0, 0, SRCCOPY );
-#endif
+//#endif
 	
 // 	ReleaseDC( pDC );
 }
@@ -889,26 +894,31 @@ LRESULT CxImageScrollView::WindowProc(UINT message, WPARAM wParam, LPARAM lParam
 
 BOOL CxImageScrollView::InitGraphics( CxRender2D* pRenderer, int nWidth, int nHeight, int nBitCnt )
 {
+	if (!IsWindow(GetSafeHwnd()))
+		return FALSE;
+
 	m_pRenderer = pRenderer; // &m_DirectDraw; //
 
 	ExitGraphics();
 
-	m_pDC = GetDC();
+	CDC* pDC = GetDC();
 	m_pRenderer->SetDims( nWidth, nHeight );
 
-#ifndef USE_MEMDC_IMAGE_VIEW
-	HDC hDC = m_pDC->GetSafeHdc();
-#else
+//#ifndef USE_MEMDC_IMAGE_VIEW
+//	HDC hDC = m_pDC->GetSafeHdc();
+//#else
 	m_pBitmap = new CBitmap;
 	ASSERT( m_pBitmap );
 
-	m_MemDC.CreateCompatibleDC( m_pDC );
-	VERIFY( m_pBitmap->CreateCompatibleBitmap( m_pDC, nWidth, nHeight) );
+	m_MemDC.CreateCompatibleDC( pDC );
+	VERIFY( m_pBitmap->CreateCompatibleBitmap( pDC, nWidth, nHeight) );
+
+	ReleaseDC(pDC);
 
 	m_pOldBitmap = m_MemDC.SelectObject( m_pBitmap );
 
 	HDC hDC = m_MemDC.GetSafeHdc();
-#endif
+//#endif
 
 	m_pRenderer->SetDC( hDC );
 
@@ -926,13 +936,19 @@ BOOL CxImageScrollView::InitGraphics( CxRender2D* pRenderer, int nWidth, int nHe
 
 BOOL CxImageScrollView::ExitGraphics()
 {
+	if (!IsWindow(GetSafeHwnd()))
+		return FALSE;
+
 	if ( m_pRenderer != NULL )
 		m_pRenderer->Shutdown();
 
-#ifdef USE_MEMDC_IMAGE_VIEW
+//#ifdef USE_MEMDC_IMAGE_VIEW
 	if ( m_pOldBitmap )
 	{
-		m_MemDC.SelectObject( m_pOldBitmap );
+		if (m_MemDC.GetSafeHdc())
+		{
+			m_MemDC.SelectObject( m_pOldBitmap );
+		}
 		m_pOldBitmap = NULL;
 	}
 
@@ -941,16 +957,17 @@ BOOL CxImageScrollView::ExitGraphics()
 
 	if ( m_pBitmap != NULL ) 
 	{
+		m_pBitmap->DeleteObject();
 		delete m_pBitmap;
 		m_pBitmap = NULL;
 	}
-#endif
+//#endif
 
-	if ( m_pDC != NULL )
+	/*if ( m_pDC != NULL )
 	{
 		ReleaseDC( m_pDC );
 		m_pDC = NULL;
-	}
+	}*/
 
 	return TRUE;
 }
@@ -1181,7 +1198,11 @@ void CxImageScrollView::MoveTo( CPoint ptImage, BOOL bSyncControl/*=FALSE*/ )
 
 void CxImageScrollView::ZoomNot()
 {
-	SetZoomRatio( 1.f );
+	CRect rcClient;
+	GetClientRect( &rcClient );
+	CPoint ptCenter = rcClient.CenterPoint();
+	ZoomTo(ptCenter, 1.0f);
+	/*
 
 	CxImageViewCtrl* pWnd = (CxImageViewCtrl*)GetParent();
 	if ( pWnd->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
@@ -1191,6 +1212,7 @@ void CxImageScrollView::ZoomNot()
 		m_nSrcW = int(m_nWidth/m_fZoomRatio);   m_nSrcH = int(m_nHeight/m_fZoomRatio);
 		pWnd->SyncDevContext( this, CPoint(m_nSrcX+m_nSrcW/2, m_nSrcY+m_nSrcH/2), TRUE );
 	}
+	*/
 }
 
 void CxImageScrollView::OnZoomFit( BOOL bCalcScrollBar /*=TRUE*/ )
@@ -1286,7 +1308,6 @@ void CxImageScrollView::OnLButtonDblClk(UINT nFlags, CPoint point)
 	{
 	case ImageViewMode::ScreenModeZoomInOut:
 	case ImageViewMode::ScreenModeZoomIn:
-	case ImageViewMode::ScreenModeSmart:
 		if ( m_fZoomRatio == m_fZoomMax )
 			return;
 		fZoom = m_fZoomRatio * m_fZoomStep;
@@ -1332,7 +1353,6 @@ void CxImageScrollView::OnRButtonDblClk(UINT nFlags, CPoint point)
 	switch ( m_eScreenMode )
 	{
 	case ImageViewMode::ScreenModeZoomInOut:
-	case ImageViewMode::ScreenModeSmart:
 		if ( m_fZoomRatio == m_fZoomMin )
 			return;
 		fZoom = m_fZoomRatio / m_fZoomStep;
@@ -1459,7 +1479,6 @@ void CxImageScrollView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 	case ImageViewMode::ScreenModeZoomInOut:
 	case ImageViewMode::ScreenModeZoomIn:
-	case ImageViewMode::ScreenModeSmart:
 		if ( m_fZoomRatio == m_fZoomMax )
 			return;
 		if ( m_fnOnEvent )
@@ -1551,7 +1570,6 @@ void CxImageScrollView::OnRButtonDown(UINT nFlags, CPoint point)
 	switch ( m_eScreenMode )
 	{
 	case ImageViewMode::ScreenModeZoomInOut:
-	case ImageViewMode::ScreenModeSmart:
 		if ( m_fZoomRatio == m_fZoomMin )
 			return;
 		if ( m_fnOnEvent )
@@ -1825,12 +1843,6 @@ void CxImageScrollView::OnMouseMove(UINT nFlags, CPoint point)
 		else
 			OnEvent( ImageViewEvent::ActionEventPanEnd );
 		m_eScreenMode = ImageViewMode::ScreenModeNone;
-	}
-
-	if ( m_eScreenMode == ImageViewMode::ScreenModeSmart )
-	{
-		MouseSmartPan( point );
-		return;
 	}
 
 	if ( m_eScreenMode == ImageViewMode::ScreenModeNone )
@@ -2268,9 +2280,6 @@ BOOL CxImageScrollView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	case ImageViewMode::ScreenModeTracker:
 		SetCursor( m_hCursorTracker );
 		break;
-	case ImageViewMode::ScreenModeSmart:
-		//ShowCursor( FALSE );
-		//break;
 	default:
 		SetCursor( m_hCursorNormal );
 		break;
@@ -2512,6 +2521,31 @@ BOOL CxImageScrollView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 			Invalidate();
 		}
 		break;
+	case ImageViewMode::MouseWheelModeHorizontalScroll:
+		{
+			CPoint ptScroll = GetDeviceScrollPosition();		
+			CSize szNSb, szRange;
+			CPoint ptMoveT;
+			GetScrollBarState( CSize(m_nWidth, m_nHeight), szNSb, szRange, ptMoveT, FALSE );
+		
+			if ( szRange.cx < 0 ) szRange.cx = 0;
+			if ( szRange.cy < 0 ) szRange.cy = 0;
+
+			if ( szNSb.cx )
+				SetScrollPos( SB_HORZ, ptScroll.x+zDelta, TRUE );
+
+			CxImageViewCtrl* pWnd = (CxImageViewCtrl*)GetParent();
+			if ( pWnd->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
+			{
+				CPoint ptScroll = GetDeviceScrollPosition();		
+				m_nSrcX = int(ptScroll.x/m_fZoomRatio); m_nSrcY = int(ptScroll.y/m_fZoomRatio);
+				m_nSrcW = int(m_nWidth/m_fZoomRatio);   m_nSrcH = int(m_nHeight/m_fZoomRatio);
+				pWnd->SyncDevContext( this, CPoint(m_nSrcX+m_nSrcW/2, m_nSrcY+m_nSrcH/2), TRUE );
+			}
+
+			Invalidate();
+		}
+		break;
 	}
 	
 	return FALSE;
@@ -2543,6 +2577,15 @@ void CxImageScrollView::OnMButtonDown(UINT nFlags, CPoint point)
 			return;
 	}
 
+	if ((nFlags & MK_LBUTTON) == 0 && (nFlags & MK_RBUTTON) == 0)
+	{
+		if ( ::GetCapture() != m_hWnd ) ::SetCapture( m_hWnd );
+
+		m_ptViewLastMouse = point;
+
+		m_eOldScreenMode = m_eScreenMode;
+	}
+
 	CScrollView::OnMButtonDown(nFlags, point);
 }
 
@@ -2562,33 +2605,17 @@ void CxImageScrollView::OnMButtonUp(UINT nFlags, CPoint point)
 			return;
 	}
 
-	if ( m_eScreenMode == ImageViewMode::ScreenModeSmart )
+	if ((nFlags & MK_LBUTTON) == 0 && (nFlags & MK_RBUTTON) == 0)
 	{
 		if ( ::GetCapture() == m_hWnd )
 			::ReleaseCapture();
 
+		m_ptViewLastMouse = point;
+		m_ptViewLastMouse.x = m_ptViewLastMouse.y = -1;
 		m_eScreenMode = m_eOldScreenMode;
-		ShowCursor( TRUE );
 	}
-	else
-	{
-		if ( !m_bEnableSmartMove )
-			return;
-		
-		if ( ::GetCapture() != m_hWnd ) ::SetCapture( m_hWnd );
 
-		CRect rcClient;
-		GetClientRect( rcClient );
-		point = rcClient.CenterPoint();
-
-		ClientToScreen( &point );
-		SetCursorPos( point.x, point.y );
-		
-		m_eOldScreenMode = m_eScreenMode;
-		m_eScreenMode = ImageViewMode::ScreenModeSmart;
-		ShowCursor( FALSE );
-		return;
-	}
+	Invalidate();
 	
 	CScrollView::OnMButtonUp(nFlags, point);
 }
@@ -2845,7 +2872,7 @@ BOOL CxImageScrollView::DrawScaleMark_Simple0( HDC hDC, RECT rc, float fScale, L
 
 void CxImageScrollView::OnContextMenu(CWnd* pWnd, CPoint point) 
 {
-	if ( m_eScreenMode == ImageViewMode::ScreenModeSmart || m_eScreenMode == ImageViewMode::ScreenModeZoomInOut )
+	if ( m_eScreenMode == ImageViewMode::ScreenModeZoomInOut )
 		return;
 
 	if (!m_bEnableMouseControl)
@@ -2896,6 +2923,9 @@ void CxImageScrollView::OnContextMenuHandler( UINT uID )
 	case ID_WHEEL_SET_TO_VSCROLL:
 		m_eMouseWheelMode = ImageViewMode::MouseWheelModeVerticalScroll;
 		break;
+	case ID_WHEEL_SET_TO_HSCROLL:
+		m_eMouseWheelMode = ImageViewMode::MouseWheelModeHorizontalScroll;
+		break;
 	case ID_WHEELBTN_SET_TO_SMART_MOVE:
 		m_bEnableSmartMove = !m_bEnableSmartMove;
 		break;
@@ -2913,10 +2943,17 @@ void CxImageScrollView::WheelMenuUpdateUI()
 	case ImageViewMode::MouseWheelModeZoom:
 		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_ZOOM, MF_BYCOMMAND|MF_CHECKED);
 		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_VSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_HSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
 		break;
 	case ImageViewMode::MouseWheelModeVerticalScroll:
 		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_ZOOM, MF_BYCOMMAND|MF_UNCHECKED);
 		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_VSCROLL, MF_BYCOMMAND|MF_CHECKED);
+		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_HSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+		break;
+	case ImageViewMode::MouseWheelModeHorizontalScroll:
+		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_ZOOM, MF_BYCOMMAND|MF_UNCHECKED);
+		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_VSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_HSCROLL, MF_BYCOMMAND|MF_CHECKED);
 		break;
 	}
 

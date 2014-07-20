@@ -35,10 +35,11 @@
 #define IDS_TRACKER_CONFIRM_REGION      1030
 #define IDS_WHEEL_SET_TO_ZOOM           1031
 #define IDS_WHEEL_SET_TO_VSCROLL        1032
-#define IDS_WHEEL_SET_TO_SMART_MOVE     1033
-#define IDS_LBUTTON_LIMIT_LOCK          1034
-#define IDS_MEASURE_MODE                1035
-#define IDS_TRACKER_MODE                1036
+#define IDS_WHEEL_SET_TO_HSCROLL        1033
+#define IDS_WHEEL_SET_TO_SMART_MOVE     1034
+#define IDS_LBUTTON_LIMIT_LOCK          1035
+#define IDS_MEASURE_MODE                1036
+#define IDS_TRACKER_MODE                1037
 
 // Next default values for new objects
 // 

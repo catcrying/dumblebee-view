@@ -122,6 +122,7 @@ BEGIN
     IDS_LBUTTON_LIMIT_LOCK  "Mouse-Move Limit Lock"
     IDS_MEASURE_MODE        "MEASURE MODE"
     IDS_TRACKER_MODE        "TRACKER MODE"
+    IDS_WHEEL_SET_TO_HSCROLL "Set to Horizontal Scroll"
 END
 
 #endif    // 중립(기본값) resources
@@ -211,6 +212,7 @@ BEGIN
     IDS_LBUTTON_LIMIT_LOCK  "마우스포인터 이동 제한"
     IDS_MEASURE_MODE        "측정 모드"
     IDS_TRACKER_MODE        "영역 선택 모드"
+    IDS_WHEEL_SET_TO_HSCROLL "수평 스크롤 모드"
 END
 
 #endif    // 한국어(대한민국) resources

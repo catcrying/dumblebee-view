@@ -35,13 +35,13 @@ namespace ImageViewMode
 		ScreenModeZoomIn, 
 		ScreenModeZoomOut, 
 		ScreenModeZoomInOut, 
-		ScreenModeSmart, 
 		ScreenModeMeasure, 
 		ScreenModeTracker 
 	};
 	enum MouseWheelMode { 
 		MouseWheelModeZoom, 
-		MouseWheelModeVerticalScroll 
+		MouseWheelModeVerticalScroll,
+		MouseWheelModeHorizontalScroll
 	};
 }
 

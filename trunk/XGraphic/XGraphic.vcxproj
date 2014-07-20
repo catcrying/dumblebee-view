@@ -336,6 +336,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\XGraphic\export.h" />
     <ClInclude Include="Include\XGraphic\IxDeviceContext.h" />
     <ClInclude Include="Include\XGraphic\xArrowDrawer.h" />
     <ClInclude Include="Include\XGraphic\xColorConverter.h" />

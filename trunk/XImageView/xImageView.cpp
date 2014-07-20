@@ -28,9 +28,10 @@
 #define ID_TRACKER_CLEAR							10
 #define ID_TRACKER_CONFIRM_REGION					11
 #define ID_WHEEL_SET_TO_VSCROLL						12
-#define ID_WHEEL_SET_TO_ZOOM						13
-#define ID_WHEELBTN_SET_TO_SMART_MOVE				14
-#define ID_LBUTTON_LIMIT_LOCK						15
+#define ID_WHEEL_SET_TO_HSCROLL						13
+#define ID_WHEEL_SET_TO_ZOOM						14
+#define ID_WHEELBTN_SET_TO_SMART_MOVE				15
+#define ID_LBUTTON_LIMIT_LOCK						16
 #define ID_TRACKER_START							ID_TRACKER_CLEAR
 #define ID_TRACKER_END								ID_LBUTTON_LIMIT_LOCK
 
@@ -159,6 +160,9 @@ _tsetlocale(LC_ALL, _T("korean"));
 	static CString strWheelSetToVScroll;
 	strWheelSetToVScroll.LoadString(GetResourceHandle(), IDS_WHEEL_SET_TO_VSCROLL);
 	m_pInnerUI->m_WheelPopupMenu.AppendMenu( MFT_STRING|MFT_OWNERDRAW, ID_WHEEL_SET_TO_VSCROLL, strWheelSetToVScroll );
+	static CString strWheelSetToHScroll;
+	strWheelSetToHScroll.LoadString(GetResourceHandle(), IDS_WHEEL_SET_TO_HSCROLL);
+	m_pInnerUI->m_WheelPopupMenu.AppendMenu( MFT_STRING|MFT_OWNERDRAW, ID_WHEEL_SET_TO_HSCROLL, strWheelSetToHScroll );
 	//static CString strWheelSetToSmartMove;
 	//strWheelSetToSmartMove.LoadString(GetResourceHandle(), IDS_WHEEL_SET_TO_SMART_MOVE);
 	//m_pInnerUI->m_WheelPopupMenu.AppendMenu( MFT_STRING|MFT_OWNERDRAW, ID_WHEELBTN_SET_TO_SMART_MOVE, strWheelSetToSmartMove );
@@ -1078,7 +1082,6 @@ void CxImageView::OnLButtonDblClk(UINT nFlags, CPoint point)
 	{
 	case ImageViewMode::ScreenModeZoomInOut:
 	case ImageViewMode::ScreenModeZoomIn:
-	case ImageViewMode::ScreenModeSmart:
 		if ( m_fZoomRatio == m_fZoomMax )
 			return;
 		fZoom = m_fZoomRatio * 2.f;
@@ -1124,7 +1127,6 @@ void CxImageView::OnRButtonDblClk(UINT nFlags, CPoint point)
 	switch ( m_eScreenMode )
 	{
 	case ImageViewMode::ScreenModeZoomInOut:
-	case ImageViewMode::ScreenModeSmart:
 		if ( m_fZoomRatio == m_fZoomMin )
 			return;
 		fZoom = m_fZoomRatio / 2.f;
@@ -1251,7 +1253,6 @@ void CxImageView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 	case ImageViewMode::ScreenModeZoomInOut:
 	case ImageViewMode::ScreenModeZoomIn:
-	case ImageViewMode::ScreenModeSmart:
 		if ( m_fZoomRatio == m_fZoomMax )
 			return;
 		if ( m_fnOnEvent )
@@ -1343,7 +1344,6 @@ void CxImageView::OnRButtonDown(UINT nFlags, CPoint point)
 	switch ( m_eScreenMode )
 	{
 	case ImageViewMode::ScreenModeZoomInOut:
-	case ImageViewMode::ScreenModeSmart:
 		if ( m_fZoomRatio == m_fZoomMin )
 			return;
 		if ( m_fnOnEvent )
@@ -1849,9 +1849,6 @@ BOOL CxImageView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	case ImageViewMode::ScreenModeTracker:
 		SetCursor( m_hCursorTracker );
 		break;
-	case ImageViewMode::ScreenModeSmart:
-		//ShowCursor( FALSE );
-		//break;
 	default:
 		SetCursor( m_hCursorNormal );
 		break;
@@ -2106,6 +2103,29 @@ BOOL CxImageView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 			Invalidate();
 		}
 		break;
+	case ImageViewMode::MouseWheelModeHorizontalScroll:
+		{
+			if (m_pImageObject && m_pImageObject->IsValid())
+			{
+				CPoint ptScroll = GetDeviceScrollPosition();
+				if ( m_sizeScrollRange.cx > m_pImageObject->GetWidth() )
+				{
+					m_ptScrollPos.x = ptScroll.x+zDelta;
+				}
+			}
+
+			CxImageViewCtrl* pWnd = (CxImageViewCtrl*)GetParent();
+			if ( pWnd->IsKindOf(RUNTIME_CLASS(CxImageViewCtrl)) )
+			{
+				CPoint ptScroll = GetDeviceScrollPosition();		
+				m_nSrcX = int(ptScroll.x/m_fZoomRatio); m_nSrcY = int(ptScroll.y/m_fZoomRatio);
+				m_nSrcW = int(m_nWidth/m_fZoomRatio);   m_nSrcH = int(m_nHeight/m_fZoomRatio);
+				pWnd->SyncDevContext( this, CPoint(m_nSrcX+m_nSrcW/2, m_nSrcY+m_nSrcH/2), TRUE );
+			}
+
+			Invalidate();
+		}
+		break;
 	}
 	
 	return FALSE;
@@ -2156,33 +2176,6 @@ void CxImageView::OnMButtonUp(UINT nFlags, CPoint point)
 			return;
 	}
 
-	if ( m_eScreenMode == ImageViewMode::ScreenModeSmart )
-	{
-		if ( ::GetCapture() == m_hWnd )
-			::ReleaseCapture();
-
-		m_eScreenMode = m_eOldScreenMode;
-		ShowCursor( TRUE );
-	}
-	else
-	{
-		if ( !m_bEnableSmartMove )
-			return;
-		
-		if ( ::GetCapture() != m_hWnd ) ::SetCapture( m_hWnd );
-
-		CRect rcClient;
-		GetClientRect( rcClient );
-		point = rcClient.CenterPoint();
-
-		ClientToScreen( &point );
-		SetCursorPos( point.x, point.y );
-		
-		m_eOldScreenMode = m_eScreenMode;
-		m_eScreenMode = ImageViewMode::ScreenModeSmart;
-		ShowCursor( FALSE );
-		return;
-	}
 	
 	CView::OnMButtonUp(nFlags, point);
 }
@@ -2439,7 +2432,7 @@ BOOL CxImageView::DrawScaleMark_Simple0( HDC hDC, RECT rc, float fScale, LPCTSTR
 
 void CxImageView::OnContextMenu(CWnd* pWnd, CPoint point) 
 {
-	if ( m_eScreenMode == ImageViewMode::ScreenModeSmart || m_eScreenMode == ImageViewMode::ScreenModeZoomInOut )
+	if ( m_eScreenMode == ImageViewMode::ScreenModeZoomInOut )
 		return;
 
 	if (!m_bEnableMouseControl)
@@ -2490,6 +2483,9 @@ void CxImageView::OnContextMenuHandler( UINT uID )
 	case ID_WHEEL_SET_TO_VSCROLL:
 		m_eMouseWheelMode = ImageViewMode::MouseWheelModeVerticalScroll;
 		break;
+	case ID_WHEEL_SET_TO_HSCROLL:
+		m_eMouseWheelMode = ImageViewMode::MouseWheelModeHorizontalScroll;
+		break;
 	case ID_WHEELBTN_SET_TO_SMART_MOVE:
 		m_bEnableSmartMove = !m_bEnableSmartMove;
 		break;
@@ -2507,15 +2503,19 @@ void CxImageView::WheelMenuUpdateUI()
 	case ImageViewMode::MouseWheelModeZoom:
 		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_ZOOM, MF_BYCOMMAND|MF_CHECKED);
 		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_VSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_HSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
 		break;
 	case ImageViewMode::MouseWheelModeVerticalScroll:
 		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_ZOOM, MF_BYCOMMAND|MF_UNCHECKED);
 		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_VSCROLL, MF_BYCOMMAND|MF_CHECKED);
+		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_HSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+		break;
+	case ImageViewMode::MouseWheelModeHorizontalScroll:
+		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_ZOOM, MF_BYCOMMAND|MF_UNCHECKED);
+		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_VSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+		m_pInnerUI->m_WheelPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_HSCROLL, MF_BYCOMMAND|MF_CHECKED);
 		break;
 	}
-
-	m_pInnerUI->m_WheelPopupMenu.CheckMenuItem( ID_WHEELBTN_SET_TO_SMART_MOVE, MF_BYCOMMAND|(m_bEnableSmartMove ? MF_CHECKED:MF_UNCHECKED) );
-	m_pInnerUI->m_WheelPopupMenu.CheckMenuItem( ID_LBUTTON_LIMIT_LOCK, MF_BYCOMMAND|(m_bEnableLockMouse ? MF_CHECKED:MF_UNCHECKED) );
 }
 
 void CxImageView::SetPalette( const BYTE* pPal )
