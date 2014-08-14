@@ -46,6 +46,11 @@ void CColorRectTracker::Draw(CDC* pDC)
 	CBrush* pOldBrush = NULL;
 	CGdiObject* pTemp;
 	int nOldROP;
+	
+	CPoint ptCenter = rect.CenterPoint();
+	int nCrossHairWH = rect.Width() < rect.Height() ? rect.Width()/4 : rect.Height()/4;
+	if (nCrossHairWH > 20) nCrossHairWH = 20;
+	if (nCrossHairWH < 4) nCrossHairWH = 0;
 
 	// draw lines
 	if ((m_nStyle & (dottedLine|solidLine)) != 0)
@@ -56,11 +61,28 @@ void CColorRectTracker::Draw(CDC* pDC)
 
 		pOldPen = pDC->SelectObject( &m_WhiteBoldPen );
 		pDC->Rectangle(rect.left, rect.top, rect.right, rect.bottom);
+		
+		if (nCrossHairWH > 0)
+		{
+			pDC->MoveTo(ptCenter.x-nCrossHairWH/2, ptCenter.y);
+			pDC->LineTo(ptCenter.x+nCrossHairWH/2, ptCenter.y);
+			pDC->MoveTo(ptCenter.x, ptCenter.y-nCrossHairWH/2);
+			pDC->LineTo(ptCenter.x, ptCenter.y+nCrossHairWH/2);
+		}
+		
 		if (m_nStyle & dottedLine)
 			pDC->SelectObject(CPen::FromHandle(_afxBlackDottedPen));
 		else
 			pDC->SelectStockObject(BLACK_PEN);
 		pDC->Rectangle(rect.left, rect.top, rect.right, rect.bottom);
+
+		if (nCrossHairWH > 0)
+		{
+			pDC->MoveTo(ptCenter.x-nCrossHairWH/2, ptCenter.y);
+			pDC->LineTo(ptCenter.x+nCrossHairWH/2, ptCenter.y);
+			pDC->MoveTo(ptCenter.x, ptCenter.y-nCrossHairWH/2);
+			pDC->LineTo(ptCenter.x, ptCenter.y+nCrossHairWH/2);
+		}
 
 		pDC->SetROP2(nOldROP);
 	}
