@@ -45,5 +45,6 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnDestroy();
+	afx_msg void OnFileSaveScreen1();
 };
 

@@ -1,3 +1,12 @@
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
+
 #ifndef __IMAGEVIEW_CTRL_H__
 #define __IMAGEVIEW_CTRL_H__
 
@@ -203,6 +212,10 @@ public:
 	void SetPalette( const BYTE* pPal );
 
 	void MoveWindow( int x, int y, int cx, int cy, BOOL bRepaint=TRUE, BOOL bZoomFit=TRUE );
+
+	//////////////////////////////////////////////////////////////////////////
+	// Utility
+	void ScreenCapture( CxImageObject* pImageObject );
 	
 protected:
 

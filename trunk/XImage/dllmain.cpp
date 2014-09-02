@@ -1,4 +1,12 @@
-// dllmain.cpp : DLL 응용 프로그램의 진입점을 정의합니다.
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
+ 
 #include "stdafx.h"
 #include <tchar.h>
 #include <XUtil/DebugSupport/xDebug.h>

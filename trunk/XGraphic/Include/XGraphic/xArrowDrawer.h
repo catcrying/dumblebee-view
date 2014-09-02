@@ -1,6 +1,11 @@
-// ArrowDrawer.h: interface for the CxArrowDrawer class.
-//
-//////////////////////////////////////////////////////////////////////
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
 
 #if !defined(AFX_ARROWDRAWER_H__D6A312EC_AF83_4D57_B2A4_3BBF7B000985__INCLUDED_)
 #define AFX_ARROWDRAWER_H__D6A312EC_AF83_4D57_B2A4_3BBF7B000985__INCLUDED_

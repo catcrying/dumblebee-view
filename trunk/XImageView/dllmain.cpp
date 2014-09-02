@@ -1,5 +1,11 @@
-// dllmain.cpp : DLL의 초기화 루틴을 정의합니다.
-//
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
 
 #include "stdafx.h"
 #include <afxwin.h>
@@ -14,7 +20,6 @@ static AFX_EXTENSION_MODULE XImageViewDLL = { NULL, NULL };
 extern "C" int APIENTRY
 DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
-	// lpReserved를 사용하는 경우 다음을 제거하십시오.
 	UNREFERENCED_PARAMETER(lpReserved);
 
 	if (dwReason == DLL_PROCESS_ATTACH)

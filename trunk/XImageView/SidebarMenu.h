@@ -1,6 +1,11 @@
-// SidebarMenu.h: interface for the CSidebarMenu class.
-//
-//////////////////////////////////////////////////////////////////////
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
 
 #if !defined(AFX_SIDEBARMENU_H__143C7DA6_5556_41BF_A9ED_D67367520658__INCLUDED_)
 #define AFX_SIDEBARMENU_H__143C7DA6_5556_41BF_A9ED_D67367520658__INCLUDED_

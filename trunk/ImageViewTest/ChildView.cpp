@@ -27,6 +27,7 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_SIZE()
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
+	ON_COMMAND(ID_FILE_SAVE_SCREEN1, &CChildView::OnFileSaveScreen1)
 END_MESSAGE_MAP()
 
 
@@ -219,4 +220,13 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 void CChildView::OnDestroy()
 {
 	CWnd::OnDestroy();
+}
+
+
+void CChildView::OnFileSaveScreen1()
+{
+	CxImageObject imgCapture;
+	m_wndImageView[0].ScreenCapture(&imgCapture);
+
+	imgCapture.SaveToFile(_T("C:\\temp\\test.bmp"));
 }

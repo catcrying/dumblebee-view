@@ -1,7 +1,11 @@
-// vDrawDIB.h: interface for the CxDrawDIB class.
-//
-// TODO: support 32bit
-//////////////////////////////////////////////////////////////////////
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
 
 #if !defined(AFX_VDRAWDIB_H__55DA5C39_434F_4B38_9332_A04DC7406F53__INCLUDED_)
 #define AFX_VDRAWDIB_H__55DA5C39_434F_4B38_9332_A04DC7406F53__INCLUDED_

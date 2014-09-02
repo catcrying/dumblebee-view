@@ -1,3 +1,12 @@
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
+
 #ifndef __X_IMAGE_OBJECT_H__
 #define __X_IMAGE_OBJECT_H__
 
@@ -34,8 +43,6 @@ protected:
 
 	CxCriticalSection*	m_pCsLockImage;
 
-	HBITMAP			m_hBitmap;
-
 	ChannelSeqModel	m_ChannelSeq;
 
 	BOOL			m_bUseCustomizedMemory;
@@ -59,19 +66,16 @@ public:
 	void SetPixelMaximum( int nValue );
 	int GetPixelMaximum() const;
 
-	// HBITMAP handling
-	void AttachHBitmap( HBITMAP hBitmap );
-	void DetachHBitmap();
-	BOOL IsHBitmapAttached();
-
 	// Validation
 	BOOL IsValid() const;
 
 	// Construction
 	BOOL CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, int nDepth, int nChannel, 
 		ChannelSeqModel seq=ChannelSeqUnknown, int nAlignBytes=4, 
-		CbOnImageDestroy cbOnDestroy=NULL, LPVOID lpContext=NULL ); // lpImgBuf must be 4-aligned
+		CbOnImageDestroy cbOnDestroy=NULL, LPVOID lpContext=NULL );
+	void CreateFromHBitmap( HBITMAP hBitmap );
 	BOOL Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin=0, ChannelSeqModel seq=ChannelSeqUnknown, int nAlignBytes=4 );
+
 	void Destroy();
 
 	virtual BOOL LoadFromFile( LPCTSTR lpszFileName, BOOL bForceGray8=FALSE );

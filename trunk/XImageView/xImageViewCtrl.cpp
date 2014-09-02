@@ -1,5 +1,11 @@
-// xImageViewCtrl.cpp : implementation file
-//
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
 
 #include "stdafx.h"
 #include <XImageView/xImageViewCtrl.h>
@@ -2258,4 +2264,12 @@ void CxImageViewCtrl::OnTimer(UINT_PTR nIDEvent)
 {
 
 	CWnd::OnTimer(nIDEvent);
+}
+
+void CxImageViewCtrl::ScreenCapture( CxImageObject* pImageObject )
+{
+	if ( m_pImageView )
+	{
+		m_pImageView->DrawScreen( pImageObject );
+	}
 }

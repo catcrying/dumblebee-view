@@ -1,3 +1,12 @@
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
+
 #ifndef __XDATA_TYPES_H__
 #define __XDATA_TYPES_H__
 

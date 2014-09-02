@@ -1,6 +1,11 @@
-// PointClipper.h: interface for the CxPointClipper class.
-//
-//////////////////////////////////////////////////////////////////////
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
 
 #if !defined(AFX_POINTCLIPPER_H__ABC50CA8_951F_4CA0_8000_5D9C2FCC1940__INCLUDED_)
 #define AFX_POINTCLIPPER_H__ABC50CA8_951F_4CA0_8000_5D9C2FCC1940__INCLUDED_

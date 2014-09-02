@@ -17,7 +17,7 @@
  * Created by: Francisco Campos G.											*
  * Bug Fixes and improvements : (Add your name)								*
  * -Francisco Campos														*				
- *																			*	
+ * Modify by HyeongCheol Kim(bluewiz96@gmail.com)                           *	
  ****************************************************************************/
 
 #ifndef __X_ADODB_H__

@@ -1,3 +1,12 @@
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
+
 #include "stdafx.h"
 #include <XImage/xImageObject.h>
 
@@ -20,8 +29,7 @@ CxImageObject::CxImageObject() :
 	m_pIPLImage(NULL), m_bDelete(FALSE), 
 	m_bNotifyChangeImage(FALSE),
 	m_cbOnImageDestroy(NULL),
-	m_pOnImageDestroyContext(NULL),
-	m_hBitmap(NULL)
+	m_pOnImageDestroyContext(NULL)
 {
 	m_pCsLockImage = new CxCriticalSection();
 	m_nPixelMaximum = 255;
@@ -162,107 +170,6 @@ struct _IplImage* CxImageObject::GetImage() const
 	return m_pIPLImage;
 }
 
-BOOL CxImageObject::IsHBitmapAttached()
-{
-	return m_hBitmap != NULL ? TRUE : FALSE;
-}
-
-void CxImageObject::AttachHBitmap( HBITMAP hBitmap )
-{
-	XASSERT( m_hBitmap == NULL );
-
-	BITMAP bm;
-	if ( !::GetObject( hBitmap, sizeof(BITMAP), (LPSTR)&bm ) ) return;
-	
-	WORD cClrBits = (WORD)(bm.bmPlanes * bm.bmBitsPixel); 
-    if (cClrBits == 1)			// unsupport
-        return;
-    else if (cClrBits <= 4)		// unsupport
-        return;
-    else if (cClrBits <= 8) 
-        cClrBits = 8; 
-    else if (cClrBits <= 16) 
-        cClrBits = 16; 
-    else if (cClrBits <= 24) 
-        cClrBits = 24; 
-    else cClrBits = 32;
-	
-	int nSrcBytes = sizeof(unsigned char) * bm.bmWidthBytes * bm.bmHeight;
-
-	BYTE* pSrcBuffer = new BYTE[nSrcBytes];
-
-	LONG lReadBytes = ::GetBitmapBits( hBitmap, nSrcBytes, pSrcBuffer );
-
-	Destroy();
-
-	int nDestW = bm.bmHeight;
-	int nDestH = bm.bmWidth;
-
-	if ( cClrBits == 8 )
-		Create( nDestW, nDestH, 8, 1, 0, ChannelSeqGray );
-	else
-		Create( nDestW, nDestH, 8, 3, 0, ChannelSeqBGR );
-
-	int nDestWBytes = GetWidthBytes();
-
-	switch ( cClrBits )
-	{
-	case 8:
-		XASSERT( nSrcBytes == GetWidthBytes() * GetHeight() );
-		memcpy( (BYTE*)m_pIPLImage->imageData, pSrcBuffer, nSrcBytes );
-		break;
-	case 16:
-		for ( int i=0 ; i<nDestH ; i++ )
-		{
-			for ( int j=0 ; j<nDestW ; j++ )
-			{
-				BYTE* pDest = (BYTE*)m_pIPLImage->imageData+nDestWBytes*i+j*3;
-				BYTE* pSrc = pSrcBuffer+bm.bmWidthBytes*i+j*2;
-				// 5 6 5
-				// rrrr rggg gggb bbbb
-				*(pDest+2) = (pSrc[1] >> 3) << 3 | 0x07;							// R
-				*(pDest+1) = ((pSrc[1] & 0x07) << 3 | (pSrc[0] >> 5)) << 2 | 0x03;	// G
-				*(pDest+0) = (pSrc[0] & 0x1F) << 3 | 0x07;							// B
-			}
-		}
-		break;
-	case 24:
-		for ( int i=0 ; i<nDestH ; i++ )
-		{
-			BYTE* pDest = (BYTE*)m_pIPLImage->imageData+nDestWBytes*i;
-			BYTE* pSrc = (BYTE*)pSrcBuffer+bm.bmWidthBytes*i;
-			memcpy( pDest, pSrc, bm.bmWidth );
-		}
-		break;
-	case 32:
-		for ( int i=0 ; i<nDestH ; i++ )
-		{
-			for ( int j=0 ; j<nDestW ; j++ )
-			{
-				BYTE* pDest = (BYTE*)m_pIPLImage->imageData+nDestWBytes*i+j*3;
-				BYTE* pSrc = pSrcBuffer+bm.bmWidthBytes*i+j*4;
-				*(pDest+0) = *(pSrc+0); // B
-				*(pDest+1) = *(pSrc+1); // G
-				*(pDest+2) = *(pSrc+2); // R
-			}
-		}
-		break;
-	}
-
-	delete[] pSrcBuffer;
-
-	m_hBitmap = hBitmap;
-
-}
-
-void CxImageObject::DetachHBitmap()
-{
-	XASSERT( m_hBitmap != NULL );
-	Destroy();
-
-	m_hBitmap = NULL;
-}
-
 void CxImageObject::ClearNotifyFlag()
 {
 	m_bNotifyChangeImage = FALSE;
@@ -354,7 +261,7 @@ BOOL CxImageObject::SaveToFile( LPCTSTR lpszFileName )
 				// TODO: 16bit color image
 			}
 		}
-		cvSaveImage( T2A((LPTSTR)lpszFileName), m_pIPLImage );
+		int ret = cvSaveImage( T2A((LPTSTR)lpszFileName), m_pIPLImage );
 		if (m_pIPLImage->nChannels == 3)
 		{
 			if (m_pIPLImage->depth == 8)
@@ -378,7 +285,7 @@ BOOL CxImageObject::SaveToFile( LPCTSTR lpszFileName )
 				// TODO: 16bit color image
 			}
 		}
-		return TRUE;
+		return ret != 0 ? TRUE : FALSE;
 	}
 	return FALSE;
 }
@@ -534,6 +441,92 @@ BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, 
 
 	return TRUE;
 }
+
+void CxImageObject::CreateFromHBitmap( HBITMAP hBitmap )
+{
+	CxCriticalSection::Owner Lock(*m_pCsLockImage);
+
+	BITMAP bm;
+	if ( !::GetObject( hBitmap, sizeof(BITMAP), (LPSTR)&bm ) ) return;
+	
+	WORD cClrBits = (WORD)(bm.bmPlanes * bm.bmBitsPixel); 
+    if (cClrBits == 1)			// unsupport
+        return;
+    else if (cClrBits <= 4)		// unsupport
+        return;
+    else if (cClrBits <= 8) 
+        cClrBits = 8; 
+    else if (cClrBits <= 16) 
+        cClrBits = 16; 
+    else if (cClrBits <= 24) 
+        cClrBits = 24; 
+    else cClrBits = 32;
+	
+	int nSrcBytes = sizeof(unsigned char) * bm.bmWidthBytes * bm.bmHeight;
+
+	BYTE* pSrcBuffer = new BYTE[nSrcBytes];
+
+	LONG lReadBytes = ::GetBitmapBits( hBitmap, nSrcBytes, pSrcBuffer );
+
+	Destroy();
+
+	int nDestW = bm.bmWidth;
+	int nDestH = bm.bmHeight;
+
+	if ( cClrBits == 8 )
+		Create( nDestW, nDestH, 8, 1, 0, ChannelSeqGray );
+	else
+		Create( nDestW, nDestH, 8, 3, 0, ChannelSeqBGR );
+
+	int nDestWBytes = GetWidthBytes();
+
+	switch ( cClrBits )
+	{
+	case 8:
+		XASSERT( nSrcBytes == GetWidthBytes() * GetHeight() );
+		memcpy( (BYTE*)m_pIPLImage->imageData, pSrcBuffer, nSrcBytes );
+		break;
+	case 16:
+		for ( int i=0 ; i<nDestH ; i++ )
+		{
+			for ( int j=0 ; j<nDestW ; j++ )
+			{
+				BYTE* pDest = (BYTE*)m_pIPLImage->imageData+nDestWBytes*i+j*3;
+				BYTE* pSrc = pSrcBuffer+bm.bmWidthBytes*i+j*2;
+				// 5 6 5
+				// rrrr rggg gggb bbbb
+				*(pDest+2) = (pSrc[1] >> 3) << 3 | 0x07;							// R
+				*(pDest+1) = ((pSrc[1] & 0x07) << 3 | (pSrc[0] >> 5)) << 2 | 0x03;	// G
+				*(pDest+0) = (pSrc[0] & 0x1F) << 3 | 0x07;							// B
+			}
+		}
+		break;
+	case 24:
+		for ( int i=0 ; i<nDestH ; i++ )
+		{
+			BYTE* pDest = (BYTE*)m_pIPLImage->imageData+nDestWBytes*i;
+			BYTE* pSrc = (BYTE*)pSrcBuffer+bm.bmWidthBytes*i;
+			memcpy( pDest, pSrc, bm.bmWidth );
+		}
+		break;
+	case 32:
+		for ( int i=0 ; i<nDestH ; i++ )
+		{
+			for ( int j=0 ; j<nDestW ; j++ )
+			{
+				BYTE* pDest = (BYTE*)m_pIPLImage->imageData+nDestWBytes*i+j*3;
+				BYTE* pSrc = pSrcBuffer+bm.bmWidthBytes*i+j*4;
+				*(pDest+0) = *(pSrc+0); // B
+				*(pDest+1) = *(pSrc+1); // G
+				*(pDest+2) = *(pSrc+2); // R
+			}
+		}
+		break;
+	}
+
+	delete[] pSrcBuffer;
+}
+
 
 BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, int nOrigin/*=0*/, ChannelSeqModel seq/*=ChannelSeqUnknown*/, int nAlignBytes/*=4*/ )
 {

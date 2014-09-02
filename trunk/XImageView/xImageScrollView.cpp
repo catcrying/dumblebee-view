@@ -1,5 +1,11 @@
-// xImageScrollView.cpp : implementation file
-//
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
 
 #include "stdafx.h"
 #include <XImageView/xImageScrollView.h>
@@ -521,44 +527,26 @@ void CxImageScrollView::DrawScreen( CDC* pDC )
 			ZoomFit();
 		}
 	}
-
-	//Clear();	// clear screen
 	
 	if ( !m_pImageObject || m_bLockUpdate || !m_pImageObject->IsValid() )
 	{
-//#ifdef USE_MEMDC_IMAGE_VIEW
-	CDC* pGDC = &m_MemDC;
-//#else
-//	CDC* pGDC = pDC;
-//#endif
+		CDC* pGDC = &m_MemDC;
 
-	if ( m_fnOnDrawExt )
-	{
-		(*m_fnOnDrawExt)( this, pGDC, m_nIndexData, m_lpUsrDataOnDrawExt );
-	}
-	else
-	{
-		OnDrawExt( this, pGDC );
-	}
+		if ( m_fnOnDrawExt )
+		{
+			(*m_fnOnDrawExt)( this, pGDC, m_nIndexData, m_lpUsrDataOnDrawExt );
+		}
+		else
+		{
+			OnDrawExt( this, pGDC );
+		}
 
-//#ifdef USE_MEMDC_IMAGE_VIEW
 		m_MemDC.SetMapMode( MM_TEXT );
 		m_MemDC.SetViewportOrg( 0, 0 );
 
 		pDC->BitBlt( 0, 0, m_nWidth, m_nHeight, &m_MemDC, 0, 0, SRCCOPY );
-//#endif
 		return;
 	}
-
-	/*if ( m_pRenderer != NULL )
-	{
-		int nWidth, nHeight;
-		m_pRenderer->GetDims(nWidth, nHeight);
-		if ( nWidth != m_nWidth || nHeight != m_nHeight )
-		{
-			InitGraphics( m_pRenderer, m_nWidth, m_nHeight, m_nBitCnt );
-		}
-	}*/
 	
 	CPoint ptScroll = GetDeviceScrollPosition();
 	
@@ -626,12 +614,7 @@ void CxImageScrollView::DrawScreen( CDC* pDC )
 	
 	ptScroll = GetDeviceScrollPosition();
 	
-// 	CDC* pDC = GetDC();
-//#ifdef USE_MEMDC_IMAGE_VIEW
 	CDC* pGDC = &m_MemDC;
-//#else
-//	CDC* pGDC = pDC;
-//#endif
 
 	OnPrepareDC( pGDC );
 
@@ -677,14 +660,163 @@ void CxImageScrollView::DrawScreen( CDC* pDC )
 		m_pInnerUI->m_RectTracker.Draw( pGDC );
 	}
 
-//#ifdef USE_MEMDC_IMAGE_VIEW
 	m_MemDC.SetMapMode( MM_TEXT );
 	m_MemDC.SetViewportOrg( 0, 0 );
 
 	pDC->BitBlt( 0, 0, m_nWidth, m_nHeight, &m_MemDC, 0, 0, SRCCOPY );
-//#endif
+}
+
+void CxImageScrollView::DrawScreen( CxImageObject* pImgObj )
+{
+	if (m_pImageObject)
+	{
+		if (m_pImageObject->IsNotifyFlag())
+		{
+			m_pImageObject->ClearNotifyFlag();
+			UpdateRenderer( m_pImageObject );
+			ZoomFit();
+		}
+	}
+
+	if (m_MemDC.GetSafeHdc())
+		m_MemDC.FillSolidRect( 0, 0, m_nWidth, m_nHeight, m_dwBackgroundColor );
 	
-// 	ReleaseDC( pDC );
+	if ( !m_pImageObject || !m_pImageObject->IsValid() )
+	{
+		CDC* pGDC = &m_MemDC;
+
+		if ( m_fnOnDrawExt )
+		{
+			(*m_fnOnDrawExt)( this, pGDC, m_nIndexData, m_lpUsrDataOnDrawExt );
+		}
+		else
+		{
+			OnDrawExt( this, pGDC );
+		}
+
+		m_MemDC.SetMapMode( MM_TEXT );
+		m_MemDC.SetViewportOrg( 0, 0 );
+
+		pImgObj->CreateFromHBitmap(m_pBitmap->operator HBITMAP());
+		return;
+	}
+	
+	CPoint ptScroll = GetDeviceScrollPosition();
+	
+	// move image to window's center
+	m_nBodyOffsetX = 0;
+	m_nBodyOffsetY = 0;
+	int nRW = int(m_pImageObject->GetWidth()*m_fZoomRatio);
+	int nRH = int(m_pImageObject->GetHeight()*m_fZoomRatio);
+	if ( nRW < m_nWidth )
+	{
+		m_nBodyOffsetX = (m_nWidth-nRW);
+		m_nBodyOffsetX += m_nBodyOffsetX%2;
+		m_nBodyOffsetX >>= 1;
+	}
+	if ( nRH < m_nHeight )
+	{
+		m_nBodyOffsetY = (m_nHeight-nRH);
+		m_nBodyOffsetY += m_nBodyOffsetY%2;
+		m_nBodyOffsetY >>= 1;
+	}
+	
+	m_nSrcX = int(ptScroll.x/m_fZoomRatio); m_nSrcY = int(ptScroll.y/m_fZoomRatio);
+	m_nSrcW = int(m_nWidth/m_fZoomRatio);   m_nSrcH = int(m_nHeight/m_fZoomRatio);
+	
+	if ( m_nSrcW > m_pImageObject->GetWidth() )
+	{
+		m_nSrcW = m_pImageObject->GetWidth();
+	}
+	if ( m_nSrcH > m_pImageObject->GetHeight() )
+	{
+		m_nSrcH = m_pImageObject->GetHeight();
+	}
+	
+	// image rendering
+	m_pDrawDIB->Draw( m_pImageObject, 
+		m_nBodyOffsetX, m_nBodyOffsetY, 
+		m_nWidth-(m_nBodyOffsetX*2), m_nHeight-(m_nBodyOffsetY*2), 
+		m_nSrcX, m_nSrcY, 
+		m_nSrcW, m_nSrcH, m_fZoomRatio );
+	
+	HDC hInnerDC = m_pRenderer->GetInnerDC();
+	
+	CDC* pInnerDC = CDC::FromHandle( hInnerDC );
+	
+	// digitized value text rendering
+	if ( m_fZoomMax != 1.f && m_fZoomMax == m_fZoomRatio )
+	{
+		//int nBlockSize = int((float)m_nWidth/m_nSrcW);
+		int nBlockSize = int(m_fZoomRatio);
+		//		TRACE( "%d\r\n", nBlockSize );
+		if ( m_bShowDigitize && m_eScreenMode != ImageViewMode::ScreenModePanning && (m_pImageObject->GetChannel() == 1) )
+			DrawDigitizedValues( pInnerDC, nBlockSize, m_nBodyOffsetX, m_nBodyOffsetY, m_nSrcX, m_nSrcY, m_nSrcW, m_nSrcH );
+	}
+	
+	m_pRenderer->ReleaseInnerDC();
+
+	// finish
+	CRect rcEnd;
+	rcEnd.left = m_nBodyOffsetX;
+	rcEnd.top = m_nBodyOffsetY;
+	rcEnd.right = m_nWidth-m_nBodyOffsetX;
+	rcEnd.bottom = m_nHeight-m_nBodyOffsetY;
+	EndDraw( rcEnd );
+	
+	
+	ptScroll = GetDeviceScrollPosition();
+	
+	CDC* pGDC = &m_MemDC;
+
+	OnPrepareDC( pGDC );
+
+	// scale-bar rendering
+	if ( m_bShowScaleBar )
+	{
+		CRect rcScaleBar(10+ptScroll.x, m_nHeight-30+ptScroll.y, 210+ptScroll.x, m_nHeight-10+ptScroll.y);
+		DrawScaleMark( pGDC->GetSafeHdc(), rcScaleBar, m_fZoomRatio/m_fRealPixelSizeW * 1000000, NULL );
+	}
+
+	if ( m_bShowDrawElapsedTime )
+	{
+		CRect rcBlock(m_nWidth-100+ptScroll.x, m_nHeight-50+ptScroll.y, m_nWidth+ptScroll.x, m_nHeight+ptScroll.y);
+		DrawElapsedTime( pGDC->GetSafeHdc(), rcBlock );
+	}
+	
+	//if ( m_eScreenMode != ScreenModePanning )
+	if (m_pExternalGraphicObject != NULL)
+	{
+		m_pExternalGraphicObject->Draw( pGDC->GetSafeHdc() );
+	}
+	else
+	{
+		m_pGraphicObject->Draw( pGDC->GetSafeHdc() );
+	}
+	
+	if ( m_fnOnDrawExt )
+	{
+		(*m_fnOnDrawExt)( this, pGDC, m_nIndexData, m_lpUsrDataOnDrawExt );
+	}
+	else
+	{
+		OnDrawExt( this, pGDC );
+	}
+	
+	if ( m_eScreenMode == ImageViewMode::ScreenModeMeasure )
+	{
+		DrawMeasure( pGDC, ptScroll );
+	}
+	
+	if ( m_eScreenMode == ImageViewMode::ScreenModeTracker )
+	{
+		m_pInnerUI->m_RectTracker.Draw( pGDC );
+	}
+
+	m_MemDC.SetMapMode( MM_TEXT );
+	m_MemDC.SetViewportOrg( 0, 0 );
+
+	pImgObj->CreateFromHBitmap(m_pBitmap->operator HBITMAP());
 }
 
 void CxImageScrollView::OnDraw(CDC* pDC)

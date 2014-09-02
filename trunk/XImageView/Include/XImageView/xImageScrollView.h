@@ -1,3 +1,12 @@
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
+
 #if !defined(AFX_IMAGESCROLLVIEW_H__4D1E9E26_C0AF_41BA_BD51_02ABC757CC10__INCLUDED_)
 #define AFX_IMAGESCROLLVIEW_H__4D1E9E26_C0AF_41BA_BD51_02ABC757CC10__INCLUDED_
 
@@ -220,6 +229,7 @@ public:
 	virtual BOOL OnEvent( ImageViewEvent::Event evt ) { return FALSE; }
 
 	void DrawScreen( CDC* pDC );
+	void DrawScreen( CxImageObject* pImgObj );
 
 	void ShowScaleBar( BOOL bShow );
 	void ShowScrollBar( BOOL bShow );

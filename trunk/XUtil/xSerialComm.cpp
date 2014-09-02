@@ -1,6 +1,11 @@
-// xSerialComm.cpp: implementation of the CxSerialComm class.
-//
-//////////////////////////////////////////////////////////////////////
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
 
 #include "stdafx.h"
 #include <tchar.h>

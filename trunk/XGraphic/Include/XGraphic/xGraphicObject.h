@@ -1,6 +1,11 @@
-// xGraphicObject.h: interface for the CxGraphicObject class.
-//
-//////////////////////////////////////////////////////////////////////
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
 
 #if !defined(AFX_GRAPHICOBJECT_H__C1B2DDF3_C33F_4A88_85FE_262B2287F2A4__INCLUDED_)
 #define AFX_GRAPHICOBJECT_H__C1B2DDF3_C33F_4A88_85FE_262B2287F2A4__INCLUDED_

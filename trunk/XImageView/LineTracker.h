@@ -1,24 +1,11 @@
-// ****************************************************
-// LineTracker.h: interface for the CLineTracker class.
-// ****************************************************
-//
-// This class was written by Dana Holt (xenosonline@hotmail.com)
-// from Xenos Software (www.xenossoftware.com).
-//
-// You may use this class in any way you see fit.
-// 
-// This test class was built while working on a vector image editor.
-// I hope it will prove as a useful start for someone that wants
-// to implement this type of functionality.
-//
-// This version only supports one arrow selection at a time, but there
-// are a few things here that I started working on to track multiple
-// arrows.
-//
-// This file is provided "as is" with no expressed or implied warranty.
-// The author accepts no liability for any damage/loss of business that
-// this product may cause.
-//////////////////////////////////////////////////////////////////////
+/*
+ * Author:
+ *   HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Copyright (C) 2014 HyeongCheol Kim <bluewiz96@gmail.com>
+ *
+ * Released under GNU Lesser GPL, read the file 'COPYING' for more information
+ */
 
 #if !defined(AFX_LINETRACKER_H__A3FF7A3E_0996_4E3F_8924_D67364CE3068__INCLUDED_)
 #define AFX_LINETRACKER_H__A3FF7A3E_0996_4E3F_8924_D67364CE3068__INCLUDED_

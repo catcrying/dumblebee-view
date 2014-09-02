@@ -34,3 +34,6 @@ copy /y XUtil\Bin\%VCVER%\x64\*.dll Distribute\Bin\%VCVER%\x64\
 copy /y XImage\Bin\%VCVER%\x64\*.dll Distribute\Bin\%VCVER%\x64\
 copy /y XGraphic\Bin\%VCVER%\x64\*.dll Distribute\Bin\%VCVER%\x64\
 copy /y XImageView\Bin\%VCVER%\x64\*.dll Distribute\Bin\%VCVER%\x64\
+
+copy /y COPYING Distribute\Bin\%VCVER%\x86\
+copy /y COPYING Distribute\Bin\%VCVER%\x64\
