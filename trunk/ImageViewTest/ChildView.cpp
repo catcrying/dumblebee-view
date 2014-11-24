@@ -12,6 +12,11 @@
 #define new DEBUG_NEW
 #endif
 
+#define ID_WHEEL_SET_TO_VSCROLL						12
+#define ID_WHEEL_SET_TO_HSCROLL						13
+#define ID_WHEEL_SET_TO_ZOOM						14
+#define ID_TRACKER_MODE								15
+
 // CChildView
 
 CChildView::CChildView()
@@ -28,6 +33,7 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
 	ON_COMMAND(ID_FILE_SAVE_SCREEN1, &CChildView::OnFileSaveScreen1)
+	ON_COMMAND_RANGE( ID_WHEEL_SET_TO_VSCROLL, ID_TRACKER_MODE, OnCustomPopupMenuMenuHandler )
 END_MESSAGE_MAP()
 
 
@@ -93,6 +99,7 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 #define WM_MOUSEENTER		(WM_USER+100)
 BOOL APIENTRY _OnFireMouseEvent ( DWORD dwMsg, CPoint& point, UINT nIndexData, LPVOID lpUsrData )
 {
+	CChildView* pView = (CChildView*)lpUsrData;
 	switch (dwMsg)
 	{
 	case WM_LBUTTONDOWN:
@@ -107,11 +114,57 @@ BOOL APIENTRY _OnFireMouseEvent ( DWORD dwMsg, CPoint& point, UINT nIndexData, L
 	case WM_MOUSELEAVE:
 		TRACE( _T("MOUSE LEAVE: %d\n"), nIndexData );
 		break;
+	case WM_RBUTTONDBLCLK:
+		// 여기서 트래커 취소????
+		break;
+	case WM_RBUTTONUP:
+		return pView->OnCustomPopupMenu(nIndexData, point);
+		break;
 	}
+
+	return FALSE;
+}
+
+BOOL CChildView::OnCustomPopupMenu(UINT nIndexData, CPoint point)
+{
+	if (m_wndImageView[nIndexData].IsTrackerMode())
+		return FALSE;
+
+	m_wndImageView[nIndexData].ClientToScreen(&point);
+	m_nPopupMenuHanderIndex = nIndexData;
+	m_wndCustomPopupMenu.TrackPopupMenu( TPM_LEFTALIGN, point.x, point.y, this, NULL );
 
 	return TRUE;
 }
 
+void CChildView::OnCustomPopupMenuMenuHandler( UINT uID )
+{
+	switch ( uID )
+	{
+	case ID_TRACKER_MODE:
+		m_wndImageView[m_nPopupMenuHanderIndex].SetTrackerMode(TRUE);
+		m_wndCustomPopupMenu.CheckMenuItem(ID_TRACKER_MODE, MF_BYCOMMAND|MF_CHECKED);
+		break;
+	case ID_WHEEL_SET_TO_ZOOM:
+		m_wndImageView[m_nPopupMenuHanderIndex].SetMouseWheelMode(ImageViewMode::MouseWheelModeZoom);
+		m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_ZOOM, MF_BYCOMMAND|MF_CHECKED);
+		m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_VSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+		m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_HSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+		break;
+	case ID_WHEEL_SET_TO_VSCROLL:
+		m_wndImageView[m_nPopupMenuHanderIndex].SetMouseWheelMode(ImageViewMode::MouseWheelModeVerticalScroll);
+		m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_ZOOM, MF_BYCOMMAND|MF_UNCHECKED);
+		m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_VSCROLL, MF_BYCOMMAND|MF_CHECKED);
+		m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_HSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+		break;
+	case ID_WHEEL_SET_TO_HSCROLL:
+		m_wndImageView[m_nPopupMenuHanderIndex].SetMouseWheelMode(ImageViewMode::MouseWheelModeHorizontalScroll);
+		m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_ZOOM, MF_BYCOMMAND|MF_UNCHECKED);
+		m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_VSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+		m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_HSCROLL, MF_BYCOMMAND|MF_CHECKED);
+		break;
+	}
+}
 
 int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
@@ -133,6 +186,11 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	REGISTER_CALLBACK regCB;
 	memset( &regCB, 0, sizeof(REGISTER_CALLBACK) );
 	regCB.fnOnFireMouseEvent = _OnFireMouseEvent;
+	regCB.lpUsrData[0] = this;
+	regCB.lpUsrData[1] = this;
+	regCB.lpUsrData[2] = this;
+	regCB.lpUsrData[3] = this;
+	regCB.lpUsrData[4] = this;
 
 	for ( int i=0 ; i<2 ; i++ )
 	{
@@ -143,7 +201,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_wndImageView[i].SetImageObject( &m_ImageObject[i] );
 		m_wndImageView[i].SetAnimateWindow(TRUE);
 		//m_wndImageView[i].EnableMouseControl(FALSE);
-		//m_wndImageView[i].SetRegisterCallBack(i, &regCB);
+		m_wndImageView[i].SetRegisterCallBack(i, &regCB);
 		//m_wndImageView[i].SetSyncManager(&m_wndImageViewSyncManager);
 		//m_wndImageView[i].SetTrackerMode(TRUE);
 
@@ -179,6 +237,17 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_GraphicObject[1].AddDrawAlignMark(mark);
 	m_wndImageView[1].AttachGraphicObject(&m_GraphicObject[1]);
 	m_wndImageView[0].AttachGraphicObject(&m_GraphicObject[0]);
+
+	m_wndCustomPopupMenu.CreatePopupMenu();
+	m_wndCustomPopupMenu.AppendMenu( MFT_STRING, ID_WHEEL_SET_TO_ZOOM, _T("휠을 줌으로...") );
+	m_wndCustomPopupMenu.AppendMenu( MFT_STRING, ID_WHEEL_SET_TO_VSCROLL, _T("휠을 수직스크롤으로...") );
+	m_wndCustomPopupMenu.AppendMenu( MFT_STRING, ID_WHEEL_SET_TO_HSCROLL, _T("휠을 수평스크롤으로...") );
+	m_wndCustomPopupMenu.AppendMenu( MFT_SEPARATOR, 0, _T("") );
+	m_wndCustomPopupMenu.AppendMenu( MFT_STRING, ID_TRACKER_MODE, _T("트래커 모드!") );
+
+	m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_ZOOM, MF_BYCOMMAND|MF_CHECKED);
+	m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_VSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
+	m_wndCustomPopupMenu.CheckMenuItem(ID_WHEEL_SET_TO_HSCROLL, MF_BYCOMMAND|MF_UNCHECKED);
 
 	/*
 	int nW = 100;

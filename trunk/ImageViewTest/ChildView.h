@@ -25,8 +25,13 @@ public:
 	CxImageObject		m_ImageObject[2];
 
 	CxGraphicObject		m_GraphicObject[2];
+
+	CMenu				m_wndCustomPopupMenu;
+	UINT				m_nPopupMenuHanderIndex;
 // Operations
 public:
+
+	BOOL OnCustomPopupMenu(UINT nIndexData, CPoint point);
 
 // Overrides
 	protected:
@@ -46,5 +51,6 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnDestroy();
 	afx_msg void OnFileSaveScreen1();
+	afx_msg void OnCustomPopupMenuMenuHandler( UINT uID );
 };
 
