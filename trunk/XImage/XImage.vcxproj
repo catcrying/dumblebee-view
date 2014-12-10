@@ -179,12 +179,12 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../XUtil/Lib/vc11/x86/;../thirdparty/OpenCV/x86/vc11/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>XUtilud.lib;opencv_core246.lib;opencv_highgui246.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>XUtilud.lib;opencv_core2410.lib;opencv_highgui2410.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>Lib/vc11/x86/$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_core246.dll .\Bin\vc11\x86\
-copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x86\</Command>
+      <Command>copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_core2410.dll .\Bin\vc11\x86\
+copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui2410.dll .\Bin\vc11\x86\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Multibyte_Debug|Win32'">
@@ -200,12 +200,12 @@ copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x86\<
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../XUtil/Lib/vc11/x86/;../thirdparty/OpenCV/x86/vc11/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>XUtild.lib;opencv_core246.lib;opencv_highgui246.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>XUtild.lib;opencv_core2410.lib;opencv_highgui2410.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>Lib/vc11/x86/$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_core246.dll .\Bin\vc11\x86\
-copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x86\</Command>
+      <Command>copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_core2410.dll .\Bin\vc11\x86\
+copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui2410.dll .\Bin\vc11\x86\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -221,12 +221,12 @@ copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x86\<
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../XUtil/Lib/vc11/x64/;../thirdparty/OpenCV/x64/vc11/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>XUtilud.lib;opencv_core246.lib;opencv_highgui246.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>XUtilud.lib;opencv_core2410.lib;opencv_highgui2410.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>Lib/vc11/x64/$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_core246.dll .\Bin\vc11\x64\
-copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x64\</Command>
+      <Command>copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_core2410.dll .\Bin\vc11\x64\
+copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui2410.dll .\Bin\vc11\x64\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Multibyte_Debug|x64'">
@@ -242,12 +242,12 @@ copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x64\<
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../XUtil/Lib/vc11/x64/;../thirdparty/OpenCV/x64/vc11/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>XUtild.lib;opencv_core246.lib;opencv_highgui246.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>XUtild.lib;opencv_core2410.lib;opencv_highgui2410.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>Lib/vc11/x64/$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_core246.dll .\Bin\vc11\x64\
-copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x64\</Command>
+      <Command>copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_core2410.dll .\Bin\vc11\x64\
+copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui2410.dll .\Bin\vc11\x64\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -268,12 +268,12 @@ copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x64\<
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>../XUtil/Lib/vc11/x86/;../thirdparty/OpenCV/x86/vc11/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>XUtilu.lib;opencv_core246.lib;opencv_highgui246.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>XUtilu.lib;opencv_core2410.lib;opencv_highgui2410.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>Lib/vc11/x86/$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_core246.dll .\Bin\vc11\x86\
-copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x86\</Command>
+      <Command>copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_core2410.dll .\Bin\vc11\x86\
+copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui2410.dll .\Bin\vc11\x86\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Multibyte_Release|Win32'">
@@ -294,12 +294,12 @@ copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x86\<
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>../XUtil/Lib/vc11/x86/;../thirdparty/OpenCV/x86/vc11/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>XUtil.lib;opencv_core246.lib;opencv_highgui246.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>XUtil.lib;opencv_core2410.lib;opencv_highgui2410.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>Lib/vc11/x86/$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_core246.dll .\Bin\vc11\x86\
-copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x86\</Command>
+      <Command>copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_core2410.dll .\Bin\vc11\x86\
+copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui2410.dll .\Bin\vc11\x86\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -319,12 +319,12 @@ copy /y ..\thirdparty\OpenCV\x86\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x86\<
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>../XUtil/Lib/vc11/x64/;../thirdparty/OpenCV/x64/vc11/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>XUtilu.lib;opencv_core246.lib;opencv_highgui246.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>XUtilu.lib;opencv_core2410.lib;opencv_highgui2410.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>Lib/vc11/x64/$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_core246.dll .\Bin\vc11\x64\
-copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x64\</Command>
+      <Command>copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_core2410.dll .\Bin\vc11\x64\
+copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui2410.dll .\Bin\vc11\x64\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Multibyte_Release|x64'">
@@ -344,12 +344,12 @@ copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x64\<
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>../XUtil/Lib/vc11/x64/;../thirdparty/OpenCV/x64/vc11/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>XUtil.lib;opencv_core246.lib;opencv_highgui246.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>XUtil.lib;opencv_core2410.lib;opencv_highgui2410.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>Lib/vc11/x64/$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_core246.dll .\Bin\vc11\x64\
-copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui246.dll .\Bin\vc11\x64\</Command>
+      <Command>copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_core2410.dll .\Bin\vc11\x64\
+copy /y ..\thirdparty\OpenCV\x64\vc11\bin\opencv_highgui2410.dll .\Bin\vc11\x64\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
