@@ -696,7 +696,7 @@ void CxImageViewCtrl::SetImageObject( CxImageObject* pImageObject, BOOL bZoomFit
 		m_pImageView->ZoomFit();
 		if (pImageObject)
 		{
-			pImageObject->ClearNotifyFlag();
+			//pImageObject->ClearNotifyFlag();
 		}
 	}
 	else

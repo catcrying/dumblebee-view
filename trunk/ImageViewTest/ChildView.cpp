@@ -198,7 +198,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_wndImageView[i].ShowDrawElapsedTime(TRUE);
 		m_wndImageView[i].SetMiniButtonType(dwBtnTypes, FALSE);
 		m_wndImageView[i].SetMiniButtonType(dwBtnTypes, TRUE);
-		m_wndImageView[i].SetImageObject( &m_ImageObject[i] );
+		//m_wndImageView[i].SetImageObject( &m_ImageObject[i] );
 		m_wndImageView[i].SetAnimateWindow(TRUE);
 		//m_wndImageView[i].EnableMouseControl(FALSE);
 		m_wndImageView[i].SetRegisterCallBack(i, &regCB);
@@ -270,6 +270,10 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	//free(p16Buffer);
 	*/
+
+	for (int i=0 ; i<2 ; i++) {
+		m_wndImageView[i].SetImageObject( &m_ImageObject[i] );
+	}
 
 	return 0;
 }
