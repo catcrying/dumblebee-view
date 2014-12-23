@@ -433,11 +433,11 @@ BOOL CxImageObject::CreateFromBuffer( LPVOID lpImgBuf, int nWidth, int nHeight, 
 		m_pIPLImage->height = nHeight;
 		m_pIPLImage->widthStep = GetWidthBytes(nWidth, nDepth*nChannel, nAlignBytes);
  		m_pIPLImage->imageSize = m_pIPLImage->widthStep * nHeight;
+
+	    m_bNotifyChangeImage = TRUE;
     }
 
 	m_pIPLImage->imageData = m_pIPLImage->imageDataOrigin = (char*)lpImgBuf;
-
-	m_bNotifyChangeImage = TRUE;
 
 	return TRUE;
 }
@@ -655,14 +655,13 @@ BOOL CxImageObject::Create( int nWidth, int nHeight, int nDepth, int nChannel, i
 				XTRACE( strX );
 			}
 		}*/
-
+	    m_bNotifyChangeImage = TRUE;
     }
 
     if ( m_pIPLImage )
         m_pIPLImage->origin = nOrigin == 0 ? IPL_ORIGIN_TL : IPL_ORIGIN_BL;
 	
 	m_bDelete = TRUE;
-	m_bNotifyChangeImage = TRUE;
 
     return m_pIPLImage ? TRUE : FALSE;
 }

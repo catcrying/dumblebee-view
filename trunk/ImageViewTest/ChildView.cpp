@@ -213,10 +213,14 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			m_GraphicObject[i].AddDrawText(clrText, 0);
 		}
 		//m_ImageObject[i].LoadFromFile( _T("C:\\Users\\Public\\Pictures\\Sample Pictures\\Lighthouse.jpg") );
-		m_ImageObject[i].LoadFromFile( _T("E:\\CropImage.bmp") );
+		//m_ImageObject[i].LoadFromFile( _T("E:\\CropImage.bmp") );
 	}
 
 	m_ImageObject[0].Create( 200, 200, 8, 3, 0, CxImageObject::ChannelSeqRGB );
+	m_ImageObject[1].Create( 200, 200, 8, 1, 0 );
+
+	memset(m_ImageObject[1].GetImageBuffer(), 0, m_ImageObject[1].GetBufferSize());
+
 	int nWBytes = m_ImageObject[0].GetWidthBytes();
 	int nWidth = m_ImageObject[0].GetWidth();
 	int nHeight = m_ImageObject[0].GetHeight();
