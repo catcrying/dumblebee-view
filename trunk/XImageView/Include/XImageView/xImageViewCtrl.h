@@ -25,6 +25,7 @@
 
 #define MBT_LOAD			0x00000100
 #define MBT_SAVE			0x00000200
+#define MBT_SCRN_SAVE		0x00000400
 
 #define MBT_MAXIMIZE		0x00004000
 
@@ -32,7 +33,7 @@
 
 #define MBT_BUTTON_ALL		(MBT_ZOOM_IN|MBT_ZOOM_OUT|MBT_ZOOM_FIT|MBT_ZOOM_NOT|\
 							 MBT_ZOOM_INOUT|MBT_MEASURE|\
-							 MBT_LOAD|MBT_SAVE|\
+							 MBT_LOAD|MBT_SAVE|MBT_SCRN_SAVE|\
 							 MBT_MAXIMIZE)
 
 #if _MSC_VER > 1000
@@ -290,14 +291,15 @@ protected:
 		IndexZoomNot = 5,
 		IndexLoad = 6,
 		IndexSave = 7,
-		IndexMeasure = 8,
-		IndexShowIndexView = 9,
-		IndexShowNormal = 10,
-		IndexShowMaximize = 11,
-		IndexMore = 12
+		IndexScrnSave = 8,
+		IndexMeasure = 9,
+		IndexShowIndexView = 10,
+		IndexShowNormal = 11,
+		IndexShowMaximize = 12,
+		IndexMore = 13
 	};
 
-	Gdiplus::Rect m_rectMiniBtnBody[13];
+	Gdiplus::Rect m_rectMiniBtnBody[14];
 
 	virtual void OnDraw( CDC& dc );
 
@@ -404,6 +406,7 @@ protected:
 
 	void OnBtnLoad();
 	void OnBtnSave();
+	void OnBtnScrnSave();
 	void OnBtnZoomFit();
 	void OnBtnZoomIn();
 	void OnBtnZoomOut();

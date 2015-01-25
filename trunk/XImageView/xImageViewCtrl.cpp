@@ -908,6 +908,41 @@ void CxImageViewCtrl::OnBtnSave()
 	}
 }
 
+void CxImageViewCtrl::OnBtnScrnSave() 
+{
+	m_eButtonHoverIndex = IndexNone;
+
+	if ( m_fnOnEvent )
+		if ( (*m_fnOnEvent)( ImageViewEvent::ButtonEventScrnSaveClick, m_nIndexData, m_lpUsrDataOnEvent ) ) return;
+
+	CString strFilter;
+	strFilter = _T("Bitmap Files(*.bmp)|*.bmp|All Files(*.*)|*.*|");
+	CFileDialog FileDialog( FALSE, _T("*.bmp"), NULL, OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT, strFilter );
+	
+	if ( FileDialog.DoModal() == IDOK )
+	{
+		if ( GetVisibleImageObject() )
+		{
+			CxImageObject ScrnImage;
+			ScreenCapture(&ScrnImage);
+			if ( !ScrnImage.SaveToFile( FileDialog.GetPathName() ) )
+			{
+				CString strMsg;
+				strMsg.LoadString(GetResourceHandle(), IDS_CANNOT_SAVE_IMAGE);
+				CString strError;
+				strError.LoadString(GetResourceHandle(), IDS_ERROR );
+				::MessageBox( GetSafeHwnd(), 
+					strMsg, 
+					strError, MB_OK|MB_ICONSTOP );
+				return;
+			}			
+		}
+
+		if ( m_fnOnEvent )
+			(*m_fnOnEvent)( ImageViewEvent::ActionEventScrnSave, m_nIndexData, m_lpUsrDataOnEvent );
+	}
+}
+
 BOOL CxImageViewCtrl::SaveImage( LPCTSTR lpszPathName )
 {
 	CWaitCursor wait;
@@ -1307,6 +1342,9 @@ void CxImageViewCtrl::OnLButtonUp(UINT nFlags, CPoint point)
 		case IndexSave:
 			OnBtnSave();
 			break;
+		case IndexScrnSave:
+			OnBtnScrnSave();
+			break;
 		case IndexZoomFit:
 			OnBtnZoomFit();
 			break;
@@ -1666,6 +1704,8 @@ CxImageViewCtrl::ButtonIconIndex CxImageViewCtrl::GetIndexFromBtnMask( DWORD dwT
 		return IndexLoad;
 	case MBT_SAVE:
 		return IndexSave;
+	case MBT_SCRN_SAVE:
+		return IndexScrnSave;
 	case MBT_MAXIMIZE:
 		if (IsMaximized())
 			return IndexShowNormal;
@@ -1700,6 +1740,9 @@ CString CxImageViewCtrl::GetTextFromIndex(ButtonIconIndex index)
 		break;
 	case IndexSave:
 		strText.LoadString(GetResourceHandle(), IDS_SAVE_IMAGE);
+		break;
+	case IndexScrnSave:
+		strText.LoadString(GetResourceHandle(), IDS_SCRN_SAVE);
 		break;
 	case IndexMeasure:
 		strText.LoadString(GetResourceHandle(), IDS_MEASURE);
@@ -1946,6 +1989,17 @@ void CxImageViewCtrl::DrawTitle( Gdiplus::Graphics& g )
 		m_rectMiniBtnBody[IndexSave].Y = (int)(rectBtn.Y+0.5f);
 		m_rectMiniBtnBody[IndexSave].Width = (int)rectBtn.Width;
 		m_rectMiniBtnBody[IndexSave].Height = (int)rectBtn.Height;
+
+		rectBtn.X += nBtnInterval + nBtnSize;
+	}
+	if ( (dwBtnType & MBT_SCRN_SAVE) == MBT_SCRN_SAVE )
+	{
+		DrawMiniButton( g, rectBtn, IndexScrnSave );
+
+		m_rectMiniBtnBody[IndexScrnSave].X = (int)(rectBtn.X+0.5f);
+		m_rectMiniBtnBody[IndexScrnSave].Y = (int)(rectBtn.Y+0.5f);
+		m_rectMiniBtnBody[IndexScrnSave].Width = (int)rectBtn.Width;
+		m_rectMiniBtnBody[IndexScrnSave].Height = (int)rectBtn.Height;
 
 		rectBtn.X += nBtnInterval + nBtnSize;
 	}

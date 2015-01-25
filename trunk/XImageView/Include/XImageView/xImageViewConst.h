@@ -20,6 +20,7 @@ namespace ImageViewEvent
 		ButtonEventZoomFitClick		= 0x105,
 		ButtonEventLoadClick		= 0x106,
 		ButtonEventSaveClick		= 0x107,
+		ButtonEventScrnSaveClick	= 0x108,
 		ButtonEventMaximizeClick	= 0x110,
 		ButtonEventMeasureClick		= 0x111,
 
@@ -29,10 +30,11 @@ namespace ImageViewEvent
 		ActionEventZoomOut			= 0x203,
 		ActionEventLoadFile			= 0x206,
 		ActionEventSaveFile			= 0x207,
-		ActionEventMaximizedScreen	= 0x208,
-		ActionEventNormalScreen		= 0x209,
-		ActionEventTitleLButtonDown	= 0x20A,
-		ActionEventTitleLButtonUp	= 0x20B
+		ActionEventScrnSave			= 0x208,
+		ActionEventMaximizedScreen	= 0x209,
+		ActionEventNormalScreen		= 0x20A,
+		ActionEventTitleLButtonDown	= 0x20B,
+		ActionEventTitleLButtonUp	= 0x20C
 	};
 }
 

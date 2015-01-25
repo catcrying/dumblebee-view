@@ -87,7 +87,7 @@ BOOL CxDrawDIB::Draw( CxImageObject* pImgObj,
 
 	if ( m_pRenderer->GetBufferBitsCnt() == 32 )
 	{
-		if ( fZoomRatio != 1.f )
+		if ( true )//fZoomRatio != 1.f )
 		{
 			if (pImgObj->GetChannelSeq() == CxImageObject::ChannelSeqRGB)
 				Screen32ScaledBlitRGB( pBuf, nWidthBytes, pImgObj, nDstX, nDstY, nDstOffW, nDstOffH, nSrcX, nSrcY, nSrcW, nSrcH, fRatioX, fRatioY );

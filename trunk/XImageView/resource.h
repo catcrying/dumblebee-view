@@ -40,6 +40,7 @@
 #define IDS_LBUTTON_LIMIT_LOCK          1035
 #define IDS_MEASURE_MODE                1036
 #define IDS_TRACKER_MODE                1037
+#define IDS_SCRN_SAVE                   1038
 
 // Next default values for new objects
 // 
